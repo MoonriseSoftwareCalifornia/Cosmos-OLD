@@ -1,0 +1,773 @@
+﻿@model HtmlEditorViewModel
+@{
+    Layout = "_LayoutEditor";
+    ViewData["Title"] = "Editing: " + Model.Title;
+}
+
+<form class="d-flex" id="frmSave">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="SaveAsNewVersion" />
+    <input type="hidden" asp-for="ArticleNumber" />
+    <input type="hidden" asp-for="UrlPath" />
+    <input type="hidden" asp-for="VersionNumber" />
+    <input type="hidden" asp-for="RoleList" />
+    <input type="hidden" asp-for="Content" />
+    <input type="hidden" asp-for="Title" />
+    <input type="hidden" asp-for="Published" />
+    <input type="hidden" asp-for="Updated" />
+</form>
+
+<script src="/lib/monaco-editor/min/vs/loader.js"></script>
+<script src="/lib/emmet-monaco-es/dist/emmet-monaco.min.js"></script>
+
+<iframe id="ccmsContFrame" src="/Editor/CcmsContent/@Model.Id" style="position: absolute; top: 52px; width: 100%; margin:0px; padding:0px;z-index:1;" onload="setupFrame()" frameBorder="0" scrolling="yes"></iframe>
+
+<div class="toast-container position-fixed top-0 end-0 p-3">
+    <div id="linksToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
+        <div class="toast-header">
+            <strong class="me-auto">Links are disabled while editing</strong>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+@if (Model != null)
+{
+    <div class="modal" id="modalVsCode" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content bg-dark text-white">
+                <div class="modal-body" style="height: 80vh;position:relative;">
+                    <div class="navbar">
+                        <div class="container-fluid">
+                            <div class="navbar-brand text-light">
+                                <img src="/images/vscodeicon.svg" alt="Logo" height="20" class="d-inline-block align-text-top">
+                                Code Editor
+                            </div>
+                            <div class="d-flex">
+                                <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button id="btnApply" type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Apply</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="editspace" class="m-editor-container" style="height: 80vh;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+
+        function setupPreviewFrame() {
+            const iframe = document.getElementById("iframePreview");
+            const iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+            if (iframeWin.document.body) {
+
+                $("#modalContent").height = 50 + (window.innerHeight - document.getElementById("ccmsNavMenu").clientHeight);
+
+                // disable all links
+                const contents = $("#iframePreview").contents();
+
+                const anchors = contents.find("a");
+
+                $(anchors).click(function (e) {
+                    e.preventDefault();
+                });
+            }
+        }
+
+    </script>
+    <!-- Full screen modal -->
+    <div class="modal fade" id="modalPreview" tabindex="-3">
+        <div class="modal-dialog modal-fullscreen">
+            <div id="modalContent" class="modal-content">
+                <div class="modal-header bg-dark text-light">
+                    <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal">Close Preview</button>
+                </div>
+                <div class="modal-body">
+                    <iframe id="iframePreview" class="d-block w-100" onload="setupPreviewFrame()" style="height:100%"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script>
+
+    // Current user
+    const ccms_editor_userid = "@this.Context.User.Identity.Name";
+    // Editable areas
+    let ccms_editibleAreas = [];
+    // Signal R Connection
+    let signalRConnection;
+
+    // Monaco Editor
+    let editor;
+
+    let ckeditorSessions = [ ];
+
+    // CK Editor
+    let ckeditor = null;
+    // Indicates a save is in progress - used to deconflict simultaneous saves
+    let saveInProgress = false;
+    // Modals
+    const vsCodeModal = new bootstrap.Modal(document.getElementById('modalVsCode'));
+    const modalPreview = new bootstrap.Modal(document.getElementById('modalPreview'));
+    const linksToast = new bootstrap.Toast(document.getElementById('linksToast'));
+
+    $("#frmSave").submit(function (e) {
+        e.preventDefault();
+        saveChanges(null, null, false);
+    });
+
+    function bgEditClickCustom(command) {
+
+        var modelId = $("#Id").val();
+
+        switch (command) {
+            case "Close":
+                // Note: 'next' is defined in _LayoutEditor.cshtml.
+                next = function () {
+                    window.location.href = "@Url.Action("Versions", "Editor")/@Model.ArticleNumber";
+                }
+                $("#divSaveFirstDialog").html("Save page before closing editor?");
+                checkFirstModal.show();
+                break;
+            case "Code":
+                next = function () {
+                    window.location.href = "@Url.Action("EditCode", "Editor")/" + modelId;
+                }
+                $("#divSaveFirstDialog").html("Save before opening code editor?");
+                checkFirstModal.show();
+                break;
+            case "Preview":
+                $("#iframePreview").prop("src", "@Url.Action("Preview", "Home")/" + modelId);
+                modalPreview.show();
+                modalPreview.handleUpdate();
+                break;
+        }
+    }
+
+    function getLocalTimeZone() {
+        const datetime = new Date();
+        const dateTimeString = datetime.toString();
+        const timezone = dateTimeString.substring(dateTimeString.indexOf("(") - 1);
+        return timezone;
+    }
+
+    function setupFrame() {
+        const iframe = document.getElementById("ccmsContFrame");
+        const iframeWin = iframe.contentWindow || iframe.contentDocument.parentWindow;
+        if (iframeWin.document.body) {
+
+            iframe.height = window.innerHeight - document.getElementById("ccmsNavMenu").clientHeight;
+
+            // disable all links
+            const contents = $("#ccmsContFrame").contents();
+
+            const anchors = contents.find("a");
+
+            $(anchors).click(function (e) {
+                e.preventDefault();
+                linksToast.show();
+            });
+
+            var editors = contents.find("[data-ccms-ceid]");
+
+            $(editors).css("border", "dashed 1px #dadada");
+
+        }
+
+        ccms_editibleAreas = getEditableAreas();
+
+        // Close loading spinner and display saved status
+        $("#divTitleGroup").show();
+        $("#divPublihedTitleGroup").show();
+        $("#spinLoading").hide();
+        $("#btnSavingStatus").show();
+    };
+
+    $(document).ready(function (e) {
+
+        $("#modalChgTitleHeader").html("Change page URL: ");
+        $("#newTitle").html("New page URL: ");
+
+        if ($("#UrlPath").val() != "root") {
+            $("#divUrlTitleExamples").show();
+        }
+
+        $("#btnCcmsCodeEditor").show();
+
+        $("#liBtnVersions").show();
+
+        $("#btnVersions").attr("href", "/Editor/Versions/" + $("#ArticleNumber").val() + "?versionNumber=" + $("#VersionNumber").val());
+
+        $("#btnApply").click(function (e) {
+            var data = editor.getValue();
+            ckeditor.data.set(data);
+            saveChanges(null, null);
+        });
+
+        signalRConnection = new signalR.HubConnectionBuilder().withUrl("/___cwps_hubs_live_editor").build();
+
+        // Create a function that the hub can call to broadcast messages.
+        signalRConnection.on('broadcastMessage', function (data) {
+            var model = JSON.parse(data);
+
+            const editorId = model.EditorId;
+            const userId = model.UserId;
+            const offest = model.Offset;
+            const command = model.Command;
+
+            switch(command) {
+                case "focus":
+                    addCkeditorSession(editorId, userId);
+                break;
+                case "blur":
+                    removeCkeditorSession(editorId, userId);
+                break;
+                case "updateEditors":
+                    ckeditorsUpdate(data);
+                break;
+            }
+
+            const editor = findEditor(editorId);
+            
+            var session = null;
+
+            $(ckeditorSessions).each(function (index, item) {
+                if (item.Id === editorId) {
+                    session = item;
+                }
+            });
+
+            let msg = "Editable";
+
+            if (session.Emails.length > 0) {
+                msg = "Others here: " + session.Emails;
+            }
+
+            const iframe = document.getElementById("ccmsContFrame");
+            iframe.contentWindow.ccms_toolTipMessage(editor.sourceElement, msg);
+            //alert(msg);
+        });
+
+        function addCkeditorSession(id, email) {
+
+            var session = null;
+
+            $(ckeditorSessions).each(function (index, item) {
+                if (item.Id === id) {
+                    session = item;
+                }
+            });
+
+            if (session === null) {
+                session = { Id: id, Emails: "" };
+                ckeditorSessions.push(session);
+            }
+
+            let emails = session.Emails.split(",");
+            let result = emails.find(function (value) {
+                return value === email;
+            });
+            
+            if (typeof result === "undefined") {
+                emails.push(email);
+            }
+
+            let updated = [];
+            $(emails).each(function (index, value) {
+                if (value !== "") {
+                    updated.push(value);
+                }
+            });
+
+            session.Emails = updated.join(",");
+        }
+
+        function removeCkeditorSession(id, email) {
+            
+            var session = null;
+
+            $(ckeditorSessions).each(function (index, item) {
+                if (item.Id === id) {
+                    session = item;
+                }
+            });
+
+            if (session === null) {
+                session = { Id: id, Emails: "" };
+                ckeditorSessions.push(session);
+            }
+
+            let emails = session.Emails.split(",");
+            
+            let updated = [];
+            $(emails).each(function(index, value) {
+                if (value !== "" && value !== email) {
+                    updated.push(value);
+                }
+            });
+
+            session.Emails = updated.join(",");
+        }
+
+        // Transport fall-back functionality is now built into start.
+        signalRConnection.start()
+            .then(function () {
+                console.log('connection started');
+            })
+            .catch(error => {
+                console.error(error.message);
+            });
+
+        $("#ccmsContFrame").click(function () {
+            $("#btnSave").removeClass("show");
+        });
+
+    });
+
+    $(window).bind('keydown', function (event) {
+        if (event.ctrlKey || event.metaKey) {
+            switch (String.fromCharCode(event.which).toLowerCase()) {
+                case 's':
+                    event.preventDefault();
+                    saveChanges(null, null, true);
+                    break;
+            }
+        }
+    });
+
+    function getEditableAreas() {
+        const iframe = document.getElementById("ccmsContFrame");
+        let areas = [];
+
+        // Gather up all the editable areas.
+        const editors = iframe.contentWindow.ccms_editors;
+        $(editors).each(function (index, editor) {
+            // Get the source element for the editor (often a DIV)
+            const sourceElement = editor.sourceElement;
+            // Get the ID
+            const id = sourceElement.getAttribute("data-ccms-ceid");
+            // Get the item
+            const item = { Id: id, Html: editor.getData() };
+            // Add to the collection
+            areas.push(item);
+
+            iframe.contentWindow.ccms_toolTip(sourceElement, "Editable");
+
+        });
+
+        return areas;
+    }
+
+    function findEditor(editorId) {
+        
+        var iframe = document.getElementById("ccmsContFrame");
+
+        //let areas = [];
+        // Gather up all the editable areas.
+        var editors = iframe.contentWindow.ccms_editors;
+
+        var editor;
+
+        $(editors).each(function (index, ed) {
+
+            // Get the source element for the editor (often a DIV)
+            const sourceElement = ed.sourceElement;
+            // Get the ID
+            const id = sourceElement.getAttribute("data-ccms-ceid");
+            
+            if (editorId === id) {
+                editor = ed;
+            }
+        });
+
+        return editor;
+    }
+
+    function saveChanges(myModal, next, updateExisting) {
+
+        if (saveInProgress === true) {
+            return; // a save is already underway
+        }
+
+        return new Promise(function (resolve, reject) {
+            saving();
+            saveInProgress = true;
+
+            try {
+
+                if (typeof (myModel) !== "undefined" && myModel !== null) {
+                    myModal.hide();
+                }
+
+                // Set the URL we are going to POST back to.
+                var postUrl = "@Url.Action("PostRegions")";
+
+                if (typeof updateExisting !== "undefined" && updateExisting !== null && updateExisting !== "") {
+                    postUrl = postUrl + "?updateExisting=" + updateExisting;
+                }
+
+                const iframe = document.getElementById("ccmsContFrame");
+
+                if (typeof (ccms_editibleAreas) !== "undefined" && ccms_editibleAreas.length > 0) {
+
+                    // Signal to the user that saving has started.
+                    saving();
+
+                    // Get the latest date
+                    savePublishDateTime();
+
+                    // Build the post payload
+                    var id = $("#Id").val();
+                    var published = $("#Published").val();
+                    var updated = $("#Updated").val();
+
+                    var model = { Id: id, Title: $("#Title").val(), ArticleNumber: $("#ArticleNumber").val(), Published: published, Regions: ccms_editibleAreas, UpdateExisting: updateExisting, Updated: updated };
+                    var json = JSON.stringify(model);
+                    localStorage.setItem("lastSave", json);
+
+                    $.ajax({
+                        type: "POST",
+                        url: postUrl,
+                        /* jQuery will not send JSON unless you explicitly tell it to */
+                        data: json,
+                        /* contentType is important for MVC to be able to unpack the json */
+                        success: handle_response,
+                        error: handle_error,
+                        contentType: 'application/json',
+                        accept: 'application/json'
+                    });
+                } else {
+                    // ERROR
+                }
+            }
+            catch (err) {
+                saveInProgress = false;
+                alert("Error while saving: " + err.message);
+            }
+        });
+    }
+
+    function handle_error(xhr, status, error) {
+        saveInProgress = false;
+        doneSaving();
+        $("#divErrorLog").html(xhr.responseText);
+        errorModal.show();
+    }
+
+    function ckeditorsUpdate(model) {
+        saving();
+        saveInProgress = true;
+        loadModel(response);
+
+        $(model.Regions).each(function (index, item) {
+            const editor = findEditor(item.Id);
+            editor.setData(item.Html);
+        });
+
+        doneSaving();
+        saveInProgress = false;
+    }
+
+    function handle_response(response) {
+
+        if (typeof response === "undefined" || response === null || response === "") {
+            let errorMsg = "Error saving to server, please try again.";
+            alert(errorMsg);
+        }
+
+        localStorage.removeItem("lastSave");
+
+        loadModel(response);
+
+        if (typeof (next) !== "undefined" && next !== null) {
+            next();
+        }
+
+        saveInProgress = false;
+        doneSaving();
+    }
+
+    function loadModel(model) {
+
+            $("#Id").val(model.Id);
+            $("#ArticleNumber").val(model.ArticleNumber);
+            $("#UrlPath").val(model.UrlPath);
+            $("#VersionNumber").val(model.VersionNumber);
+            $("#Content").val(model.Content);
+            $("#RoleList").val(model.RoleList);
+            $("#Title").val(model.Title);
+            $("#currentTitle").html(model.Title);
+            $("#divTitle").html(model.Title);
+            $("#Published").val(model.Published);
+            $("#Updated").val(model.Updated);
+
+            //
+            // We are creating a new version of the article with this method.
+            // Update the page history, so if the user refreshes the page, the
+            // most recent version will appear.
+            let stateObj = { id: model.Id }
+            window.history.pushState(stateObj, model.Title, "/Editor/Edit/" + model.Id);
+
+    }
+
+    $(window).bind('keydown', function (event) {
+        if (event.ctrlKey || event.metaKey) {
+            switch (String.fromCharCode(event.which).toLowerCase()) {
+                case 's':
+                    event.preventDefault();
+
+                    // If there are "editable" areas being edited, use this method to save changes
+                    const ccms_editibleAreas = iframe.contentWindow.ccms_editibleAreas;
+                    if (typeof (ccms_editibleAreas) !== "undefined" && ccms_editibleAreas.length > 0) {
+                        saveChanges(null, null, false);
+                    }
+                    break;
+            }
+        }
+    });
+
+    window.addEventListener('resize', function (event) { setupFrame(); }, true);
+
+    function openVsCodeBlockEditor(ed) {
+        ckeditor = ed;
+
+        $("#editspace").html("");
+
+        if (typeof ckeditor === "undefined" || ckeditor === null) {
+            alert("Error: Could not open Live editor.");
+            return;
+        }
+
+        vsCodeModal.show();
+
+
+        // Monaco AMD Editor  - https://microsoft.github.io/monaco-editor/
+        require.config({ paths: { 'vs': '/lib/monaco-editor/min/vs' } });
+
+        //require.config({ paths: { vs: '/lib/node_modules/monaco-editor/dist' } }); // Emmet Abbr.
+        require(['vs/editor/editor.main'],
+            function () {
+
+                var code = ckeditor.getData();
+                emmetMonaco.emmetHTML(monaco);
+                editor = monaco.editor.create(document.getElementById('editspace'),
+                    {
+                        language: "html",
+                        theme: "vs-dark",
+                        value: code
+                    });
+            });
+    }
+
+    function openPickPageModal(ed) {
+        ckeditor = ed;
+
+        if (typeof ckeditor === "undefined" || ckeditor === null) {
+            alert("Error: Could not open Live editor.");
+            return;
+        }
+
+        $("#combobox").val("");
+        $("#inputLinkText").val("");
+        $("#switchNewWindow").prop('checked', false);
+        $("#inputLinkCss").val("");
+        $("#inputLinkStyle").val("");
+
+        pickPageModal.show();
+    }
+
+    function openInsertFileLinkModel(ed) {
+        ckeditor = ed;
+        autoSaveOn = false;
+
+        if (typeof ckeditor === "undefined" || ckeditor === null) {
+            alert("Error: Could not open Live editor.");
+            return;
+        }
+
+        openSelectFileModal("file");
+    }
+
+    function openInsertImageModel(ed) {
+        ckeditor = ed;
+        autoSaveOn = false;
+
+        if (typeof ckeditor === "undefined" || ckeditor === null) {
+            alert("Error: Could not open Live editor.");
+            return;
+        }
+
+        openSelectFileModal("image");
+    }
+
+    function insertImage(path) {
+
+        if (typeof path === "undefined" || path === null || path === "") {
+            return;
+        }
+
+        autoSaveOn = false;
+
+        // Change the model using the model writer.
+        ckeditor.model.change(writer => {
+
+            const url = fileBaseUrl + "/" + path;
+
+            const viewFragment = ckeditor.data.processor.toView("<img src='" + url + "' />");
+
+            const anchor = ckeditor.data.toModel(viewFragment);
+            ckeditor.model.insertContent(anchor);
+            ckeditor.editing.view.focus();
+
+            clearFileMgrPaths();
+
+            // Allow time for save
+            setTimeout(function () { autoSaveOn = true; }, 5000);
+        });
+
+        next = null;
+    }
+
+    function insertPageLink() {
+
+        if (typeof ckeditor === "undefined" || ckeditor === null) {
+            alert("Error: Could not open Live editor.");
+            return;
+        }
+
+        const inputLinkText = $("#inputLinkText").val();
+        const switchNewWindow = $("#switchNewWindow").prop('checked');
+        const inputLinkCss = $("#inputLinkCss").val();
+        const inputLinkStyle = $("#inputLinkStyle").val();
+
+        if (typeof (inputLinkText) === "undefined" || inputLinkText === null || inputLinkText === "") {
+            $("#inputLinkTextError").show();
+            return false;
+        }
+
+        pickPageModal.hide();
+
+        // Change the model using the model writer.
+        ckeditor.model.change(writer => {
+
+            const viewFragment = ckeditor.data.processor.toView("<a target='_blank' href='/" + selectedAnchorData.url + "'>" + inputLinkText + "</a>");
+
+            const anchor = ckeditor.data.toModel(viewFragment);
+            ckeditor.model.insertContent(anchor);
+            ckeditor.editing.view.focus();
+        });
+    }
+
+    function insertFileLink(path) {
+
+        if (typeof path === "undefined" || path === null || path === "") {
+            next = null;
+            return;
+        }
+
+        autoSaveOn = false;
+
+        // Change the model using the model writer.
+        ckeditor.model.change(writer => {
+
+            const url = fileBaseUrl + "/" + path;
+
+            const viewFragment = ckeditor.data.processor.toView("<a href='" + url + "'>" + path + "</a>");
+
+            const anchor = ckeditor.data.toModel(viewFragment);
+            ckeditor.model.insertContent(anchor);
+            ckeditor.editing.view.focus();
+
+            clearFileMgrPaths();
+
+            // Allow time for save
+            setTimeout(function () { autoSaveOn = true; }, 3000);
+        });
+
+        next = null;
+    }
+
+    function ccms_saveEditorChanges(editor) {
+        saving();
+        return new Promise(resolve => {
+            const promise = ccms_updateArea(editor);
+            promise.then((value) => {
+                doneSaving();
+            });
+            resolve();
+        });
+    }
+
+    // Methods for live editor (child page)
+    function ccms_updateArea(editor) {
+        return new Promise(resolve => {
+
+            // Let others editing this item know where this user is focused
+            ccms_signal_focus_others(editor, "save");
+
+            const sourceElement = editor.sourceElement;
+            const id = sourceElement.getAttribute("data-ccms-ceid");
+
+            const item = { Id: id, Html: editor.getData() };
+
+            if (ccms_editibleAreas.length === 0) {
+                // First entry in the array
+                ccms_editibleAreas.push(item);
+            } else {
+                // Append or update the array
+                const i = ccms_editibleAreas.findIndex((ed => ed.Id == id));
+
+                if (i === -1) {
+                    // Append
+                    const item = { Id: id, Html: editor.getData() };
+                    ccms_editibleAreas.push(item);
+
+                } else {
+                    // Update
+                    ccms_editibleAreas[i].Html = editor.getData();
+                }
+            }
+
+            // Push to server if autosave is turned on.
+            if (getAutoSave()) {
+                const data = [];
+                data.push(item);
+                const savePromise = saveChanges(null, null, true);
+                savePromise.then(resolve);
+            }
+            else {
+                resolve();
+            }
+        });
+    }
+
+    // Real-time editing functions
+
+    function ccms_signal_focus_others(editor, command) {
+
+        const sourceElement = editor.sourceElement;
+        const id = sourceElement.getAttribute("data-ccms-ceid");
+
+        let offset = -1;
+        let isFocused = false;
+
+        if (editor.editing.view.document.isFocused) {
+            const position = editor.editing.view.document.selection.getFirstPosition();
+            offset = position.offset;
+            isFocused = true;
+        }
+
+        let signal = { EditorId: id, UserId: ccms_editor_userid, Offset: offset, Command: command, IsFocused: isFocused };
+
+        signalRConnection.invoke("Notification", JSON.stringify(signal));
+
+    }
+
+    function ccms_signal_start_editing(editor) {
+        const sourceElement = editor.sourceElement;
+        const id = sourceElement.getAttribute("data-ccms-ceid");
+    }
+</script>
