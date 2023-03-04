@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+	  <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
+	  <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+	  <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+	  <EmbedUntrackedSources>true</EmbedUntrackedSources>
+
+	  <!-- Recommended: Embed symbols containing Source Link in the main file (exe/dll) -->
+	  <DebugType>embedded</DebugType>
+	  
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cosmos.Cms.Plugin.Base" Version="7.4.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+  </ItemGroup>
+
+</Project>
