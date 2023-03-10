@@ -7,16 +7,16 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["Cosmos.Cms/Cosmos.Cms.csproj", "Cosmos.Cms/"]
-RUN dotnet restore "Cosmos.Cms/Cosmos.Cms.csproj"
+COPY ["Cosmos.Editor/Cosmos.Editor.csproj", "Cosmos.Editor/"]
+RUN dotnet restore "Cosmos.Editor/Cosmos.Editor.csproj"
 COPY . .
-WORKDIR "/src/Cosmos.Cms"
-RUN dotnet build "Cosmos.Cms.csproj" -c Release -o /app/build
+WORKDIR "/src/Cosmos.Editor"
+RUN dotnet build "Cosmos.Editor.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Cosmos.Cms.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Cosmos.Editor.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Cosmos.Cms.dll"]
+ENTRYPOINT ["dotnet", "Cosmos.Editor.dll"]
