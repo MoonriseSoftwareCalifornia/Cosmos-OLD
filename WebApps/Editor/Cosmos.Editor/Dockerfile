@@ -7,7 +7,6 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["nuget.config", "."]
 COPY ["Cosmos.Cms/Cosmos.Cms.csproj", "Cosmos.Cms/"]
 RUN dotnet restore "Cosmos.Cms/Cosmos.Cms.csproj"
 COPY . .
