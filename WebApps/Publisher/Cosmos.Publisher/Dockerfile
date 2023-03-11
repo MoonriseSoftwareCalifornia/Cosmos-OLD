@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 
 # COPY ["Cosmos.Publisher/Cosmos.Publisher.csproj", "Cosmos.Publisher/"]
-COPY WebApps/Editor/Cosmos.Publisher Cosmos.Publisher
+COPY WebApps/Publisher/Cosmos.Publisher Cosmos.Publisher
 RUN dotnet restore "Cosmos.Publisher/Cosmos.Publisher.csproj"
 WORKDIR "/src/Cosmos.Publisher"
 RUN dotnet build "Cosmos.Publisher.csproj" -c Release -o /app/build
