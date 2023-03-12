@@ -1,4 +1,4 @@
-name: NuGet Push
+name: NuGet Cosmos.BlobService
 
 on:
   workflow_dispatch
