@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <AssemblyVersion>7.4.7.20</AssemblyVersion>
     <FileVersion>7.4.7.20</FileVersion>
-    <Version>7.4.7.20</Version>
+    <Version>7.2.2</Version>
     <Title>Azure Blob and Amazon S3 Storage Provider</Title>
     <Authors>toiyabe62</Authors>
     <Company>Cosmos Software LLC</Company>
