@@ -5,14 +5,14 @@ using System.Runtime.Loader;
 namespace Cosmos.Common.Plugins
 {
     /// <summary>
-    /// Plugin load context
+    /// Loads an individual plugin
     /// </summary>
     /// <remarks><see href="https://learn.microsoft.com/en-us/dotnet/core/tutorials/creating-app-with-plugin-support"/></remarks>
-    internal class PluginLoadContext : AssemblyLoadContext
+    internal class Loader : AssemblyLoadContext
     {
         private AssemblyDependencyResolver _resolver;
 
-        public PluginLoadContext(string pluginPath)
+        public Loader(string pluginPath)
         {
             _resolver = new AssemblyDependencyResolver(pluginPath);
         }

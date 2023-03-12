@@ -25,7 +25,7 @@ namespace Cosmos.Common.Plugins
         /// <returns></returns>
         private string GetPluginRootPath()
         {
-            return $"{_sharePath}/Plugins";
+            return Path.Combine(_sharePath, "Plugins");
         }
 
         /// <summary>
@@ -74,19 +74,14 @@ namespace Cosmos.Common.Plugins
         /// <remarks>
         /// For example either <typeparamref name="Cosmos.Cms"/> or Cosmos.Cms.Publisher
         /// </remarks>
-        static Assembly LoadPlugin<T>(string relativePath)
+        private Assembly LoadPlugin<T>(string relativePath)
         {
             // Navigate up to the solution root
-            string root = Path.GetFullPath(Path.Combine(
-                Path.GetDirectoryName(
-                    Path.GetDirectoryName(
-                        Path.GetDirectoryName(
-                            Path.GetDirectoryName(
-                                Path.GetDirectoryName(typeof(T).Assembly.Location)))))));
+            string root = GetPluginRootPath();
 
             string pluginLocation = Path.GetFullPath(Path.Combine(root, relativePath.Replace('\\', Path.DirectorySeparatorChar)));
             Console.WriteLine($"Loading commands from: {pluginLocation}");
-            PluginLoadContext loadContext = new PluginLoadContext(pluginLocation);
+            Loader loadContext = new Loader(pluginLocation);
             return loadContext.LoadFromAssemblyName(new AssemblyName(Path.GetFileNameWithoutExtension(pluginLocation)));
         }
 
