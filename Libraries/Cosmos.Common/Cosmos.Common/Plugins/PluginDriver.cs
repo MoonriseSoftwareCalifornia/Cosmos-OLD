@@ -1,15 +1,12 @@
-﻿using Cosmos.Cms.PluginBase;
+﻿using Cosmos.Common.Plugins.Interfaces;
 using Microsoft.AspNetCore.Hosting;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
-namespace Cosmos.Cms.Plugin.LoadContext
+namespace Cosmos.Common.Plugins
 {
     /// <summary>
     /// Gets plugins for execution
@@ -52,11 +49,11 @@ namespace Cosmos.Cms.Plugin.LoadContext
         /// <remarks>
         /// For example either <typeparamref name="Cosmos.Cms"/> or Cosmos.Cms.Publisher
         /// </remarks>
-        public IEnumerable<ICosmosPlugin> GetPlugins<T>()
+        public IEnumerable<IPlugin> GetPlugins<T>()
         {
             var pluginPaths = Directory.GetDirectories(GetPluginRootPath());
 
-            IEnumerable<ICosmosPlugin> plugins = pluginPaths.SelectMany(pluginPath =>
+            IEnumerable<IPlugin> plugins = pluginPaths.SelectMany(pluginPath =>
             {
                 Assembly pluginAssembly = LoadPlugin<T>(pluginPath);
                 return GetPluginsFromAssembly(pluginAssembly);
@@ -98,12 +95,12 @@ namespace Cosmos.Cms.Plugin.LoadContext
         /// </summary>
         /// <param name="assembly"></param>
         /// <returns></returns>
-        private static IEnumerable<ICosmosPlugin> GetPluginsFromAssembly(Assembly assembly)
+        private static IEnumerable<IPlugin> GetPluginsFromAssembly(Assembly assembly)
         {
             int count = 0;
-            foreach (var type in assembly.GetTypes().Where(type => typeof(ICosmosPlugin).IsAssignableFrom(type)))
+            foreach (var type in assembly.GetTypes().Where(type => typeof(IPlugin).IsAssignableFrom(type)))
             {
-                ICosmosPlugin result = Activator.CreateInstance(type) as ICosmosPlugin;
+                IPlugin result = Activator.CreateInstance(type) as IPlugin;
                 if (result != null)
                 {
                     count++;
