@@ -15,9 +15,9 @@
 		<AnalysisLevel>5.0</AnalysisLevel>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
 		<RepositoryUrl>https://github.com/CosmosSoftware/CosmosCms.Common</RepositoryUrl>
-		<Version>7.4.7.13</Version>
-		<AssemblyVersion>7.4.7.13</AssemblyVersion>
-		<FileVersion>7.4.7.13</FileVersion>
+		<Version>7.4.7.20</Version>
+		<AssemblyVersion>7.4.7.20</AssemblyVersion>
+		<FileVersion>7.4.7.20</FileVersion>
 		<UserSecretsId>498e495c-d772-4d44-870d-92009f01de57</UserSecretsId>
 		<PackageProjectUrl>https://www.moonrise.net/Cosmos</PackageProjectUrl>
 		<NeutralLanguage></NeutralLanguage>
