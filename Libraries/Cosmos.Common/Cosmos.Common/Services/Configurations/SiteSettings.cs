@@ -9,6 +9,12 @@ namespace Cosmos.Cms.Common.Services.Configurations
     public class SiteSettings
     {
         /// <summary>
+        /// Azure file share name
+        /// </summary>
+        [Display(Name = "File Share")]
+        public string FileShare { get; set; }
+
+        /// <summary>
         ///     Allowed file type extensions
         /// </summary>
         [Display(Name = "File types")]

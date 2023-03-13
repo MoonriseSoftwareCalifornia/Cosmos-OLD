@@ -153,7 +153,7 @@ namespace Cosmos.Cms
                 fileStorageCon = Configuration.GetValue<string>("AzureBlobStorageConnectionString");
             }
 
-            var fileShare = Configuration.GetValue<string>("AzureFileShare");
+            var fileShare = Configuration.GetValue<string>("CosmosFileShare");
             if (string.IsNullOrEmpty(fileShare))
             {
                 fileShare = "ccmsshare";

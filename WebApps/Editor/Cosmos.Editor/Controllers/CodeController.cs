@@ -29,7 +29,6 @@ namespace Cosmos.Cms.Controllers
     [Authorize(Roles = "Administrators, Editors, Authors")]
     public class CodeController : Controller
     {
-        private readonly IOptions<CosmosConfig> _cosmosConfig;
         private readonly ApplicationDbContext _dbContext;
         private readonly ILogger<CodeController> _logger;
         private readonly FileStorageContext _storageContext;
@@ -45,7 +44,6 @@ namespace Cosmos.Cms.Controllers
         public CodeController(IOptions<CosmosConfig> cosmosConfig,
             ApplicationDbContext dbContext, ILogger<CodeController> logger, FileStorageContext storageContext)
         {
-            _cosmosConfig = cosmosConfig;
             _dbContext = dbContext;
             _logger = logger;
             _storageContext = storageContext;

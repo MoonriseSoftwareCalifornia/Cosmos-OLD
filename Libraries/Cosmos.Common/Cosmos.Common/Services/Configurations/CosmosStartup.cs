@@ -137,22 +137,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
             return (T)outputValue;
         }
 
-        private string GetConnectionString(string name)
-        {
-            var connectionString = _configuration.GetConnectionString(name);
-
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                AddDiagnostic($"INFORMATIONAL: Connection string {name} is null or empty.", true);
-            }
-            else
-            {
-                AddDiagnostic($"INFORMATIONAL: Connection string {name} was found.", true);
-            }
-
-            return connectionString;
-        }
-
         #region BOOT TIME CONFIGURATION BUILDING AND VALIDATION METHODS
 
         /// <summary>

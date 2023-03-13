@@ -19,7 +19,7 @@ namespace Cosmos.Cms.Common.Services.Configurations
     /// <summary>
     ///     Common startup configuration builder for Cosmos Startup.cs, Editor or Publisher
     /// </summary>
-    public class CosmosOptionsBuilder
+    internal class CosmosOptionsBuilder
     {
 
         #region PRIVATE PROPERTIES
@@ -280,6 +280,7 @@ namespace Cosmos.Cms.Common.Services.Configurations
                 //    }
 
                 model = new CosmosConfig();
+
                 model.SecretName = GetValue<string>(configuration, "CosmosSecretName");
                 model.MicrosoftAppId = GetValue<string>(configuration, "MicrosoftAppId");
                 model.SiteSettings.AllowSetup = GetValue<bool?>(configuration, "CosmosAllowSetup");
@@ -289,6 +290,8 @@ namespace Cosmos.Cms.Common.Services.Configurations
                 model.SecretKey = GetValue<string>(configuration, "CosmosSecretKey");
                 model.SiteSettings.PublisherUrl = GetValue<string>(configuration, "CosmosPublisherUrl");
                 model.SiteSettings.BlobPublicUrl = GetValue<string>(configuration, "CosmosStorageUrl");
+                model.SiteSettings.FileShare = GetValue<string>(configuration, "CosmosFileShare");
+
                 var editorUrl = GetValue<string>(configuration, "CosmosEditorUrl");
 
                 model.SiteSettings.BlobPublicUrl = model.SiteSettings.BlobPublicUrl?.TrimEnd('/');
