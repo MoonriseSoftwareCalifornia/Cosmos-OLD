@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 # COPY ["nuget.config", "."]
 # COPY ["WebApps/Editor/Cosmos.Editor/Cosmos.Editor.csproj", "Cosmos.Editor/Cosmos.Editor.csproj"]
-COPY WebApps/Editor/Cosmos.Editor Cosmos.Editor
+COPY . .
 RUN dotnet restore "Cosmos.Editor/Cosmos.Editor.csproj"
 
 WORKDIR "/src/Cosmos.Editor"
