@@ -405,7 +405,7 @@ namespace Cosmos.Cms.Controllers
             var blobEndPoint = _options.Value.SiteSettings.BlobPublicUrl.TrimEnd('/');
 
             var fileName = $"{Guid.NewGuid().ToString().ToLower()}.png";
-            
+
             string relativePath = UrlEncode(directory + fileName);
 
             var contentType = MimeTypeMap.GetMimeType(Path.GetExtension(fileName));

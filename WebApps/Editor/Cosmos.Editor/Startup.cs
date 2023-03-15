@@ -5,7 +5,6 @@ using Azure.Identity;
 using Azure.ResourceManager;
 using Cosmos.BlobService;
 using Cosmos.Cms.Common.Data;
-using Cosmos.Cms.Common.Services;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Hubs;
@@ -160,7 +159,6 @@ namespace Cosmos.Cms
             }
             services.AddSingleton(new FileStorageContext(fileStorageCon, fileShare));
 
-            services.AddTransient<TranslationServices>();
             services.AddTransient<ArticleEditLogic>();
 
 

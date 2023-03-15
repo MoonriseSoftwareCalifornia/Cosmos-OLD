@@ -1,5 +1,4 @@
-﻿using Azure.Identity;
-using Azure.ResourceManager;
+﻿using Azure.ResourceManager;
 using Azure.ResourceManager.Cdn;
 using Azure.ResourceManager.Cdn.Models;
 using Azure.ResourceManager.Resources;
@@ -540,7 +539,7 @@ namespace Cosmos.Cms.Data.Logic
             }
             await DbContext.SaveChangesAsync();
 
-            foreach(var item in oldCatalogEntry)
+            foreach (var item in oldCatalogEntry)
             {
                 item.UrlPath = newUrl;
                 item.Updated = DateTimeOffset.UtcNow;

@@ -8,7 +8,7 @@
         /// <summary>
         /// End point unique ID
         /// </summary>
-        public string EndPointId {  get; set; }
+        public string EndPointId { get; set; }
         /// <summary>
         /// Subscription ID
         /// </summary>
@@ -18,7 +18,7 @@
         /// Name of resource group where CDN is located
         /// </summary>
         public string ResourceGroupName { get; set; }
-        
+
         /// <summary>
         /// Name of CDN Profile
         /// </summary>

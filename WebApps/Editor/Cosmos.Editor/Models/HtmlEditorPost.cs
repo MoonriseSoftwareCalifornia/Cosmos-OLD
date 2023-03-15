@@ -70,7 +70,7 @@ namespace Cosmos.Cms.Models
         /// URL path returned after save
         /// </summary>
         public string UrlPath { get; set; }
-        
+
         /// <summary>
         /// Version number returned after save
         /// </summary>

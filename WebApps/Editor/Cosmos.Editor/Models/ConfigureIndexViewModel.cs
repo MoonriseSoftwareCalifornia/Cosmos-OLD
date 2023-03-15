@@ -123,8 +123,6 @@ namespace Cosmos.Cms.Models
             ImportJson = string.Empty;
             AuthenticationConfig = config.AuthenticationConfig;
             CdnConfig = config.CdnConfig;
-            SqlConnectionStrings = config.SqlConnectionStrings;
-            GoogleCloudAuthConfig = config.GoogleCloudAuthConfig;
             SendGridConfig = config.SendGridConfig;
             StorageConfig = config.StorageConfig;
             base.SecretName = config.SecretName;
@@ -160,7 +158,6 @@ namespace Cosmos.Cms.Models
                 PrimaryCloud = PrimaryCloud,
                 SendGridConfig = SendGridConfig,
                 SiteSettings = SiteSettings,
-                SqlConnectionStrings = SqlConnectionStrings,
                 StorageConfig = StorageConfig,
                 SecretKey = string.IsNullOrEmpty(SecretKey) ? RandomKey() : SecretKey
             };

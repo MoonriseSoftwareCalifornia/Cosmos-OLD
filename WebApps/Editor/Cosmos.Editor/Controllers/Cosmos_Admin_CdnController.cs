@@ -1,16 +1,13 @@
-﻿using Azure.Identity;
-using Azure.ResourceManager;
+﻿using Azure.ResourceManager;
 using Azure.ResourceManager.Cdn;
 using Azure.ResourceManager.Resources;
 using Cosmos.Cms.Common.Data;
 using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Models;
 using Cosmos.Cms.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -67,7 +64,7 @@ namespace Cosmos.Cms.Controllers
             if (model == null)
             {
                 return View(null);
-            }    
+            }
 
             return View(JsonConvert.DeserializeObject<AzureCdnEndpoint>(model.Value));
         }

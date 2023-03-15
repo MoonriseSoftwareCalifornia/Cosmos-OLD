@@ -11,7 +11,7 @@ namespace Cosmos.Cms.Models
         /// Include content in search and replace?
         /// </summary>
         [Display(Name = "Include content in search and replace?")]
-        public bool IncludeContent { get;set; }
+        public bool IncludeContent { get; set; }
         /// <summary>
         /// 
         /// </summary>

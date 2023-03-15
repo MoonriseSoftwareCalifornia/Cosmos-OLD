@@ -1,6 +1,5 @@
 ﻿using Cosmos.Cms.Common.Data;
 using Cosmos.Cms.Common.Models;
-using Cosmos.Cms.Common.Services;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Models;
@@ -294,25 +293,6 @@ namespace Cosmos.Cms.Controllers
             }
 
             return StatusCode(500);
-        }
-
-        /// <summary>
-        ///     Gets a list of languages supported for translation
-        /// </summary>
-        /// <param name="lang">language code</param>
-        /// <returns></returns>
-        public async Task<JsonResult> GetSupportedLanguages(string lang = "en-US")
-        {
-            var translationServices = new TranslationServices(_options);
-            var result = await translationServices.GetSupportedLanguages(lang);
-
-            var model = result.Languages.Select(s => new LangItemViewModel
-            {
-                DisplayName = s.DisplayName,
-                LanguageCode = s.LanguageCode
-            }).ToList();
-
-            return Json(model);
         }
 
         #region STATIC WEB PAGES
