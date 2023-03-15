@@ -164,7 +164,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
             cosmosConfig.PrimaryCloud = GetValue<string>("CosmosPrimaryCloud");
             cosmosConfig.SendGridConfig.EmailFrom = GetValue<string>("CosmosAdminEmail");
             cosmosConfig.SendGridConfig.SendGridKey = GetValue<string>("CosmosSendGridApiKey");
-            cosmosConfig.SecretKey = GetValue<string>("CosmosSecretKey");
 
             // Cosmos Endpoints
             cosmosConfig.SiteSettings.PublisherUrl = GetValue<string>("CosmosPublisherUrl");

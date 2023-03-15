@@ -90,11 +90,5 @@ namespace Cosmos.Cms.Common.Services.Configurations
         [RegularExpression(@"^[0-9, a-z, A-Z]{1,40}$", ErrorMessage = "Secret name can only contain numbers and letters.")]
         public string SecretName { get; set; } = "";
 
-        /// <summary>
-        ///     Secret key used for JWT authenticated communication between editors.
-        /// </summary>
-        [RegularExpression(@"^[0-9, a-z, A-Z]{32,32}$",
-            ErrorMessage = "Must have at least 32 random numbers and letters.")]
-        public string SecretKey { get; set; }
     }
 }
