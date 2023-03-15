@@ -15,7 +15,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
         {
             AuthenticationConfig = new AuthenticationConfig();
             CdnConfig = new CdnConfig();
-            SqlConnectionStrings = new List<SqlConnectionString>();
             EditorUrls = new List<EditorUrl>();
             SiteSettings = new SiteSettings();
             StorageConfig = new StorageConfig();
@@ -59,11 +58,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
         ///     Editor Urls
         /// </summary>
         public List<EditorUrl> EditorUrls { get; set; }
-
-        /// <summary>
-        ///     Database connection strings
-        /// </summary>
-        public List<SqlConnectionString> SqlConnectionStrings { get; set; }
 
         /// <summary>
         ///     Google Cloud service authentication configuration

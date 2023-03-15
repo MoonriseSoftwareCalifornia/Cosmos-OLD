@@ -12,7 +12,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
         /// </summary>
         public CdnConfig()
         {
-            AkamaiContextConfig = new AkamaiContextConfig();
             AzureCdnConfig = new AzureCdnConfig();
         }
 
@@ -21,11 +20,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
         /// </summary>
         [Display(Name = "Cache duration (seconds)")]
         public int CacheDuration { get; set; } = 1200;
-
-        /// <summary>
-        ///     Akamai Configuration
-        /// </summary>
-        public AkamaiContextConfig AkamaiContextConfig { get; set; }
 
         /// <summary>
         ///     Azure CDN Configuration

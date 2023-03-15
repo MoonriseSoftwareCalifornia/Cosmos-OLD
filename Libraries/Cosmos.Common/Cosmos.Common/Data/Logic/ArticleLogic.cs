@@ -1,7 +1,5 @@
 ﻿using Cosmos.Cms.Common.Models;
-using Cosmos.Cms.Common.Services;
 using Cosmos.Cms.Common.Services.Configurations;
-using Google.Cloud.Translate.V3;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -23,7 +21,6 @@ namespace Cosmos.Cms.Common.Data.Logic
     public class ArticleLogic
     {
         private readonly bool _isEditor;
-        private readonly TranslationServices _translationServices;
         private readonly IMemoryCache _memoryCache;
 
         /// <summary>
@@ -44,12 +41,6 @@ namespace Cosmos.Cms.Common.Data.Logic
             _memoryCache = memoryCache;
             DbContext = dbContext;
             CosmosOptions = config;
-            if (config.Value.GoogleCloudAuthConfig != null &&
-                string.IsNullOrEmpty(config.Value.GoogleCloudAuthConfig.ClientId) == false)
-                _translationServices = new TranslationServices(config);
-            else
-                _translationServices = null;
-
             _isEditor = isEditor;
         }
 
@@ -232,29 +223,11 @@ namespace Cosmos.Cms.Common.Data.Logic
         /// </returns>
         protected async Task<ArticleViewModel> BuildArticleViewModel(Article article, string lang)
         {
-
-            var languageName = "US English";
-
-            if (!string.IsNullOrEmpty(lang) && _translationServices != null && CosmosOptions.Value.GoogleCloudAuthConfig != null && CosmosOptions.Value.PrimaryLanguageCode.Equals(lang, StringComparison.CurrentCultureIgnoreCase) == false)
-            {
-                var result =
-                    await _translationServices.GetTranslation(lang, "", new[] { article.Title, article.Content });
-
-                languageName =
-                    (await GetSupportedLanguages(lang))?.Languages.FirstOrDefault(f => f.LanguageCode == lang)
-                    ?.DisplayName ?? lang;
-
-                article.Title = result.Translations[0].TranslatedText;
-
-                article.Content = result.Translations[1].TranslatedText;
-            }
-
-
             return new ArticleViewModel
             {
                 ArticleNumber = article.ArticleNumber,
                 LanguageCode = lang,
-                LanguageName = languageName,
+                LanguageName = "",
                 CacheDuration = 10,
                 Content = article.Content,
                 StatusCode = (StatusCodeEnum)article.StatusCode,
@@ -292,28 +265,11 @@ namespace Cosmos.Cms.Common.Data.Logic
         protected async Task<ArticleViewModel> BuildArticleViewModel(PublishedPage article, string lang, TimeSpan? layoutCache = null)
         {
 
-            var languageName = "US English";
-
-            if (!string.IsNullOrEmpty(lang) && _translationServices != null && CosmosOptions.Value.GoogleCloudAuthConfig != null && CosmosOptions.Value.PrimaryLanguageCode.Equals(lang, StringComparison.CurrentCultureIgnoreCase) == false)
-            {
-                var result =
-                    await _translationServices.GetTranslation(lang, "", new[] { article.Title, article.Content });
-
-                languageName =
-                    (await GetSupportedLanguages(lang))?.Languages.FirstOrDefault(f => f.LanguageCode == lang)
-                    ?.DisplayName ?? lang;
-
-                article.Title = result.Translations[0].TranslatedText;
-
-                article.Content = result.Translations[1].TranslatedText;
-            }
-
-
             return new ArticleViewModel
             {
                 ArticleNumber = article.ArticleNumber,
                 LanguageCode = lang,
-                LanguageName = languageName,
+                LanguageName = "",
                 CacheDuration = 10,
                 Content = article.Content,
                 StatusCode = (StatusCodeEnum)article.StatusCode,
@@ -347,17 +303,6 @@ namespace Cosmos.Cms.Common.Data.Logic
             return HttpUtility.UrlEncode(title.Trim().Replace(" ", "_").ToLower()).Replace("%2f", "/");
         }
 
-        /// <summary>
-        ///     Get the list of languages supported for translation by Google.
-        /// </summary>
-        /// <param name="lang"></param>
-        /// <returns></returns>
-        public async Task<SupportedLanguages> GetSupportedLanguages(string lang)
-        {
-            if (_translationServices == null) return new SupportedLanguages();
-
-            return await _translationServices.GetSupportedLanguages(lang);
-        }
 
         /// <summary>
         ///     Gets the default layout, including navigation menu.
