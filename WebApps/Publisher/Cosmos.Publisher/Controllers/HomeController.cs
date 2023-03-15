@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using NuGet.Protocol.Plugins;
 using System.Diagnostics;
 using System.Text;
 
@@ -68,7 +67,7 @@ namespace Cosmos.Cms.Publisher.Controllers
                     Response.Headers.Expires = DateTimeOffset.UtcNow.AddMinutes(30).ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
                 }
                 Response.Headers.ETag = article.Id.ToString();
-                Response.Headers.LastModified= article.Updated.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
+                Response.Headers.LastModified = article.Updated.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
 
                 return View(article);
             }
@@ -101,15 +100,6 @@ namespace Cosmos.Cms.Publisher.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        private async Task HandleException(Exception e)
-        {
-            if (_emailSender != null)
-            {
-                var message = "The 'publisher' tried to start but ran into this problem: " + e.Message;
-                await _emailSender.SendEmailAsync(_options.Value.SendGridConfig.EmailFrom, "Publisher Error", message);
-            }
         }
 
         /// <summary>
