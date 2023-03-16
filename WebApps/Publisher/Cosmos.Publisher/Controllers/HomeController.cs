@@ -19,15 +19,13 @@ namespace Cosmos.Cms.Publisher.Controllers
         private readonly ArticleLogic _articleLogic;
         private readonly IOptions<CosmosConfig> _options;
         private readonly ApplicationDbContext _dbContext;
-        private readonly IEmailSender _emailSender;
 
-        public HomeController(ILogger<HomeController> logger, ArticleLogic articleLogic, IOptions<CosmosConfig> options, ApplicationDbContext dbContext, IEmailSender emailSender)
+        public HomeController(ILogger<HomeController> logger, ArticleLogic articleLogic, IOptions<CosmosConfig> options, ApplicationDbContext dbContext)
         {
             _logger = logger;
             _articleLogic = articleLogic;
             _options = options;
             _dbContext = dbContext;
-            _emailSender = emailSender;
         }
 
         public async Task<IActionResult> Index()
