@@ -1752,39 +1752,5 @@ namespace Cosmos.Cms.Controllers
 
         #endregion
 
-        /// <summary>
-        /// Receives an encrypted signal from another editor to do something.
-        /// </summary>
-        /// <param name="data">Encrypted arguments</param>
-        /// <returns></returns>
-        [HttpPost]
-        [AllowAnonymous]
-        public string Signal(string data)
-        {
-            var result = new SignalResult();
-
-            try
-            {
-                var args = DecryptString(data).Split('|');
-
-                result.JsonValue = args[0] switch
-                {
-                    "VERIFY" => JsonConvert.SerializeObject(new SignalVerifyResult { Echo = args[1], Stamp = DateTime.UtcNow }),
-                    _ => throw new Exception($"Signal {args[0]} not supported."),
-                };
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message, e);
-                result.Exceptions.Add(e);
-            }
-
-            result.HasErrors = result.Exceptions.Any();
-
-            var json = JsonConvert.SerializeObject(result);
-
-            return EncryptString(json);
-        }
-
     }
 }

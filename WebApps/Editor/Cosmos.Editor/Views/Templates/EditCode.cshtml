@@ -210,6 +210,7 @@
         $("body").addClass("cwps-editor-container");
 
         var fieldId = "@Model.EditingField";
+
         if (fieldId !== "") {
             var fieldInfo = editFields.find(o => o.FieldId === fieldId);
             createAndLoadEditor(fieldInfo.FieldName);
@@ -222,7 +223,7 @@
         $('#tbPublished').prop("disabled", "true");
 
         $("#btnSaveAsDraft").hide();
-
+        $("#liInsert").show();
         $("#divTitleGroup").show();
         $("#divTitle").html("@Model.Title");
         $("#Title").val("@Model.Title");

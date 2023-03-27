@@ -14,7 +14,6 @@ namespace Cosmos.Cms.Models
         /// </summary>
         public ConfigureIndexViewModel()
         {
-            SecretKey = RandomKey();
         }
 
         /// <summary>
@@ -24,7 +23,6 @@ namespace Cosmos.Cms.Models
         public ConfigureIndexViewModel(string secretName)
         {
             SecretName = secretName;
-            SecretKey = RandomKey();
         }
 
         /// <summary>
@@ -116,8 +114,6 @@ namespace Cosmos.Cms.Models
         /// <param name="config"></param>
         private void Init(CosmosConfig config)
         {
-            if (string.IsNullOrEmpty(config.SecretKey) || config.SecretKey.Length != 32) config.SecretKey = RandomKey();
-
             PrimaryCloud = config.PrimaryCloud;
             SiteSettings = config.SiteSettings;
             ImportJson = string.Empty;
@@ -126,7 +122,7 @@ namespace Cosmos.Cms.Models
             SendGridConfig = config.SendGridConfig;
             StorageConfig = config.StorageConfig;
             base.SecretName = config.SecretName;
-            SecretKey = string.IsNullOrEmpty(config.SecretKey) ? RandomKey() : config.SecretKey;
+            
             EditorUrls = config.EditorUrls;
             CanSaveSecrets = config.SiteSettings.AllowConfigEdit;
             SecretName = config.SecretName;
@@ -158,8 +154,7 @@ namespace Cosmos.Cms.Models
                 PrimaryCloud = PrimaryCloud,
                 SendGridConfig = SendGridConfig,
                 SiteSettings = SiteSettings,
-                StorageConfig = StorageConfig,
-                SecretKey = string.IsNullOrEmpty(SecretKey) ? RandomKey() : SecretKey
+                StorageConfig = StorageConfig
             };
         }
     }

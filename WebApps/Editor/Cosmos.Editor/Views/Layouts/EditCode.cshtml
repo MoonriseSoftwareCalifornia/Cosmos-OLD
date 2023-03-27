@@ -209,6 +209,8 @@
         
         $("body").addClass("cwps-editor-container");
 
+        $("#liInsert").show();
+
         var fieldId = "@Model.EditingField";
         if (fieldId !== "") {
             var fieldInfo = editFields.find(o => o.FieldId === fieldId);
