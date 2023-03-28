@@ -122,7 +122,7 @@ namespace Cosmos.BlobService
 
         #region PRIVATE FIELDS AND METHODS
 
-        private readonly IOptions<CosmosStorageConfig> _config;
+        // private readonly IOptions<CosmosStorageConfig> _config;
 
         /// <summary>
         /// Azure file share driver, this is not handled in the collection.

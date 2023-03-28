@@ -273,7 +273,7 @@ namespace Cosmos.BlobService.Drivers
             var directory = _shareClient.GetDirectoryClient(path);
             var contents = directory.GetFilesAndDirectoriesAsync();
 
-            int i = 0;
+            //int i = 0;
             await foreach (var item in contents)
             {
                 if (item.IsDirectory)
