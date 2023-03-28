@@ -1084,6 +1084,7 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [ResponseCache(NoStore = true)]
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
         public async Task<IActionResult> Edit(string id)
         {
@@ -1225,6 +1226,7 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [ResponseCache(NoStore = true)]
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
         public async Task<IActionResult> EditCode(Guid id)
         {
@@ -1302,6 +1304,7 @@ namespace Cosmos.Cms.Controllers
         /// <exception cref="NotFoundResult"></exception>
         /// <exception cref="UnauthorizedResult"></exception>
         [HttpPost]
+        [ResponseCache(NoStore = true)]
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
         public async Task<IActionResult> EditCode(EditCodePostModel model, bool updateExisting)
         {

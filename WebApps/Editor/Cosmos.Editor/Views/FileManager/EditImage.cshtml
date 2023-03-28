@@ -28,6 +28,7 @@
 <link rel="stylesheet" type="text/css" href="/css/filerobot-image-editor-4.3.7.css" />
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet" />
 <script src="/js/filerobot-image-editor-4.3.7.min.js"></script>
+
 <script>
     const publicBlobBaseUrl = '@options.Value.SiteSettings.BlobPublicUrl';
     const imagePath = '@ViewData["ImageTarget"]';
@@ -38,26 +39,36 @@
         source: publicBlobBaseUrl + "/" + imagePath,
         onSave: (editedImageObject, designState) => {
             showSaving();
-            const data = {
+
+            const formData = {
                 name: editedImageObject.name,
                 fullName: editedImageObject.fullName,
                 extension: editedImageObject.extension,
                 mimeType: editedImageObject.mimeType,
                 imageBase64: editedImageObject.imageBase64,
                 mimeType: editedImageObject.mimeType,
-                quantity: editedImageObject.quantity,
                 width: editedImageObject.width,
                 height: editedImageObject.height,
                 folder: folder
             };
 
-            $.post("@Url.Action("EditImage","FileManager")", data)
-                .done(function (result) {
+            var jsonData = JSON.stringify(formData);
+
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("EditImage","FileManager")",
+                data: jsonData,
+                contentType: 'application/json',
+                success: function (response) {
                     showSaved();
-                })
-                .fail(function () {
-                    alert(result);
-                });
+                },
+                failure: function (response) {
+                    alert(response);
+                },
+                error: function (response) {
+                    alert(response);
+                }
+            });
         },
         annotationsCommon: {
             fill: '#ff0000',

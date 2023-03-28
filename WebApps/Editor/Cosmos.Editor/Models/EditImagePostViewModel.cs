@@ -6,17 +6,13 @@
     public class FileRobotImagePost
     {
         /// <summary>
-        /// File name with extension
-        /// </summary>
-        public string fullName { get; set; }
-        /// <summary>
-        /// Folder where image should reside
-        /// </summary>
-        public string folder { get; set; }
-        /// <summary>
         /// File name without extension
         /// </summary>
         public string name { get; set; }
+        /// <summary>
+        /// File name with extension
+        /// </summary>
+        public string fullName { get; set; }
         /// <summary>
         /// File extension
         /// </summary>
@@ -32,7 +28,7 @@
         /// <summary>
         /// Quantity
         /// </summary>
-        public double quantity { get; set; }
+        //public double? quantity { get; set; } = null;
         /// <summary>
         /// Image width
         /// </summary>
@@ -41,5 +37,9 @@
         /// Image height
         /// </summary>
         public int height { get; set; }
+        /// <summary>
+        /// Folder where image should reside
+        /// </summary>
+        public string folder { get; set; }
     }
 }

@@ -479,6 +479,7 @@ namespace Cosmos.Cms.Controllers
                 UploadUid = Guid.NewGuid().ToString()
             };
 
+            _storageContext.DeleteFile(metadata.RelativePath);
             _storageContext.AppendBlob(img, metadata);
 
             return metadata;
@@ -1035,6 +1036,7 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
+        [ResponseCache(NoStore = true)]
         public async Task<IActionResult> EditCode(string path)
         {
             try
@@ -1125,6 +1127,7 @@ namespace Cosmos.Cms.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
+        [ResponseCache(NoStore = true)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCode(FileManagerEditCodeViewModel model)
         {
@@ -1219,6 +1222,7 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
+        [ResponseCache(NoStore = true)]
         public IActionResult EditImage(string target)
         {
             if (string.IsNullOrEmpty(target))
@@ -1242,8 +1246,22 @@ namespace Cosmos.Cms.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> EditImage(FileRobotImagePost model)
+        [ResponseCache(NoStore = true)]
+        public async Task<IActionResult> EditImage([FromBody]FileRobotImagePost model)
         {
+            //FileRobotImagePost model
+            //     = new FileRobotImagePost()
+            //     {
+            //         extension = form["extension"],
+            //          folder = form["folder"],
+            //          fullName = form["fullName"],
+            //         height = int.Parse(form["height"]),
+            //         width  = int.Parse(form["width"]),
+            //          imageBase64 = form["imageBase64"],
+            //           mimeType = form["mimeType"],
+            //            name = form["name"],
+            //             quantity = form["quantity"]
+            //     };
             // Convert base 64 string to byte[]
             var data = model.imageBase64.Split(',')[1];
 
@@ -1304,6 +1322,7 @@ namespace Cosmos.Cms.Controllers
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
+        [ResponseCache(NoStore = true)]
         public async Task<IActionResult> GetImageThumbnail(string target, int width = 120, int height = 120)
         {
             var extension = Path.GetExtension(target.ToLower());
