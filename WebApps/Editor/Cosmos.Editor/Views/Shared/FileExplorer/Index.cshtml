@@ -25,7 +25,7 @@
     var target = Context.Request.Query["target"];
 
     var baseUrl = @Url.Action(action, controller) + "?container=" + container + "&selectOne=" + selectOne + "&imagesOnly=" + imagesOnly + "&pageSize=" + pageSize + "&";
-    var showImageThumbUrl = @Url.Action(action, controller) + "?container=" + container  + "&target=" + target + "&selectOne=" + selectOne + "&imagesOnly=true&pageSize=" + pageSize + "&";
+    var showImageThumbUrl = @Url.Action(action, controller) + "?container=" + container + "&target=" + target + "&selectOne=" + selectOne + "&imagesOnly=true&pageSize=" + pageSize + "&";
     var showFileListUrl = @Url.Action(action, controller) + "?container=" + container + "&target=" + target + "&selectOne=" + selectOne + "&imagesOnly=false&pageSize=" + pageSize + "&";
 
     if (directoryOnly)
@@ -86,14 +86,14 @@
             {
                 <div class="d-flex justify-content-end">
                     <a href="@showFileListUrl"
-                        class="btn btn-sm btn-secondary">Show file list</a>
+                       class="btn btn-sm btn-secondary">Show file list</a>
                 </div>
             }
             else
             {
                 <div class="d-flex justify-content-end">
                     <a href="@showImageThumbUrl"
-                        class="btn btn-sm btn-secondary">Show image thumbnails</a>
+                       class="btn btn-sm btn-secondary">Show image thumbnails</a>
                 </div>
             }
         </div>
@@ -151,12 +151,12 @@
             <div class="col-md-12">
                 <!-- Filepond File Uploader -->
                 <input type="file"
-                   class="filepond"
-                   id="filepond"
-                   name="files"
-                   data-file-metadata-path="@pathPrefix"
-                   data-file-metadata-container="@container"
-                   multiple>
+                       class="filepond"
+                       id="filepond"
+                       name="files"
+                       data-file-metadata-path="@pathPrefix"
+                       data-file-metadata-container="@container"
+                       multiple>
             </div>
         </div>
     }
@@ -245,7 +245,7 @@
                     {
                         <div class="col">
                             <div class="card h-100">
-                                <a title="download image" href="javascript:download('@row.Path')"><img src="@(blobStaticWebsiteUrl + "/" + row.Path)" class="card-img-top" alt="Image preview"></a>
+                                <a title="Click to select image" href="javascript:selectImage('@row.Path.Trim('/')')"><img src="@(blobStaticWebsiteUrl + "/" + row.Path)" class="card-img-top" alt="Image preview"></a>
                                 <div class="card-body">
                                     <h5 class="card-title">@(row.Name + row.Extension)</h5>
                                     <div class="form-check">
@@ -676,7 +676,7 @@
     });
 
     $(document).ready(function () {
-        
+
         $("body").addClass("cwps-editor-container");
 
         $(".toLocalTimeZone").each(function (index, element) {
@@ -771,6 +771,12 @@
         resetButtons();
 
     });
+
+    function selectImage(element) {
+        var selector = '[data-ccms-blob="' + element + '"]';
+        const checkbox = $(selector)[0];
+        $(checkbox).click();
+    }
 
     function clearSelection() {
         $(".gridCheckBox").each(function (index, element) {

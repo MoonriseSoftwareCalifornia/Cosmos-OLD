@@ -108,7 +108,10 @@
                     </li>
 
                     <li class="nav-item">
-                        <button id="btnOpenBannerImage" class="btn btn-sm btn-secondary mt-1 ms-3 me-3" title="Sets the preview image for this page." type="button"><i class="fa-regular fa-image"></i></button>
+                        <div class="btn-group" role="group" aria-label="Preview image button group">
+                            <button id="btnOpenBannerImage" class="btn btn-sm btn-secondary mt-1" title="Sets the preview image for this page." type="button"><i class="fa-regular fa-image"></i></button>
+                            <button id="btnClearBannerImage" class="btn btn-sm btn-secondary mt-1" title="Remove the preview image for this page." type="button"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
                     </li>
 
                     <li class="nav-item" id="divAutoSave">
@@ -696,15 +699,24 @@
                 } else if (selectFileMode === "bannerimage") {
                     let imgRoot = "@options.Value.SiteSettings.BlobPublicUrl.TrimEnd('/')";
                     $("#BannerImage").val(imgRoot + "/" + p[0]);
+                    saveChanges(null, null, false);
+                    checkBannerImage();
                 }
 
                 return true;
             });
 
-
             $("#btnOpenBannerImage").click(function () {
                 openSelectFileModal("bannerimage");
             });
+
+            $("#btnClearBannerImage").click(function () {
+                $("#BannerImage").val("");
+                saveChanges(null, null, false);
+                checkBannerImage();
+            });
+
+            checkBannerImage();
         });
 
 
@@ -744,6 +756,22 @@
             iframeWin.reloadPaths();
         }
 
+        function checkBannerImage() {
+
+            $("#btnOpenBannerImage").removeClass("btn-secondary");
+            $("#btnOpenBannerImage").removeClass("btn-success");
+
+            const url = $("#BannerImage").val();
+            if (url !== null && url !== "") {
+                $("#btnOpenBannerImage").addClass("btn-success");
+                $("#btnOpenBannerImage").attr("title", "Changes the preview image for this page.")
+                $("#btnClearBannerImage").show();
+            } else {
+                $("#btnOpenBannerImage").addClass("btn-secondary");
+                $("#btnOpenBannerImage").attr("title", "Sets the preview image for this page.")
+                $("#btnClearBannerImage").hide();
+            }
+        }
 
     </script>
 
