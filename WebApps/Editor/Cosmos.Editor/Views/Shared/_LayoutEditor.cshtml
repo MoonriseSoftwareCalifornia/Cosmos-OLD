@@ -107,6 +107,10 @@
                         </ul>
                     </li>
 
+                    <li class="nav-item">
+                        <button id="btnOpenBannerImage" class="btn btn-sm btn-secondary mt-1 ms-3 me-3" title="Sets the preview image for this page." type="button"><i class="fa-regular fa-image"></i></button>
+                    </li>
+
                     <li class="nav-item" id="divAutoSave">
                         <div class="form-check form-switch mt-2 ms-3">
                             <input id="swAutoSave" class="form-check-input" type="checkbox" role="checkbox" checked>
@@ -376,7 +380,7 @@
                 url += "?target=";
             }
 
-            if (mode === "image") {
+            if (mode === "image" || mode === "bannerimage") {
                 $('#iframeSelectFile').attr('src', url + '&selectOne=true&imagesOnly=true&isNewSession=true&');
             } else {
                 $('#iframeSelectFile').attr('src', url + '&selectOne=true&isNewSession=true&');
@@ -689,11 +693,17 @@
                     insertFileLink(p[0]);
                 } else if (selectFileMode === "image") {
                     insertImage(p[0]);
-                } else if (selectFileMode === "bannerImage") {
-                    $("#BannerImage").val(p[0]);
+                } else if (selectFileMode === "bannerimage") {
+                    let imgRoot = "@options.Value.SiteSettings.BlobPublicUrl.TrimEnd('/')";
+                    $("#BannerImage").val(imgRoot + "/" + p[0]);
                 }
 
                 return true;
+            });
+
+
+            $("#btnOpenBannerImage").click(function () {
+                openSelectFileModal("bannerimage");
             });
         });
 

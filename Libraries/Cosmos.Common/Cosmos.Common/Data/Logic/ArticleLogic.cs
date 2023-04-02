@@ -224,6 +224,8 @@ namespace Cosmos.Common.Data.Logic
         /// </returns>
         protected async Task<ArticleViewModel> BuildArticleViewModel(Article article, string lang)
         {
+            var authorInfo = await DbContext.AuthorInfos.FirstOrDefaultAsync(f => f.UserId == article.UserId);
+
             return new ArticleViewModel
             {
                 ArticleNumber = article.ArticleNumber,
@@ -244,7 +246,8 @@ namespace Cosmos.Common.Data.Logic
                 ReadWriteMode = _isEditor,
                 RoleList = article.RoleList,
                 Expires = article.Expires.HasValue ? article.Expires.Value : null,
-                BannerImage = article.BannerImage
+                BannerImage = article.BannerImage,
+                AuthorInfo = JsonConvert.SerializeObject(authorInfo).Replace("\"", "'")
             };
         }
 
@@ -270,6 +273,7 @@ namespace Cosmos.Common.Data.Logic
             return new ArticleViewModel
             {
                 ArticleNumber = article.ArticleNumber,
+                BannerImage = article.BannerImage,
                 LanguageCode = lang,
                 LanguageName = "",
                 CacheDuration = 10,

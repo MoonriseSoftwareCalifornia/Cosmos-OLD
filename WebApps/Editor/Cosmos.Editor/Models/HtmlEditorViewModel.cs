@@ -107,7 +107,7 @@ namespace Cosmos.Cms.Models
         /// <summary>
         /// Article banner image
         /// </summary>
-        public object BannerImage { get; private set; }
+        public string BannerImage { get; private set; }
 
         /// <summary>
         /// Update existing version

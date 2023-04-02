@@ -97,7 +97,7 @@ namespace Cosmos.Common.Data
         /// <summary>
         /// Information about the person who authored this document.
         /// </summary>
-        public AuthorInfo AuthorInfo { get; set; }
+        public string AuthorInfo { get; set; }
 
         #region PERMISSIONS
 

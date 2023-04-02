@@ -425,7 +425,7 @@
                     var published = $("#Published").val();
                     var updated = $("#Updated").val();
 
-                    var model = { Id: id, Title: $("#Title").val(), ArticleNumber: $("#ArticleNumber").val(), Published: published, Regions: ccms_editibleAreas, UpdateExisting: updateExisting, Updated: updated };
+                    var model = { Id: id, Title: $("#Title").val(), ArticleNumber: $("#ArticleNumber").val(), Published: published, Regions: ccms_editibleAreas, UpdateExisting: updateExisting, Updated: updated, BannerImage: $("#BannerImage").val() };
                     var json = JSON.stringify(model);
                     localStorage.setItem("lastSave", json);
 

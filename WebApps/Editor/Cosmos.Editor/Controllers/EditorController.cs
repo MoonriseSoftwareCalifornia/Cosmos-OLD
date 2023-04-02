@@ -1171,6 +1171,7 @@ namespace Cosmos.Cms.Controllers
                     article.Content = originalHtmlDoc.DocumentNode.OuterHtml;
                     article.Title = model.Title;
                     article.Published = model.Published;
+                    article.BannerImage = model.BannerImage;
 
                     // Make sure we are setting to the orignal updated date/time
                     // This is validated to make sure that someone else hasn't already edited this
@@ -1191,7 +1192,8 @@ namespace Cosmos.Cms.Controllers
                         RoleList = result.Model.RoleList,
                         UpdateExisting = model.UpdateExisting,
                         UrlPath = result.Model.UrlPath,
-                        VersionNumber = result.Model.VersionNumber
+                        VersionNumber = result.Model.VersionNumber,
+                        BannerImage = result.Model.BannerImage
                     };
 
                     return Json(data);

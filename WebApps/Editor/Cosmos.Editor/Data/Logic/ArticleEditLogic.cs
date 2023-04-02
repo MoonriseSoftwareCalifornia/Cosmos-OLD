@@ -722,7 +722,8 @@ namespace Cosmos.Cms.Data.Logic
                     RoleList = model.RoleList,
                     Title = model.Title,
                     VersionNumber = model.VersionNumber,
-                    UrlPath = model.UrlPath
+                    UrlPath = model.UrlPath,
+                    BannerImage = model.BannerImage
                 };
             }
             else
@@ -802,6 +803,12 @@ namespace Cosmos.Cms.Data.Logic
             // Don't track this for now
             DbContext.Entry(article).State = EntityState.Detached;
 
+            // Ensure a user ID is set for creator
+            if (string.IsNullOrEmpty(article.UserId))
+            {
+                article.UserId = userId;
+            }
+
             // =======================================================
             // BEGIN: MAKE CONTENT CHANGES HERE
             //
@@ -841,6 +848,7 @@ namespace Cosmos.Cms.Data.Logic
             article.HeaderJavaScript = model.HeadJavaScript;
             article.FooterJavaScript = model.FooterJavaScript;
             article.RoleList = model.RoleList;
+            article.BannerImage = model.BannerImage;
 
             #endregion
             //
@@ -1128,10 +1136,14 @@ namespace Cosmos.Cms.Data.Logic
                 // Now refresh the published pages
                 foreach (var item in itemsToPublish)
                 {
-                    
+
+                    var authorInfo = await DbContext.AuthorInfos.FirstOrDefaultAsync(f => f.UserId == item.UserId && f.AuthorName != "");
+
+
                     var newPage = new PublishedPage()
                     {
                         ArticleNumber = item.ArticleNumber,
+                        BannerImage = item.BannerImage,
                         Content = item.Content,
                         Expires = item.Expires,
                         FooterJavaScript = item.FooterJavaScript,
@@ -1144,8 +1156,7 @@ namespace Cosmos.Cms.Data.Logic
                         Updated = item.Updated,
                         UrlPath = item.UrlPath,
                         VersionNumber = item.VersionNumber,
-                        
-                        AuthorInfo = string.IsNullOrEmpty(item.UserId) ? null : await DbContext.AuthorInfos.FirstOrDefaultAsync(f => f.UserId == item.UserId)
+                        AuthorInfo = JsonConvert.SerializeObject(authorInfo).Replace("\"", "'")
                     };
 
                     // Check for duplicate

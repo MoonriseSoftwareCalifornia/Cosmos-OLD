@@ -60,6 +60,11 @@ namespace Cosmos.Cms.Models
         public DateTimeOffset? Updated { get; set; }
 
         /// <summary>
+        /// Article banner image
+        /// </summary>
+        public string BannerImage { get; set; }
+
+        /// <summary>
         /// Regions
         /// </summary>
         public List<HtmlEditorRegion> Regions { get; set; }

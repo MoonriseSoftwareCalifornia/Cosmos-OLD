@@ -103,7 +103,7 @@ namespace Cosmos.Common.Models
         ///    Information about the editor or author who created the article
         /// </summary>
         [Display(Name = "Author information")]
-        public virtual AuthorInfo AuthorInfo { get; set; } = null;
+        public virtual string AuthorInfo { get; set; } = null;
 
         /// <summary>
         ///     Date and time of when this was published
