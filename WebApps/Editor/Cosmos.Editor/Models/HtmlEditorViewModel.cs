@@ -1,4 +1,4 @@
-﻿using Cosmos.Cms.Common.Models;
+﻿using Cosmos.Common.Models;
 using Cosmos.Cms.Data;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -34,6 +34,7 @@ namespace Cosmos.Cms.Models
             Content = model.Content;
             RoleList = model.RoleList;
             Updated = model.Updated;
+            BannerImage = model.BannerImage;
         }
 
         /// <summary>
@@ -102,6 +103,11 @@ namespace Cosmos.Cms.Models
         [DataType(DataType.DateTime)]
         [DateTimeUtcKind]
         public DateTimeOffset? Updated { get; set; }
+
+        /// <summary>
+        /// Article banner image
+        /// </summary>
+        public object BannerImage { get; private set; }
 
         /// <summary>
         /// Update existing version

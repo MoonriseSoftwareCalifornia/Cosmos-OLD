@@ -1,4 +1,4 @@
-﻿using Cosmos.Cms.Common.Models;
+﻿using Cosmos.Common.Models;
 using Cosmos.Cms.Models.Interfaces;
 using System.Collections.Generic;
 

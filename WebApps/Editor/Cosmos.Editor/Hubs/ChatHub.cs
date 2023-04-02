@@ -1,5 +1,5 @@
 ﻿using Cosmos.BlobService;
-using Cosmos.Cms.Common.Data;
+using Cosmos.Common.Data;
 using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Models;
 using Microsoft.AspNetCore.Authorization;

@@ -1,5 +1,5 @@
 ﻿using AspNetCore.Identity.Services.SendGrid;
-using Cosmos.Cms.Common.Data;
+using Cosmos.Common.Data;
 using Cosmos.Cms.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Cosmos.Cms.Controllers
 {
@@ -51,6 +52,105 @@ namespace Cosmos.Cms.Controllers
             _roleManager = roleManager;
             _emailSender = (SendGridEmailSender)emailSender;
             _dbContext = dbContext;
+        }
+
+
+        /// <summary>
+        /// User account inventory
+        /// </summary>
+        /// <param name="sortOrder"></param>
+        /// <param name="currentSort"></param>
+        /// <param name="pageNo"></param>
+        /// <param name="pageSize"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> AuthorInfos(string sortOrder = "asc", string currentSort = "EmailAddress", int pageNo = 0, int pageSize = 10)
+        {
+
+            ViewData["sortOrder"] = sortOrder;
+            ViewData["currentSort"] = currentSort;
+            ViewData["pageNo"] = pageNo;
+            ViewData["pageSize"] = pageSize;
+
+            // Get the current list of infos
+            var ids = await _dbContext.AuthorInfos.Select(s => s.UserId).ToArrayAsync();
+            var check = await _dbContext.Users.Select(s => new AuthorInfo { UserId = s.Id, EmailAddress = s.Email }).ToListAsync();
+            var missing = check.Where(w => ids.Contains(w.UserId) == false).ToList();
+            // Get missing infos and add them
+            _dbContext.AuthorInfos.AddRange(missing);
+            await _dbContext.SaveChangesAsync();
+
+            var query = _dbContext.AuthorInfos.AsQueryable();
+
+            // Get count
+            ViewData["RowCount"] = await query.CountAsync();
+
+            if (sortOrder.Equals("desc", StringComparison.InvariantCultureIgnoreCase))
+            {
+                switch (currentSort)
+                {
+                    case "EmailAddress":
+                        query = query.OrderByDescending(o => o.EmailAddress);
+                        break;
+                    case "UserId":
+                        query = query.OrderByDescending(o => o.UserId);
+                        break;
+                    case "AuthorName":
+                        query.OrderByDescending(o => o.AuthorName);
+                        break;
+                }
+            }
+            else
+            {
+                switch (currentSort)
+                {
+                    case "EmailAddress":
+                        query = query.OrderBy(o => o.EmailAddress);
+                        break;
+                    case "UserId":
+                        query = query.OrderBy(o => o.UserId);
+                        break;
+                    case "AuthorName":
+                        query = query.OrderBy(o => o.AuthorName);
+                        break;
+                }
+            }
+
+
+            query = query.Skip(pageNo * pageSize).Take(pageSize);
+
+            var data = await query.ToListAsync();
+
+
+            return View(data);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> AuthorInfoEdit(string Id)
+        {
+            return View(await _dbContext.AuthorInfos.FindAsync(Id));
+        }
+
+
+        /// <summary>
+        /// Edit Editor/Author information
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> AuthorInfoEdit(AuthorInfo model)
+        {
+            if (ModelState.IsValid)
+            {
+                _dbContext.Entry(model).State = EntityState.Modified;
+                await _dbContext.SaveChangesAsync();
+                return RedirectToAction("AuthorInfos");
+            }
+
+            return View(model);
         }
 
         /// <summary>

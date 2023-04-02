@@ -1,5 +1,5 @@
-﻿using Cosmos.Cms.Common.Data;
-using Cosmos.Cms.Common.Data.Logic;
+﻿using Cosmos.Common.Data;
+using Cosmos.Common.Data.Logic;
 using HtmlAgilityPack;
 using Newtonsoft.Json;
 using System;

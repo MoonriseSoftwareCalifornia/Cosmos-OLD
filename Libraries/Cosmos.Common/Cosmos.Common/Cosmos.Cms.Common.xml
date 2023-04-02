@@ -24,7 +24,7 @@
             Redis cache configuration field
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Controllers.CosmosController.#ctor(Microsoft.Extensions.Logging.ILogger,Cosmos.Cms.Common.Data.Logic.ArticleLogic,Microsoft.Extensions.Options.IOptions{Cosmos.Cms.Common.Services.Configurations.CosmosConfig})">
+        <member name="M:Cosmos.Cms.Common.Controllers.CosmosController.#ctor(Microsoft.Extensions.Logging.ILogger,Cosmos.Common.Data.Logic.ArticleLogic,Microsoft.Extensions.Options.IOptions{Cosmos.Cms.Common.Services.Configurations.CosmosConfig})">
             <summary>
                 Base constructor
             </summary>
@@ -62,64 +62,64 @@
             <param name="lastModifiedUtc">When the cache object was last modified in UTC</param>
             <param name="cacheDurationSeconds">How many seconds until cache expires.</param>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.ApplicationDbContext">
+        <member name="T:Cosmos.Common.Data.ApplicationDbContext">
             <summary>
                 Database Context for Cosmos CMS
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ApplicationDbContext.GetLastSyncResult">
+        <member name="P:Cosmos.Common.Data.ApplicationDbContext.GetLastSyncResult">
             <summary>
             Gets the last synchronization result
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.IsConfigured">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.IsConfigured">
             <summary>
             Determine if this service is configured
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.LoadSyncContext(Cosmos.Cms.Common.Data.SqlDbSyncContext)">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.LoadSyncContext(Cosmos.Common.Data.SqlDbSyncContext)">
             <summary>
             Load database synchronization context
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions{Cosmos.Cms.Common.Data.ApplicationDbContext})">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions{Cosmos.Common.Data.ApplicationDbContext})">
             <summary>
                 Constructor
             </summary>
             <param name="options"></param>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.#ctor">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.#ctor">
             <summary>
                 Constructor without options.
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
             <summary>
                 On model creating
             </summary>
             <param name="modelBuilder"></param>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.SaveChanges(System.Boolean)">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.SaveChanges(System.Boolean)">
             <inheritdoc/>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.SaveChanges">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.SaveChanges">
             <inheritdoc/>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.SaveChangesAsync(System.Threading.CancellationToken)">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.SaveChangesAsync(System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.SaveChangesAsync(System.Boolean,System.Threading.CancellationToken)">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.SaveChangesAsync(System.Boolean,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.SaveChanges(System.Nullable{System.Boolean})">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.SaveChanges(System.Nullable{System.Boolean})">
             <summary>
             Uses the synchronous SaveChanges method.
             </summary>
             <param name="acceptAllChangesOnSuccess"></param>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.ApplicationDbContext.SaveChangesAsync(System.Nullable{System.Boolean},System.Threading.CancellationToken)">
+        <member name="M:Cosmos.Common.Data.ApplicationDbContext.SaveChangesAsync(System.Nullable{System.Boolean},System.Threading.CancellationToken)">
             <summary>
             Uses the asynchronous base SaveChangesAsync method.
             </summary>
@@ -127,303 +127,303 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ApplicationDbContext.Articles">
+        <member name="P:Cosmos.Common.Data.ApplicationDbContext.Articles">
             <summary>
                 Articles
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ApplicationDbContext.ArticleLogs">
+        <member name="P:Cosmos.Common.Data.ApplicationDbContext.ArticleLogs">
             <summary>
                 Article activity logs
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ApplicationDbContext.MenuItems">
+        <member name="P:Cosmos.Common.Data.ApplicationDbContext.MenuItems">
             <summary>
                 Menu items
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ApplicationDbContext.FontIcons">
+        <member name="P:Cosmos.Common.Data.ApplicationDbContext.FontIcons">
             <summary>
                 Font icons
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ApplicationDbContext.Templates">
+        <member name="P:Cosmos.Common.Data.ApplicationDbContext.Templates">
             <summary>
                 Web page templates
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ApplicationDbContext.Layouts">
+        <member name="P:Cosmos.Common.Data.ApplicationDbContext.Layouts">
             <summary>
                 Website layouts
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ApplicationDbContext.Teams">
+        <member name="P:Cosmos.Common.Data.ApplicationDbContext.Teams">
             <summary>
                 Page teams
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ApplicationDbContext.TeamMembers">
+        <member name="P:Cosmos.Common.Data.ApplicationDbContext.TeamMembers">
             <summary>
                 Team membership
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.Article">
+        <member name="T:Cosmos.Common.Data.Article">
             <summary>
                 Article
             </summary>
             <remarks>An article is the content for a web page.</remarks>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.Id">
+        <member name="P:Cosmos.Common.Data.Article.Id">
             <summary>
                 Unique article entity primary key number (not to be confused with article number)
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.LayoutId">
+        <member name="P:Cosmos.Common.Data.Article.LayoutId">
             <summary>
                 (optional) Layout that this article uses
             </summary>
             <remarks>If the page uses a layout other than the default, it will be specified here.</remarks>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.TeamId">
+        <member name="P:Cosmos.Common.Data.Article.TeamId">
             <summary>
                 (optional) If applicable, the Id of the team managing this web page.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.ArticleNumber">
+        <member name="P:Cosmos.Common.Data.Article.ArticleNumber">
             <summary>
                 Article number
             </summary>
             <remarks>An article number.</remarks>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.StatusCode">
+        <member name="P:Cosmos.Common.Data.Article.StatusCode">
             <summary>
                 Status of this article
             </summary>
-            <remarks>See <see cref="T:Cosmos.Cms.Common.Data.Logic.StatusCodeEnum" /> enum for code numbers.</remarks>
+            <remarks>See <see cref="T:Cosmos.Common.Data.Logic.StatusCodeEnum" /> enum for code numbers.</remarks>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.UrlPath">
+        <member name="P:Cosmos.Common.Data.Article.UrlPath">
             <summary>
                 This is the URL of the article.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.VersionNumber">
+        <member name="P:Cosmos.Common.Data.Article.VersionNumber">
             <summary>
                 Version number of the article.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.Published">
+        <member name="P:Cosmos.Common.Data.Article.Published">
             <summary>
                 Date/time of when this article is published.
             </summary>
             <remarks>Null value here means this article is not published.</remarks>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.Title">
+        <member name="P:Cosmos.Common.Data.Article.Title">
             <summary>
                 Title of the article
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.Content">
+        <member name="P:Cosmos.Common.Data.Article.Content">
             <summary>
                 HTML content of the page.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.Updated">
+        <member name="P:Cosmos.Common.Data.Article.Updated">
             <summary>
                 Date/time of when this article was last updated.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.HeaderJavaScript">
+        <member name="P:Cosmos.Common.Data.Article.HeaderJavaScript">
             <summary>
                 JavaScript injected into the header of the web page.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.FooterJavaScript">
+        <member name="P:Cosmos.Common.Data.Article.FooterJavaScript">
             <summary>
                 JavaScript injected into the footer of the web page.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.Layout">
+        <member name="P:Cosmos.Common.Data.Article.Layout">
             <summary>
                 (optional) The layout of this page if other than the default.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.ArticleLogs">
+        <member name="P:Cosmos.Common.Data.Article.ArticleLogs">
             <summary>
                 Activity logs relating to this article
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.MenuItems">
+        <member name="P:Cosmos.Common.Data.Article.MenuItems">
             <summary>
                 Menu items for this article (soon to be depreciated)
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.FontIconId">
+        <member name="P:Cosmos.Common.Data.Article.FontIconId">
             <summary>
                 (optional) Icon font Id for this article
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.FontIcon">
+        <member name="P:Cosmos.Common.Data.Article.FontIcon">
             <summary>
                 (optional) Icon font for this page (will appear in menu if selected)
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.Team">
+        <member name="P:Cosmos.Common.Data.Article.Team">
             <summary>
                 (optional) Team that manages this page.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Article.RoleList">
+        <member name="P:Cosmos.Common.Data.Article.RoleList">
             <summary>
             A comma delimited list of roles that can access this article. If blank the assumption is anonymous access.
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.ArticleLog">
+        <member name="T:Cosmos.Common.Data.ArticleLog">
             <summary>
                 Article activity log entry
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ArticleLog.Id">
+        <member name="P:Cosmos.Common.Data.ArticleLog.Id">
             <summary>
                 Identity key of the entity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ArticleLog.IdentityUserId">
+        <member name="P:Cosmos.Common.Data.ArticleLog.IdentityUserId">
             <summary>
                 User ID of the person who triggered the activity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ArticleLog.IdentityUser">
+        <member name="P:Cosmos.Common.Data.ArticleLog.IdentityUser">
             <summary>
                 Identity User assocated with this activity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ArticleLog.ActivityNotes">
+        <member name="P:Cosmos.Common.Data.ArticleLog.ActivityNotes">
             <summary>
                 Notes regarding what happened.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ArticleLog.DateTimeStamp">
+        <member name="P:Cosmos.Common.Data.ArticleLog.DateTimeStamp">
             <summary>
                 Date and Time (UTC by default)
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ArticleLog.ArticleId">
+        <member name="P:Cosmos.Common.Data.ArticleLog.ArticleId">
             <summary>
                 ID of the Article associated with this event.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.ArticleLog.Article">
+        <member name="P:Cosmos.Common.Data.ArticleLog.Article">
             <summary>
                 The article associated with this event.
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.FontIcon">
+        <member name="T:Cosmos.Common.Data.FontIcon">
             <summary>
                 Font icon class in the database
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.FontIcon.Id">
+        <member name="P:Cosmos.Common.Data.FontIcon.Id">
             <summary>
                 Identity key for this entity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.FontIcon.IconCode">
+        <member name="P:Cosmos.Common.Data.FontIcon.IconCode">
             <summary>
                 CSS code for this icon
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.Layout">
+        <member name="T:Cosmos.Common.Data.Layout">
             <summary>
                 Website layout content.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.Id">
+        <member name="P:Cosmos.Common.Data.Layout.Id">
             <summary>
                 Identity key for this entity.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.IsDefault">
+        <member name="P:Cosmos.Common.Data.Layout.IsDefault">
             <summary>
                 If true this is the default layout for website.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.LayoutName">
+        <member name="P:Cosmos.Common.Data.Layout.LayoutName">
             <summary>
                 Friendly name of layout
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.Notes">
+        <member name="P:Cosmos.Common.Data.Layout.Notes">
             <summary>
                 Notes about the layout
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.Head">
+        <member name="P:Cosmos.Common.Data.Layout.Head">
             <summary>
                 Content injected into the web page HEAD
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.BodyHtmlAttributes">
+        <member name="P:Cosmos.Common.Data.Layout.BodyHtmlAttributes">
             <summary>
                 Body tag attributes
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.BodyHeaderHtmlAttributes">
+        <member name="P:Cosmos.Common.Data.Layout.BodyHeaderHtmlAttributes">
             <summary>
                 Web page header attributes (inside body)
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.HtmlHeader">
+        <member name="P:Cosmos.Common.Data.Layout.HtmlHeader">
             <summary>
                 Web page header content
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.FooterHtmlAttributes">
+        <member name="P:Cosmos.Common.Data.Layout.FooterHtmlAttributes">
             <summary>
                 Website footer attributes
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.FooterHtmlContent">
+        <member name="P:Cosmos.Common.Data.Layout.FooterHtmlContent">
             <summary>
                 Content injected into the web site footer.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.PostFooterBlock">
+        <member name="P:Cosmos.Common.Data.Layout.PostFooterBlock">
             <summary>
                 Post footer JavaScript code block
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Layout.Articles">
+        <member name="P:Cosmos.Common.Data.Layout.Articles">
             <summary>
                 Articles assocated with this layout (soon to be depreciated)
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.Logic.ArticleLogic">
+        <member name="T:Cosmos.Common.Data.Logic.ArticleLogic">
             <summary>
                 Main logic behind getting and maintaining web site articles.
             </summary>
             <remarks>An article is the "content" behind a web page.</remarks>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Logic.ArticleLogic.DbContext">
+        <member name="P:Cosmos.Common.Data.Logic.ArticleLogic.DbContext">
             <summary>
             Database Content
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Logic.ArticleLogic.CosmosOptions">
+        <member name="P:Cosmos.Common.Data.Logic.ArticleLogic.CosmosOptions">
             <summary>
             Site customization config
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Logic.ArticleLogic.DistributedCache">
+        <member name="P:Cosmos.Common.Data.Logic.ArticleLogic.DistributedCache">
             <summary>
             Distributed cache
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Logic.ArticleLogic.RedisConfig">
+        <member name="P:Cosmos.Common.Data.Logic.ArticleLogic.RedisConfig">
             <summary>
             Redis cache options
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.#ctor(Cosmos.Cms.Common.Data.ApplicationDbContext,Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Cosmos.Cms.Common.Services.Configurations.CosmosConfig},Microsoft.Extensions.Logging.ILogger{Cosmos.Cms.Common.Data.Logic.ArticleLogic})">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.#ctor(Cosmos.Common.Data.ApplicationDbContext,Microsoft.Extensions.Caching.Distributed.IDistributedCache,Microsoft.Extensions.Options.IOptions{Cosmos.Cms.Common.Services.Configurations.CosmosConfig},Microsoft.Extensions.Logging.ILogger{Cosmos.Common.Data.Logic.ArticleLogic})">
             <summary>
             Publisher Constructor
             </summary>
@@ -432,7 +432,7 @@
             <param name="config"></param>
             <param name="logger"></param>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.GetByUrl(System.String,System.String,System.Boolean,System.Boolean)">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.GetByUrl(System.String,System.String,System.Boolean,System.Boolean)">
             <summary>
                 Gets the current *published* version of an article.  Gets the home page if ID is null.
             </summary>
@@ -441,17 +441,17 @@
             <param name="publishedOnly">Only retrieve latest published version</param>
             <param name="onlyActive">Only retrieve active status</param>
             <returns>
-                <see cref="T:Cosmos.Cms.Common.Models.ArticleViewModel" />
+                <see cref="T:Cosmos.Common.Models.ArticleViewModel" />
             </returns>
             <remarks>
                 <para>
-                    Returns <see cref="T:Cosmos.Cms.Common.Models.ArticleViewModel" />. For more details on what is returned, see <see cref="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.GetArticle(System.String,System.Boolean,System.Boolean,System.String)" />
-                    and <see cref="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.BuildArticleViewModel(Cosmos.Cms.Common.Data.Article,System.String)" />.
+                    Returns <see cref="T:Cosmos.Common.Models.ArticleViewModel" />. For more details on what is returned, see <see cref="M:Cosmos.Common.Data.Logic.ArticleLogic.GetArticle(System.String,System.Boolean,System.Boolean,System.String)" />
+                    and <see cref="M:Cosmos.Common.Data.Logic.ArticleLogic.BuildArticleViewModel(Cosmos.Common.Data.Article,System.String)" />.
                 </para>
                 <para>NOTE: Cannot access articles that have been deleted.</para>
             </remarks>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.GetArticle(System.String,System.Boolean,System.Boolean,System.String)">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.GetArticle(System.String,System.Boolean,System.Boolean,System.String)">
             <summary>
                 Private method used return an article view model.
             </summary>
@@ -460,29 +460,29 @@
             <param name="onlyActive"></param>
             <param name="lang">Language to translate the en-US into.</param>
             <returns>
-                <para>Returns an <see cref="T:Cosmos.Cms.Common.Models.ArticleViewModel" /> created with <see cref="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.BuildArticleViewModel(Cosmos.Cms.Common.Data.Article,System.String)" />.</para>
+                <para>Returns an <see cref="T:Cosmos.Common.Models.ArticleViewModel" /> created with <see cref="M:Cosmos.Common.Data.Logic.ArticleLogic.BuildArticleViewModel(Cosmos.Common.Data.Article,System.String)" />.</para>
                 <para>NOTE: Cannot access articles that have been deleted.</para>
             </returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.BuildArticleViewModel(Cosmos.Cms.Common.Data.Article,System.String)">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.BuildArticleViewModel(Cosmos.Common.Data.Article,System.String)">
             <summary>
-                This method creates an <see cref="T:Cosmos.Cms.Common.Models.ArticleViewModel" /> ready for display and edit.
+                This method creates an <see cref="T:Cosmos.Common.Models.ArticleViewModel" /> ready for display and edit.
             </summary>
             <param name="article"></param>
             <param name="lang"></param>
             <returns>
-                <para>Returns <see cref="T:Cosmos.Cms.Common.Models.ArticleViewModel" /> that includes:</para>
+                <para>Returns <see cref="T:Cosmos.Common.Models.ArticleViewModel" /> that includes:</para>
                 <list type="bullet">
                     <item>
                         Current ArticleVersionInfo
                     </item>
                     <item>
-                        If the site is in authoring or publishing mode (<see cref="P:Cosmos.Cms.Common.Models.ArticleViewModel.ReadWriteMode" />)
+                        If the site is in authoring or publishing mode (<see cref="P:Cosmos.Common.Models.ArticleViewModel.ReadWriteMode" />)
                     </item>
                 </list>
             </returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.HandleUrlEncodeTitle(System.String)">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.HandleUrlEncodeTitle(System.String)">
             <summary>
                 Provides a standard method for turning a title into a URL Encoded path.
             </summary>
@@ -494,9 +494,9 @@
                 <para>All strings are normalized to lower case.</para>
             </remarks>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.InternalBuildMenu">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.InternalBuildMenu">
             <summary>
-                This is the private, internal method used by <see cref="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.BuildMenu(System.String)" /> to create menu content.
+                This is the private, internal method used by <see cref="M:Cosmos.Common.Data.Logic.ArticleLogic.BuildMenu(System.String)" /> to create menu content.
             </summary>
             <returns>
                 Returns a menu content following the pattern seen here in
@@ -507,24 +507,24 @@
                 .
             </returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.BuildMenu(System.String)">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.BuildMenu(System.String)">
             <summary>
                 Returns the menu from <see cref="T:Microsoft.Extensions.Caching.Distributed.IDistributedCache" />, or creates a new menu if cache is null or not available.
             </summary>
             <returns>Menu content as <see cref="T:System.String" />.</returns>
             <remarks>
                 If the menu can't be pulled from <see cref="T:Microsoft.Extensions.Caching.Distributed.IDistributedCache" />, this method creates a fresh copy of
-                content using <see cref="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.InternalBuildMenu" />.
+                content using <see cref="M:Cosmos.Common.Data.Logic.ArticleLogic.InternalBuildMenu" />.
             </remarks>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.GetSupportedLanguages(System.String)">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.GetSupportedLanguages(System.String)">
             <summary>
                 Get the list of languages supported for translation by Google.
             </summary>
             <param name="lang"></param>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.GetDefaultLayout(System.String,System.Boolean)">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.GetDefaultLayout(System.String,System.Boolean)">
             <summary>
                 Gets the default layout, including navigation menu.
             </summary>
@@ -534,11 +534,11 @@
             <remarks>
                 <para>
                     Inserts a Bootstrap style nav bar where this '&lt;!--{COSMOS-UL-NAV}--&gt;' is placed in the
-                    <see cref="P:Cosmos.Cms.Common.Models.LayoutViewModel.HtmlHeader" />
+                    <see cref="P:Cosmos.Common.Models.LayoutViewModel.HtmlHeader" />
                 </para>
             </remarks>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.BuildDefaultLayout(System.String,System.Boolean)">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.BuildDefaultLayout(System.String,System.Boolean)">
             <summary>
                 Builds a default layout, including navigation menu.
             </summary>
@@ -552,7 +552,7 @@
                 </para>
             </remarks>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.Serialize(System.Object)">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.Serialize(System.Object)">
             <summary>
                 Serializes an object using <see cref="M:Newtonsoft.Json.JsonConvert.SerializeObject(System.Object)" />
                 and <see cref="P:System.Text.Encoding.UTF32" />.
@@ -560,7 +560,7 @@
             <param name="obj"></param>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.Logic.ArticleLogic.Deserialize``1(System.Byte[])">
+        <member name="M:Cosmos.Common.Data.Logic.ArticleLogic.Deserialize``1(System.Byte[])">
             <summary>
                 Deserializes an object using <see cref="M:Newtonsoft.Json.JsonConvert.DeserializeObject(System.String)" />
                 and <see cref="P:System.Text.Encoding.UTF32" />.
@@ -568,105 +568,105 @@
             <param name="bytes"></param>
             <returns></returns>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.Logic.StatusCodeEnum">
+        <member name="T:Cosmos.Common.Data.Logic.StatusCodeEnum">
             <summary>
                 Article status code
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Data.Logic.StatusCodeEnum.Active">
+        <member name="F:Cosmos.Common.Data.Logic.StatusCodeEnum.Active">
             <summary>
                 Active, able to display if publish data given.
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Data.Logic.StatusCodeEnum.Inactive">
+        <member name="F:Cosmos.Common.Data.Logic.StatusCodeEnum.Inactive">
             <summary>
                 In active, can be displayed by logged in users
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Data.Logic.StatusCodeEnum.Deleted">
+        <member name="F:Cosmos.Common.Data.Logic.StatusCodeEnum.Deleted">
             <summary>
                 Considered removed, no one can display until status changes.
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Data.Logic.StatusCodeEnum.Redirect">
+        <member name="F:Cosmos.Common.Data.Logic.StatusCodeEnum.Redirect">
             <summary>
                 The article is a redirect.
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.MenuItem">
+        <member name="T:Cosmos.Common.Data.MenuItem">
             <summary>
                 Represents a menu item in the layout navigation menu
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.Id">
+        <member name="P:Cosmos.Common.Data.MenuItem.Id">
             <summary>
                 Identity key for this entity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.Guid">
+        <member name="P:Cosmos.Common.Data.MenuItem.Guid">
             <summary>
                 Used for cache management.  No need to scaffold in forms.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.SortOrder">
+        <member name="P:Cosmos.Common.Data.MenuItem.SortOrder">
             <summary>
                 Determins where in the sort order does this menu item fall
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.MenuText">
+        <member name="P:Cosmos.Common.Data.MenuItem.MenuText">
             <summary>
                 Menu item text or label
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.Url">
+        <member name="P:Cosmos.Common.Data.MenuItem.Url">
             <summary>
                 URL for this menu item
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.IconCode">
+        <member name="P:Cosmos.Common.Data.MenuItem.IconCode">
             <summary>
                 Icon CSS code for this menu item
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.ParentId">
+        <member name="P:Cosmos.Common.Data.MenuItem.ParentId">
             <summary>
                 Menu supports a hierarchy, this is the parent menu item
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.ParentItem">
+        <member name="P:Cosmos.Common.Data.MenuItem.ParentItem">
             <summary>
                 Navitation to the parent item
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.ChildItems">
+        <member name="P:Cosmos.Common.Data.MenuItem.ChildItems">
             <summary>
                 Items below this one that are "children"
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.MenuItem.HasChildren">
+        <member name="P:Cosmos.Common.Data.MenuItem.HasChildren">
             <summary>
                 Indicates if this menu item has children
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.SqlDbSyncContext">
+        <member name="T:Cosmos.Common.Data.SqlDbSyncContext">
             <summary>
             SQL Database Synchronization Context
             </summary>
             <remarks>This context keeps multiple databases in synchronization with the primary database.</remarks>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.#ctor(Microsoft.Extensions.Options.IOptions{Cosmos.Cms.Common.Services.Configurations.CosmosConfig})">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.#ctor(Microsoft.Extensions.Options.IOptions{Cosmos.Cms.Common.Services.Configurations.CosmosConfig})">
             <summary>
             Constructor
             </summary>
             <param name="options"></param>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.IsConfigured">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.IsConfigured">
             <summary>
             Determine if this service is configured
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.GetSyncSetup(System.String[],Dotmim.Sync.Enumerations.SyncDirection)">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.GetSyncSetup(System.String[],Dotmim.Sync.Enumerations.SyncDirection)">
             <summary>
             Gets the synchronization setup
             </summary>
@@ -674,37 +674,37 @@
             <param name="direction"></param>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.GetSyncAllTables">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.GetSyncAllTables">
             <summary>
             Gets a list of all the tables that need to be synchronized
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.GetSyncAccountTables">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.GetSyncAccountTables">
             <summary>
             Gets a list of user account tables in database
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.GetSyncCosmosTables">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.GetSyncCosmosTables">
             <summary>
             Gets a list of Cosmos specific tables that need to be synchronized
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.GetPrimaryProvider">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.GetPrimaryProvider">
             <summary>
             Get primary provider
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.GetSecondaryProviders">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.GetSecondaryProviders">
             <summary>
             Gets secondary providers
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.SyncDatabases(Dotmim.Sync.Enumerations.SyncDirection,System.Threading.CancellationToken)">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.SyncDatabases(Dotmim.Sync.Enumerations.SyncDirection,System.Threading.CancellationToken)">
             <summary>
             Synchronizes the primary database with the secondaries.
             </summary>
@@ -712,7 +712,7 @@
             <param name="token"></param>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Data.SqlDbSyncContext.SyncDatabases(System.String[],Dotmim.Sync.Enumerations.SyncDirection,System.Threading.CancellationToken)">
+        <member name="M:Cosmos.Common.Data.SqlDbSyncContext.SyncDatabases(System.String[],Dotmim.Sync.Enumerations.SyncDirection,System.Threading.CancellationToken)">
             <summary>
             Executes the synchronization
             </summary>
@@ -721,92 +721,92 @@
             <param name="cancellationToken"></param>
             <returns></returns>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.Team">
+        <member name="T:Cosmos.Common.Data.Team">
             <summary>
                 Team entity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Team.Id">
+        <member name="P:Cosmos.Common.Data.Team.Id">
             <summary>
                 Identity key for this entity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Team.TeamName">
+        <member name="P:Cosmos.Common.Data.Team.TeamName">
             <summary>
                 Friendly name of this team
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Team.TeamDescription">
+        <member name="P:Cosmos.Common.Data.Team.TeamDescription">
             <summary>
                 Description of who this team is and what they are responsible for
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Team.Members">
+        <member name="P:Cosmos.Common.Data.Team.Members">
             <summary>
                 Team member list
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Team.Articles">
+        <member name="P:Cosmos.Common.Data.Team.Articles">
             <summary>
                 Articles managed by this team
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.TeamMember">
+        <member name="T:Cosmos.Common.Data.TeamMember">
             <summary>
                 A team member
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.TeamMember.Id">
+        <member name="P:Cosmos.Common.Data.TeamMember.Id">
             <summary>
                 Identity key for this entity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.TeamMember.TeamRole">
+        <member name="P:Cosmos.Common.Data.TeamMember.TeamRole">
             <summary>
-                The role ID of this team member as defined by <see cref="T:Cosmos.Cms.Common.Models.TeamRoleEnum" />
+                The role ID of this team member as defined by <see cref="T:Cosmos.Common.Models.TeamRoleEnum" />
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.TeamMember.TeamId">
+        <member name="P:Cosmos.Common.Data.TeamMember.TeamId">
             <summary>
                 ID of the team this member belongs to
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.TeamMember.Team">
+        <member name="P:Cosmos.Common.Data.TeamMember.Team">
             <summary>
                 The team
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.TeamMember.UserId">
+        <member name="P:Cosmos.Common.Data.TeamMember.UserId">
             <summary>
                 The identity user associated with this membership
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.TeamMember.User">
+        <member name="P:Cosmos.Common.Data.TeamMember.User">
             <summary>
                 The identity user assocated with this membership
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Data.Template">
+        <member name="T:Cosmos.Common.Data.Template">
             <summary>
                 A page template
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Template.Id">
+        <member name="P:Cosmos.Common.Data.Template.Id">
             <summary>
                 Identity key for this entity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Template.Title">
+        <member name="P:Cosmos.Common.Data.Template.Title">
             <summary>
                 Friendly name or title of this page template
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Template.Description">
+        <member name="P:Cosmos.Common.Data.Template.Description">
             <summary>
                 Description or notes about how to use this template
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Data.Template.Content">
+        <member name="P:Cosmos.Common.Data.Template.Content">
             <summary>
                 The HTML content of this page template
             </summary>
@@ -860,88 +860,88 @@
             </summary>
             <param name="modelBuilder"></param>
         </member>
-        <member name="T:Cosmos.Cms.Common.Models.ArticleViewModel">
+        <member name="T:Cosmos.Common.Models.ArticleViewModel">
             <summary>
                 Article view model, used to display content on a web page
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.Id">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.Id">
             <summary>
                 Entity key for the article
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.StatusCode">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.StatusCode">
             <summary>
                 Status code of the article
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.ArticleNumber">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.ArticleNumber">
             <summary>
                 Article number
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.LanguageCode">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.LanguageCode">
             <summary>
                 ISO language code of this article
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.LanguageName">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.LanguageName">
             <summary>
                 Language name
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.UrlPath">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.UrlPath">
             <summary>
                 Url of this page
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.VersionNumber">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.VersionNumber">
             <summary>
                 Version number of this article
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.Published">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.Published">
             <summary>
                 Date and time of when this was published
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.Title">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.Title">
             <summary>
                 Article title
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.Content">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.Content">
             <summary>
                 HTML Content of the page
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.Updated">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.Updated">
             <summary>
                 Date and time of when this article was last updated.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.HeaderJavaScript">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.HeaderJavaScript">
             <summary>
                 JavaScript block injected into header
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.FooterJavaScript">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.FooterJavaScript">
             <summary>
                 JavaScript block injected into the footer
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.Layout">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.Layout">
             <summary>
                 Layout used by this page.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.RoleList">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.RoleList">
             <summary>
             Roles allowed to view this page.
             </summary>
             <remarks>If this value is null, it assumes page can be viewed anonymously.</remarks>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.ReadWriteMode">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.ReadWriteMode">
             <summary>
                 Indicates if this is in authoring (true) or publishing (false) mode, Default is false.
             </summary>
@@ -950,27 +950,27 @@
                 is set in Startup and injected into controllers using <see cref="T:Microsoft.Extensions.Options.IOptions`1" />.
             </remarks>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.PreviewMode">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.PreviewMode">
             <summary>
                 Indicates is page is in preview model. Default is false.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.EditModeOn">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.EditModeOn">
             <summary>
                 Indicates if page is in edit, or authoring mode. Default is false.
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.CacheKey">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.CacheKey">
             <summary>
                 Cache key used by REDIS
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.ArticleViewModel.CacheDuration">
+        <member name="P:Cosmos.Common.Models.ArticleViewModel.CacheDuration">
             <summary>
                 Cache duration in seconds used by REDIS
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Models.Attributes.ArticleTitleValidation">
+        <member name="T:Cosmos.Common.Models.Attributes.ArticleTitleValidation">
             <summary>
                 Validates that a title is valid.
             </summary>
@@ -981,10 +981,10 @@
                     <item>Ensures the title must be unique.</item>
                     <item>Prevents titles from being named "root," which is a key word.</item>
                 </list>
-                <para>Note: This validator will return invalid if it cannot connect to the <see cref="T:Cosmos.Cms.Common.Data.ApplicationDbContext" />.</para>
+                <para>Note: This validator will return invalid if it cannot connect to the <see cref="T:Cosmos.Common.Data.ApplicationDbContext" />.</para>
             </remarks>
         </member>
-        <member name="M:Cosmos.Cms.Common.Models.Attributes.ArticleTitleValidation.IsValid(System.Object,System.ComponentModel.DataAnnotations.ValidationContext)">
+        <member name="M:Cosmos.Common.Models.Attributes.ArticleTitleValidation.IsValid(System.Object,System.ComponentModel.DataAnnotations.ValidationContext)">
             <summary>
                 Validates the current value
             </summary>
@@ -992,296 +992,296 @@
             <param name="validationContext"></param>
             <returns></returns>
         </member>
-        <member name="T:Cosmos.Cms.Common.Models.FlushRedisResultViewModel">
+        <member name="T:Cosmos.Common.Models.FlushRedisResultViewModel">
             <summary>
                 Redis cache flush result
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Models.FlushRedisResultViewModel.#ctor">
+        <member name="M:Cosmos.Common.Models.FlushRedisResultViewModel.#ctor">
             <summary>
                 Constructor
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.FlushRedisResultViewModel.CacheConnected">
+        <member name="P:Cosmos.Common.Models.FlushRedisResultViewModel.CacheConnected">
             <summary>
                 Indicates that Redis is connected and in use
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.FlushRedisResultViewModel.UrlPath">
+        <member name="P:Cosmos.Common.Models.FlushRedisResultViewModel.UrlPath">
             <summary>
                 URL to flush
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.FlushRedisResultViewModel.Keys">
+        <member name="P:Cosmos.Common.Models.FlushRedisResultViewModel.Keys">
             <summary>
                 List of keys flushed (if applicable)
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Models.LayoutDefaults">
+        <member name="T:Cosmos.Common.Models.LayoutDefaults">
             <summary>
                 Default layouts installed during setup
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Models.LayoutDefaults.GetStarterLayouts">
+        <member name="M:Cosmos.Common.Models.LayoutDefaults.GetStarterLayouts">
             <summary>
                 This method is used to seed the database with all 12 starter web templates.
             </summary>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Models.LayoutDefaults.GetOceanside">
+        <member name="M:Cosmos.Common.Models.LayoutDefaults.GetOceanside">
             <summary>
                 CA.GOV Oceanside Layout
             </summary>
             <returns></returns>
         </member>
-        <member name="T:Cosmos.Cms.Common.Models.LayoutViewModel">
+        <member name="T:Cosmos.Common.Models.LayoutViewModel">
             <summary>
                 VSiew model used on layout list page
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Models.LayoutViewModel.#ctor">
+        <member name="M:Cosmos.Common.Models.LayoutViewModel.#ctor">
             <summary>
                 Constructor
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Models.LayoutViewModel.#ctor(Cosmos.Cms.Common.Data.Layout)">
+        <member name="M:Cosmos.Common.Models.LayoutViewModel.#ctor(Cosmos.Common.Data.Layout)">
             <summary>
                 Constructor
             </summary>
             <param name="layout"></param>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.Id">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.Id">
             <summary>
                 Identity key of the entity
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.IsDefault">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.IsDefault">
             <summary>
                 Indicates if this is the default layout of the site
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.LayoutName">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.LayoutName">
             <summary>
                 Friendly name of layout
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.Notes">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.Notes">
             <summary>
                 Notes regarding this layout
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.Head">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.Head">
             <summary>
                 Content injected into the head tag
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.BodyHtmlAttributes">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.BodyHtmlAttributes">
             <summary>
                 Body tag attribute
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.BodyHeaderHtmlAttributes">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.BodyHeaderHtmlAttributes">
             <summary>
                 Page header attributes
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.HtmlHeader">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.HtmlHeader">
             <summary>
                 Content injected into page header
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.FooterHtmlAttributes">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.FooterHtmlAttributes">
             <summary>
                 Footer html attributes
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.FooterHtmlContent">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.FooterHtmlContent">
             <summary>
                 Content injected into the page footer
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LayoutViewModel.PostFooterBlock">
+        <member name="P:Cosmos.Common.Models.LayoutViewModel.PostFooterBlock">
             <summary>
                 Content injected into post footer block
             </summary>
         </member>
-        <member name="M:Cosmos.Cms.Common.Models.LayoutViewModel.GetLayout(System.Boolean)">
+        <member name="M:Cosmos.Common.Models.LayoutViewModel.GetLayout(System.Boolean)">
             <summary>
                 Gets a detached entity.
             </summary>
             <returns></returns>
         </member>
-        <member name="T:Cosmos.Cms.Common.Models.LoremIpsum">
+        <member name="T:Cosmos.Common.Models.LoremIpsum">
             <summary>
                 Lorem Ipsum example text.
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.WhyLoremIpsum">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.WhyLoremIpsum">
             <summary>
                 Lorem ipsum explanation text.
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection1">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection1">
             <summary>
                 Example Lorem Ipsum text 1
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection2">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection2">
             <summary>
                 Example Lorem Ipsum text 2
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection3">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection3">
             <summary>
                 Example Lorem Ipsum text 3
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection4">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection4">
             <summary>
                 Example Lorem Ipsum text 4
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection5">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection5">
             <summary>
                 Example Lorem Ipsum text 5
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection6">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection6">
             <summary>
                 Example Lorem Ipsum text 6
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection7">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection7">
             <summary>
                 Example Lorem Ipsum text 7
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection8">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection8">
             <summary>
                 Example Lorem Ipsum text 8
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection9">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection9">
             <summary>
                 Example Lorem Ipsum text 9
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection10">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection10">
             <summary>
                 Example Lorem Ipsum text 10
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection11">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection11">
             <summary>
                 Example Lorem Ipsum text 11
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection12">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection12">
             <summary>
                 Example Lorem Ipsum text 12
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection13">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection13">
             <summary>
                 Example Lorem Ipsum text 13
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection14">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection14">
             <summary>
                 Example Lorem Ipsum text 14
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection15">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection15">
             <summary>
                 Example Lorem Ipsum text 15
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection16">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection16">
             <summary>
                 Example Lorem Ipsum text 16
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection17">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection17">
             <summary>
                 Example Lorem Ipsum text 17
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection18">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection18">
             <summary>
                 Example Lorem Ipsum text 18
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection19">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection19">
             <summary>
                 Example Lorem Ipsum text 19
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.LoremIpsum.SubSection20">
+        <member name="F:Cosmos.Common.Models.LoremIpsum.SubSection20">
             <summary>
                 Example Lorem Ipsum text 20
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Models.RedisCacheKeyItem">
+        <member name="T:Cosmos.Common.Models.RedisCacheKeyItem">
             <summary>
             Represents information needed to create a Redis cache key
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.RedisCacheKeyItem.CacheId">
+        <member name="P:Cosmos.Common.Models.RedisCacheKeyItem.CacheId">
             <summary>
             Internal cache ID - important for shared Redis service
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.RedisCacheKeyItem.UrlPath">
+        <member name="P:Cosmos.Common.Models.RedisCacheKeyItem.UrlPath">
             <summary>
             Url path to page
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.RedisCacheKeyItem.CacheOption">
+        <member name="P:Cosmos.Common.Models.RedisCacheKeyItem.CacheOption">
             <summary>
             Determines what the cache is for
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.RedisCacheKeyItem.Language">
+        <member name="P:Cosmos.Common.Models.RedisCacheKeyItem.Language">
             <summary>
             Language of the content stored in cache
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Models.LangItemViewModel">
+        <member name="T:Cosmos.Common.Models.LangItemViewModel">
             <summary>
                 Language list item
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LangItemViewModel.LanguageCode">
+        <member name="P:Cosmos.Common.Models.LangItemViewModel.LanguageCode">
             <summary>
                 ISO code for language
             </summary>
         </member>
-        <member name="P:Cosmos.Cms.Common.Models.LangItemViewModel.DisplayName">
+        <member name="P:Cosmos.Common.Models.LangItemViewModel.DisplayName">
             <summary>
                 Friendly name of language
             </summary>
         </member>
-        <member name="T:Cosmos.Cms.Common.Models.TeamRoleEnum">
+        <member name="T:Cosmos.Common.Models.TeamRoleEnum">
             <summary>
                 Team role enum
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.TeamRoleEnum.Reviewer">
+        <member name="F:Cosmos.Common.Models.TeamRoleEnum.Reviewer">
             <summary>
                 Review role
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.TeamRoleEnum.Author">
+        <member name="F:Cosmos.Common.Models.TeamRoleEnum.Author">
             <summary>
                 Author role
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.TeamRoleEnum.Editor">
+        <member name="F:Cosmos.Common.Models.TeamRoleEnum.Editor">
             <summary>
                 Editor role
             </summary>
         </member>
-        <member name="F:Cosmos.Cms.Common.Models.TeamRoleEnum.NoRole">
+        <member name="F:Cosmos.Common.Models.TeamRoleEnum.NoRole">
             <summary>
                 No role
             </summary>
@@ -2127,7 +2127,7 @@
             <param name="urlPath"></param>
             <returns></returns>
         </member>
-        <member name="M:Cosmos.Cms.Common.Services.RedisCacheService.GetPageCacheKey(Cosmos.Cms.Common.Models.RedisCacheKeyItem)">
+        <member name="M:Cosmos.Cms.Common.Services.RedisCacheService.GetPageCacheKey(Cosmos.Common.Models.RedisCacheKeyItem)">
             <summary>
             Get cache key
             </summary>

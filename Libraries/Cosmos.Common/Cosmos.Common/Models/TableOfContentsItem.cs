@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Cosmos.Cms.Common.Models
+namespace Cosmos.Common.Models
 {
     public class TableOfContents
     {

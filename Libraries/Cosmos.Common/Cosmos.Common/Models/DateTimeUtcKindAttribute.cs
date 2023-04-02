@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Cosmos.Cms.Common.Models
+namespace Cosmos.Common.Models
 {
     /// <summary>
     ///     Ensures that a DateTime object is of kind UTC

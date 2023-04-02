@@ -1,7 +1,7 @@
-﻿using Cosmos.Cms.Common.Data;
+﻿using Cosmos.Common.Data;
 using System.Collections.Generic;
 
-namespace Cosmos.Cms.Common.Models
+namespace Cosmos.Common.Models
 {
     /// <summary>
     ///     Default layouts installed during setup

@@ -32,7 +32,8 @@
         <div class="col-md-6">
             <div class="btn-group" role="group" aria-label="Page Actions">
                 <a class="btn btn-sm btn-primary" asp-action="Create" title="Create a user account.">New User <i class="fa-solid fa-circle-arrow-right"></i></a>
-                <a class="btn btn-sm btn-secondary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Role List <i class="fa-solid fa-circle-arrow-right"></i></a>
+                    <a class="btn btn-sm btn-secondary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Role List <i class="fa-solid fa-circle-arrow-right"></i></a>
+                    <a class="btn btn-sm btn-secondary" asp-action="AuthorInfos" asp-controller="Users" title="Public information about article editors and authors.">Author Infos <i class="fa-solid fa-circle-arrow-right"></i></a>
             </div>
             <div class="btn-group" role="group" aria-label="Page Actions">
                 <button id="btnAddRemoveRoles" type="button" onclick="submitUserIds('roles')" class="btn btn-sm btn-secondary" title="Add or remove users from roles." style="display:none">Roles</button>

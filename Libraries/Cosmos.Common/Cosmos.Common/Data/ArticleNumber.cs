@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Cosmos.Cms.Common.Data
+namespace Cosmos.Common.Data
 {
     /// <summary>
     /// Tracks article numbers

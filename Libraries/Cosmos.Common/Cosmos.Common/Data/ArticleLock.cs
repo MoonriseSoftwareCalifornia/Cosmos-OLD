@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Cosmos.Cms.Common.Data
+namespace Cosmos.Common.Data
 {
     /// <summary>
     /// Represents a lock on an article because it is being edited.

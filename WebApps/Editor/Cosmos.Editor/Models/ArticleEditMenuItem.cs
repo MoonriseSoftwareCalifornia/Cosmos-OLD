@@ -1,4 +1,4 @@
-﻿using Cosmos.Cms.Common.Data;
+﻿using Cosmos.Common.Data;
 using System;
 using System.ComponentModel.DataAnnotations;
 

@@ -2,9 +2,9 @@
 using Azure.ResourceManager.Cdn;
 using Azure.ResourceManager.Cdn.Models;
 using Azure.ResourceManager.Resources;
-using Cosmos.Cms.Common.Data;
-using Cosmos.Cms.Common.Data.Logic;
-using Cosmos.Cms.Common.Models;
+using Cosmos.Common.Data;
+using Cosmos.Common.Data.Logic;
+using Cosmos.Common.Models;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Controllers;
 using Cosmos.Cms.Models;
@@ -491,7 +491,8 @@ namespace Cosmos.Cms.Data.Logic
                 Updated = DateTimeOffset.Now,
                 UrlPath = isFirstArticle ? "root" : HandleUrlEncodeTitle(title),
                 VersionNumber = 1,
-                Published = isFirstArticle ? DateTimeOffset.UtcNow : null
+                Published = isFirstArticle ? DateTimeOffset.UtcNow : null,
+                UserId = userId
             };
 
             DbContext.Articles.Add(article);
@@ -1127,7 +1128,8 @@ namespace Cosmos.Cms.Data.Logic
                 // Now refresh the published pages
                 foreach (var item in itemsToPublish)
                 {
-                    var newPage = new Common.Data.PublishedPage()
+                    
+                    var newPage = new PublishedPage()
                     {
                         ArticleNumber = item.ArticleNumber,
                         Content = item.Content,
@@ -1141,7 +1143,9 @@ namespace Cosmos.Cms.Data.Logic
                         Title = item.Title,
                         Updated = item.Updated,
                         UrlPath = item.UrlPath,
-                        VersionNumber = item.VersionNumber
+                        VersionNumber = item.VersionNumber,
+                        
+                        AuthorInfo = string.IsNullOrEmpty(item.UserId) ? null : await DbContext.AuthorInfos.FirstOrDefaultAsync(f => f.UserId == item.UserId)
                     };
 
                     // Check for duplicate

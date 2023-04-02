@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Cosmos.Cms.Common.Models
+namespace Cosmos.Common.Models
 {
     /// <summary>
     /// Email message view model

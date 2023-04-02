@@ -1,4 +1,4 @@
-﻿namespace Cosmos.Cms.Common.Models
+﻿namespace Cosmos.Common.Models
 {
     /// <summary>
     /// GET or POST argument

@@ -28,7 +28,7 @@
         /// <summary>
         /// Quantity
         /// </summary>
-        //public double? quantity { get; set; } = null;
+        public double? quantity { get; set; } = null;
         /// <summary>
         /// Image width
         /// </summary>

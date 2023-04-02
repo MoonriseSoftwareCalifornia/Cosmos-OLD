@@ -1,14 +1,14 @@
-﻿
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Cosmos.Cms.Common.Data
+namespace Cosmos.Common.Data
 {
     /// <summary>
     /// Published article or page
     /// </summary>
     public class PublishedPage
     {
+
         /// <summary>
         ///     Unique article entity primary key number (not to be confused with article number)
         /// </summary>
@@ -76,6 +76,13 @@ namespace Cosmos.Cms.Common.Data
         public DateTimeOffset Updated { get; set; } = DateTimeOffset.UtcNow;
 
         /// <summary>
+        /// Article banner image
+        /// </summary>
+        [DataType(DataType.ImageUrl)]
+        [Required(AllowEmptyStrings = true)]
+        public string BannerImage { get; set; }
+
+        /// <summary>
         ///     JavaScript injected into the header of the web page.
         /// </summary>
         [DataType(DataType.Html)]
@@ -86,6 +93,11 @@ namespace Cosmos.Cms.Common.Data
         /// </summary>
         [DataType(DataType.Html)]
         public string FooterJavaScript { get; set; }
+
+        /// <summary>
+        /// Information about the person who authored this document.
+        /// </summary>
+        public AuthorInfo AuthorInfo { get; set; }
 
         #region PERMISSIONS
 

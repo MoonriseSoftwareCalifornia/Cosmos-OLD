@@ -1,8 +1,8 @@
-﻿using Cosmos.Cms.Common.Data.Logic;
+﻿using Cosmos.Common.Data.Logic;
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Cosmos.Cms.Common.Data
+namespace Cosmos.Common.Data
 {
     /// <summary>
     /// Node script

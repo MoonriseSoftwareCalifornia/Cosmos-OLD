@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Cosmos.Cms.Common.Models
+namespace Cosmos.Common.Models
 {
     /// <summary>
     /// Microsoft Validation Object

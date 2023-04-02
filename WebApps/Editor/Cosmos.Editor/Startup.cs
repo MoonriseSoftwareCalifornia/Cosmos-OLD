@@ -4,7 +4,7 @@ using AspNetCore.Identity.Services.SendGrid.Extensions;
 using Azure.Identity;
 using Azure.ResourceManager;
 using Cosmos.BlobService;
-using Cosmos.Cms.Common.Data;
+using Cosmos.Common.Data;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Hubs;

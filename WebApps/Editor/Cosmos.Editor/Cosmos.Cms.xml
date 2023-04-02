@@ -9,7 +9,7 @@
 		<member
 			name="M:Cosmos.Cms.Controllers.BaseController.Article_Get(System.Nullable{System.Int32},Cosmos.Cms.Common.Controllers.EnumControllerName,System.Boolean,System.Boolean)">
 			<summary>
-				Gets an article or template to edit, or creates a new <see cref="T:CDT.Cosmos.Cms.Common.Data.Article" /> if id is null.
+				Gets an article or template to edit, or creates a new <see cref="T:CDT.Cosmos.Common.Data.Article" /> if id is null.
 			</summary>
 			<param name="id">Article or Template ID</param>
 			<param name="controllerName"><see cref="T:CDT.Cosmos.Cms.Common.Controllers.EnumControllerName" />Controller Name</param>
@@ -19,10 +19,10 @@
 				<para>
 					Using method
 					<see
-						cref="M:CDT.Cosmos.Cms.Common.Data.Logic.ArticleLogic.Get(System.Nullable{System.Int32},CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)" />
+						cref="M:CDT.Cosmos.Common.Data.Logic.ArticleLogic.Get(System.Nullable{System.Int32},CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)" />
 					to return an
 					instance of <see cref="T:Microsoft.AspNetCore.Mvc.ViewResult" /> where the model is of type
-					<see cref="T:CDT.Cosmos.Cms.Common.Models.ArticleViewModel" />. Additionally:
+					<see cref="T:CDT.Cosmos.Common.Models.ArticleViewModel" />. Additionally:
 				</para>
 				<list type="bullet">
 					<item>
@@ -32,7 +32,7 @@
 						ViewData["WireFrames"] set as a list of type <see cref="T:Microsoft.AspNetCore.Mvc.Rendering.SelectListItem" />
 					</item>
 					<item>
-						Sets <see cref="P:CDT.Cosmos.Cms.Common.Models.ArticleViewModel.EditModeOn" /> to true.
+						Sets <see cref="P:CDT.Cosmos.Common.Models.ArticleViewModel.EditModeOn" /> to true.
 					</item>
 				</list>
 			</returns>
@@ -42,10 +42,10 @@
 			<exception cref="M:Microsoft.AspNetCore.Mvc.ControllerBase.Unauthorized"></exception>
 		</member>
 		<member
-			name="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_Post(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)">
+			name="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_Post(CDT.Cosmos.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)">
 			<summary>
-				Method saves an edit session for an <see cref="T:CDT.Cosmos.Cms.Common.Data.Article" /> or
-				<see cref="T:CDT.Cosmos.Cms.Common.Data.Template" />.
+				Method saves an edit session for an <see cref="T:CDT.Cosmos.Common.Data.Article" /> or
+				<see cref="T:CDT.Cosmos.Common.Data.Template" />.
 			</summary>
 			<param name="model"></param>
 			<param name="controllerName"></param>
@@ -60,7 +60,7 @@
 				<para>
 					Data is saved using method
 					<see
-						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveArticleChanges(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)" />
+						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveArticleChanges(CDT.Cosmos.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)" />
 					and the model is reloaded
 					using <see cref="!:Common.Data.Logic.ArticleLogic.Get(int, EnumControllerName)" />.
 				</para>
@@ -69,10 +69,10 @@
 			<exception cref="M:Microsoft.AspNetCore.Mvc.ControllerBase.NotFound"></exception>
 		</member>
 		<member
-			name="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_AjaxPost(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)">
+			name="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_AjaxPost(CDT.Cosmos.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)">
 			<summary>
-				Handles AJAX post of either an <see cref="T:CDT.Cosmos.Cms.Common.Data.Article" /> or a
-				<see cref="T:CDT.Cosmos.Cms.Common.Data.Template" />.
+				Handles AJAX post of either an <see cref="T:CDT.Cosmos.Common.Data.Article" /> or a
+				<see cref="T:CDT.Cosmos.Common.Data.Template" />.
 			</summary>
 			<param name="model"></param>
 			<param name="controllerName"></param>
@@ -84,16 +84,16 @@
 			<remarks>
 				<para>
 					This method is used by
-					<see cref="M:CDT.Cosmos.Cms.Controllers.EditorController.SaveHtml(CDT.Cosmos.Cms.Common.Models.ArticleViewModel)" />
+					<see cref="M:CDT.Cosmos.Cms.Controllers.EditorController.SaveHtml(CDT.Cosmos.Common.Models.ArticleViewModel)" />
 					and
 					<see
-						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_AjaxPost(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)" />
+						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_AjaxPost(CDT.Cosmos.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)" />
 					methods.
 				</para>
 				<para>
 					Content is saved to the database using
 					<see
-						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveArticleChanges(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)" />
+						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveArticleChanges(CDT.Cosmos.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)" />
 					.
 				</para>
 				<para>
@@ -125,7 +125,7 @@
 			</remarks>
 		</member>
 		<member
-			name="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveArticleChanges(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)">
+			name="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveArticleChanges(CDT.Cosmos.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)">
 			<summary>
 				Private, internal method that saves changes to an article.
 			</summary>
@@ -137,19 +137,19 @@
 				<para>
 					This method is used by
 					<see
-						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_Post(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)" />
+						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_Post(CDT.Cosmos.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)" />
 					and the AJAX posting method
 					<see
-						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_AjaxPost(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)" />
+						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.Article_AjaxPost(CDT.Cosmos.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName,System.String)" />
 					.
 				</para>
 				<para>
 					If this is an article (or regular page) content being saved, the method
 					<see
-						cref="M:CDT.Cosmos.Cms.Common.Data.Logic.ArticleLogic.UpdateOrInsert(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,System.String,System.Nullable{System.Int32})" />
+						cref="M:CDT.Cosmos.Common.Data.Logic.ArticleLogic.UpdateOrInsert(CDT.Cosmos.Common.Models.ArticleViewModel,System.String,System.Nullable{System.Int32})" />
 					is used. Saving a template uses method
 					<see
-						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveTemplateChanges(CDT.Cosmos.Cms.Common.Models.ArticleViewModel)" />
+						cref="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveTemplateChanges(CDT.Cosmos.Common.Models.ArticleViewModel)" />
 					.
 				</para>
 				<para>
@@ -159,19 +159,19 @@
 			</remarks>
 		</member>
 		<member
-			name="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveTemplateChanges(CDT.Cosmos.Cms.Common.Models.ArticleViewModel)">
+			name="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveTemplateChanges(CDT.Cosmos.Common.Models.ArticleViewModel)">
 			<summary>
 				This private method is used by
 				<see
-					cref="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveArticleChanges(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)" />
-				to save a <see cref="T:CDT.Cosmos.Cms.Common.Data.Template" />.
+					cref="M:CDT.Cosmos.Cms.Controllers.BaseController.SaveArticleChanges(CDT.Cosmos.Common.Models.ArticleViewModel,CDT.Cosmos.Cms.Common.Controllers.EnumControllerName)" />
+				to save a <see cref="T:CDT.Cosmos.Common.Data.Template" />.
 			</summary>
 			<param name="model"></param>
 			<returns>
-				<para>Returns an <see cref="T:CDT.Cosmos.Cms.Common.Models.ArticleViewModel" /> where:</para>
+				<para>Returns an <see cref="T:CDT.Cosmos.Common.Models.ArticleViewModel" /> where:</para>
 				<para></para>
 				<para>
-					* <see cref="P:CDT.Cosmos.Cms.Common.Models.ArticleViewModel.ReadWriteMode" /> is set using
+					* <see cref="P:CDT.Cosmos.Common.Models.ArticleViewModel.ReadWriteMode" /> is set using
 					<see cref="T:Microsoft.Extensions.Options.IOptions`1" /> injected into
 					<see cref="T:CDT.Cosmos.Cms.Controllers.BaseController" />.
 				</para>
@@ -183,7 +183,7 @@
 		</member>
 		<member name="M:CDT.Cosmos.Cms.Controllers.BaseController.LoadMenuIntoViewData">
 			<summary>
-				Not all pages use an <see cref="T:CDT.Cosmos.Cms.Common.Models.ArticleViewModel" />, so these pages need menu loaded into view data.
+				Not all pages use an <see cref="T:CDT.Cosmos.Common.Models.ArticleViewModel" />, so these pages need menu loaded into view data.
 			</summary>
 			<returns></returns>
 		</member>
@@ -196,11 +196,11 @@
 		<member name="M:CDT.Cosmos.Cms.Controllers.EditorController.Create(CDT.Cosmos.Cms.Models.CreatePageViewModel)">
 			<summary>
 				Uses
-				<see cref="M:CDT.Cosmos.Cms.Common.Data.Logic.ArticleLogic.Create(System.String,System.Nullable{System.Int32})" />
-				to create an <see cref="T:CDT.Cosmos.Cms.Common.Models.ArticleViewModel" /> that is saved to
+				<see cref="M:CDT.Cosmos.Common.Data.Logic.ArticleLogic.Create(System.String,System.Nullable{System.Int32})" />
+				to create an <see cref="T:CDT.Cosmos.Common.Models.ArticleViewModel" /> that is saved to
 				the database with
 				<see
-					cref="M:CDT.Cosmos.Cms.Common.Data.Logic.ArticleLogic.UpdateOrInsert(CDT.Cosmos.Cms.Common.Models.ArticleViewModel,System.String,System.Nullable{System.Int32})" />
+					cref="M:CDT.Cosmos.Common.Data.Logic.ArticleLogic.UpdateOrInsert(CDT.Cosmos.Common.Models.ArticleViewModel,System.String,System.Nullable{System.Int32})" />
 				ready for editing.
 			</summary>
 			<param name="model"></param>
@@ -228,7 +228,7 @@
 			<param name="id">Article number</param>
 			<returns></returns>
 		</member>
-		<member name="M:CDT.Cosmos.Cms.Controllers.EditorController.SaveHtml(CDT.Cosmos.Cms.Common.Models.ArticleViewModel)">
+		<member name="M:CDT.Cosmos.Cms.Controllers.EditorController.SaveHtml(CDT.Cosmos.Common.Models.ArticleViewModel)">
 			<summary>
 				Saves an article via HTTP POST.
 			</summary>
@@ -535,7 +535,7 @@
 		</member>
 		<member name="P:CDT.Cosmos.Cms.Models.TeamMemberViewModel.TeamRole">
 			<summary>
-				The role ID of this team member as defined by <see cref="T:CDT.Cosmos.Cms.Common.Models.TeamRoleEnum" />
+				The role ID of this team member as defined by <see cref="T:CDT.Cosmos.Common.Models.TeamRoleEnum" />
 			</summary>
 		</member>
 		<member name="M:CDT.Cosmos.Cms.Services.AzureBlobService.CopyBlob(System.String,System.String)">

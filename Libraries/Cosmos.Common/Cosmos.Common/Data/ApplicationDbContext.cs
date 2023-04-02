@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Cosmos.Common.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace Cosmos.Cms.Common.Data
+namespace Cosmos.Common.Data
 {
     /// <summary>
     ///     Database Context for Cosmos CMS
@@ -123,6 +124,11 @@ namespace Cosmos.Cms.Common.Data
         ///     Articles
         /// </summary>
         public DbSet<Article> Articles { get; set; }
+
+        /// <summary>
+        /// Public information about article authors and editors
+        /// </summary>
+        public DbSet<AuthorInfo> AuthorInfos { get; set; }
 
         /// <summary>
         ///     Website layouts

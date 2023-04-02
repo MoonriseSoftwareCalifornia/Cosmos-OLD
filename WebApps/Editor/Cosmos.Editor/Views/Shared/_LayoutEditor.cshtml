@@ -274,8 +274,8 @@
             <div class="modal-content bg-dark text-white">
                 <div class="modal-body" style="height: 80vh;position:relative;">
                     <div style="height:60px;width:100%;">
+                        <button id="btnSelectFileAndClose" type="button" class="btn btn-sm btn-success" data-bs-dismiss="modal" disabled>Select and Close</button>
                         <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal">Cancel</button>
-                        <button id="btnSelectFileAndClose" type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal" disabled>Select and Close</button>
                         <button id="btnClear" type="button" class="btn btn-sm btn-primary" title="Clear list of selected items" style="display:none">Clear Selected</button>
                         <div id="spinFileMgrLoading" class="btn btn-sm btn-primary mt-1 ms-3 me-3">
                             <div class="align-items-center text-light">
@@ -689,6 +689,8 @@
                     insertFileLink(p[0]);
                 } else if (selectFileMode === "image") {
                     insertImage(p[0]);
+                } else if (selectFileMode === "bannerImage") {
+                    $("#BannerImage").val(p[0]);
                 }
 
                 return true;

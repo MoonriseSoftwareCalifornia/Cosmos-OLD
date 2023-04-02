@@ -1,5 +1,6 @@
-﻿using Cosmos.Cms.Common.Models;
+﻿using Cosmos.Common.Models;
 using Cosmos.Cms.Common.Services.Configurations;
+using Cosmos.Common.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -12,7 +13,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace Cosmos.Cms.Common.Data.Logic
+namespace Cosmos.Common.Data.Logic
 {
     /// <summary>
     ///     Main logic behind getting and maintaining web site articles.
@@ -242,7 +243,8 @@ namespace Cosmos.Cms.Common.Data.Logic
                 Layout = await GetDefaultLayout(),
                 ReadWriteMode = _isEditor,
                 RoleList = article.RoleList,
-                Expires = article.Expires.HasValue ? article.Expires.Value : null
+                Expires = article.Expires.HasValue ? article.Expires.Value : null,
+                BannerImage = article.BannerImage
             };
         }
 
@@ -284,7 +286,8 @@ namespace Cosmos.Cms.Common.Data.Logic
                 Layout = await GetDefaultLayout(layoutCache),
                 ReadWriteMode = _isEditor,
                 RoleList = article.RoleList,
-                Expires = article.Expires.HasValue ? article.Expires.Value : null
+                Expires = article.Expires.HasValue ? article.Expires.Value : null,
+                AuthorInfo = article.AuthorInfo
             };
         }
 

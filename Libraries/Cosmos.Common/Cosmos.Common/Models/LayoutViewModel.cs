@@ -1,9 +1,9 @@
-﻿using Cosmos.Cms.Common.Data;
+﻿using Cosmos.Common.Data;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Web;
 
-namespace Cosmos.Cms.Common.Models
+namespace Cosmos.Common.Models
 {
     /// <summary>
     ///     VSiew model used on layout list page

@@ -1,6 +1,6 @@
-﻿using Cosmos.Cms.Common.Data;
-using Cosmos.Cms.Common.Data.Logic;
-using Cosmos.Cms.Common.Models;
+﻿using Cosmos.Common.Data;
+using Cosmos.Common.Data.Logic;
+using Cosmos.Common.Models;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Publisher.Models;
 using Microsoft.AspNetCore.Authorization;

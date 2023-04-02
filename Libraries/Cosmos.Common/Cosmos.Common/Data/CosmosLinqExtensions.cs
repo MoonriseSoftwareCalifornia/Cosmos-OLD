@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Cosmos.Cms.Common.Data
+namespace Cosmos.Common.Data
 {
     public static class CosmosLinqExtensions
     {

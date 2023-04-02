@@ -1,4 +1,4 @@
-﻿using Cosmos.Cms.Common.Models;
+﻿using Cosmos.Common.Models;
 using Cosmos.Cms.Data;
 using Cosmos.Cms.Models.Interfaces;
 using System;
@@ -120,5 +120,10 @@ namespace Cosmos.Cms.Models
         /// Update existing version
         /// </summary>
         public bool UpdateExisting { get; set; } = true;
+
+        /// <summary>
+        /// Article Banner Image
+        /// </summary>
+        public string BannerImage { get; set; }
     }
 }

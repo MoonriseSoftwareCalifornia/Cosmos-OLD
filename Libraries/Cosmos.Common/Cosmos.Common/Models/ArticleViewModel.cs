@@ -1,11 +1,12 @@
-﻿using Cosmos.Cms.Common.Data.Logic;
+﻿using Cosmos.Common.Data.Logic;
 using Cosmos.Cms.Common.Services.Configurations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System;
 using System.ComponentModel.DataAnnotations;
+using Cosmos.Common.Data;
 
-namespace Cosmos.Cms.Common.Models
+namespace Cosmos.Common.Models
 {
     /// <summary>
     ///     Article view model, used to display content on a web page
@@ -99,6 +100,12 @@ namespace Cosmos.Cms.Common.Models
         public virtual DateTimeOffset Updated { get; set; }
 
         /// <summary>
+        ///    Information about the editor or author who created the article
+        /// </summary>
+        [Display(Name = "Author information")]
+        public virtual AuthorInfo AuthorInfo { get; set; } = null;
+
+        /// <summary>
         ///     Date and time of when this was published
         /// </summary>
         [Display(Name = "Publish on date/time (PST):")]
@@ -151,6 +158,11 @@ namespace Cosmos.Cms.Common.Models
         /// Calculated using the expires value (if present) or the default set with <see cref="RedisConfig.CacheDuration" in <see cref="CosmosConfig.RedisConfig"/>./>
         /// </remarks>
         public int CacheDuration { get; set; }
+
+        /// <summary>
+        /// Article banner image
+        /// </summary>
+        public string BannerImage { get; set; }
 
         #endregion
     }

@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Antiforgery;
-@model Cosmos.Cms.Common.Models.ArticleViewModel
+@model Cosmos.Common.Models.ArticleViewModel
 @inject IAntiforgery antiForgery
 @{
     Layout = null;
@@ -21,6 +21,10 @@
     <meta name="cwps-meta-path-title" content="@Model.Title" />
     <meta name="cwps-meta-path-url" content="@Model.UrlPath" />
     <meta name="cwps-meta-path-updated" content="@Model.Updated" />
+    @if (!string.IsNullOrEmpty(Model.AuthorInfo?.AuthorName))
+    {
+        <meta name="cwps-meta-author-info" content="@Model.AuthorInfo.AuthorName|@Model.AuthorInfo.EmailAddress" />
+    }
     @Html.Raw(Model.Layout.Head)
     @*
     Page specific header

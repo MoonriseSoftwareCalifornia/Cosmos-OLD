@@ -1,4 +1,4 @@
-﻿namespace Cosmos.Cms.Common.Data.Logic
+﻿namespace Cosmos.Common.Data.Logic
 {
     /// <summary>
     ///     Article status code

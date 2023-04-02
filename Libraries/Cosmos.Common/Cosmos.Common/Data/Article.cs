@@ -1,8 +1,8 @@
-﻿using Cosmos.Cms.Common.Data.Logic;
+﻿using Cosmos.Common.Data.Logic;
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Cosmos.Cms.Common.Data
+namespace Cosmos.Common.Data
 {
     /// <summary>
     ///     Article
@@ -87,6 +87,18 @@ namespace Cosmos.Cms.Common.Data
         /// </summary>
         [DataType(DataType.Html)]
         public string FooterJavaScript { get; set; }
+
+        /// <summary>
+        /// Article banner image
+        /// </summary>
+        [DataType(DataType.ImageUrl)]
+        [Required(AllowEmptyStrings = true)]
+        public string BannerImage { get; set; }
+
+        /// <summary>
+        /// Article author
+        /// </summary>
+        public string UserId { get; set; }
 
         #region PERMISSIONS
 
