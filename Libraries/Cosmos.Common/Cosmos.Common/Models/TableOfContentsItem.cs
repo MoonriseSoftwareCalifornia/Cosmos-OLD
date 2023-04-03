@@ -47,5 +47,14 @@ namespace Cosmos.Common.Models
         /// When last updated
         /// </summary>
         public DateTimeOffset Updated { get; set; }
+
+        /// <summary>
+        /// Banner or preview image
+        /// </summary>
+        public string BannerImage { get; set; }
+        /// <summary>
+        /// Author name
+        /// </summary>
+        public string AuthorInfo { get; set; }
     }
 }

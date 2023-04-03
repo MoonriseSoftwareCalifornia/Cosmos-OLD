@@ -95,39 +95,31 @@ namespace Cosmos.Common.Data.Logic
             var epath = prefix.TrimStart('/').Replace("/", "\\/");
             var pattern = $"(?i)(^[{epath}]*)(\\/[^\\/]*){dcount}$";
 
-            var data = await (from t in DbContext.Pages
-                              where t.Published <= DateTimeOffset.UtcNow //&&
-                              && Regex.IsMatch(t.UrlPath, pattern)
-                              select new TableOfContentsItem
-                              {
-                                  UrlPath = t.UrlPath,
-                                  Title = t.Title,
-                                  Published = t.Published.Value,
-                                  Updated = t.Updated
-                              }).ToListAsync();
+            var query = (from t in DbContext.Pages
+                         where t.Published <= DateTimeOffset.UtcNow &&
+                         t.StatusCode != (int)StatusCodeEnum.Redirect
+                         && Regex.IsMatch(t.UrlPath, pattern)
+                         select new TableOfContentsItem
+                         {
+                             UrlPath = t.UrlPath,
+                             Title = t.Title,
+                             Published = t.Published.Value,
+                             Updated = t.Updated,
+                             BannerImage = t.BannerImage,
+                             AuthorInfo = t.AuthorInfo
+                         });
 
-
-            var groupby = data.AsQueryable();
 
             if (orderByPublishedDate)
             {
-                groupby = groupby.OrderByDescending(o => o.Published);
+                query = query.OrderByDescending(o => o.Published);
             }
             else
             {
-                groupby = groupby.OrderBy(o => o.Title);
+                query = query.OrderBy(o => o.Title);
             }
 
-            var results = (from t in groupby
-                           group t by new { t.Title, t.UrlPath } into g
-                           select new TableOfContentsItem()
-                           {
-                               Title = g.Key.Title,
-                               UrlPath = g.Key.UrlPath,
-                               Published = g.Max(o => o.Published),
-                               Updated = g.Max(o => o.Updated)
-                           }
-            ).ToList();
+            var results = await query.ToListAsync();
 
             var model = new TableOfContents();
             model.TotalCount = results.Count;

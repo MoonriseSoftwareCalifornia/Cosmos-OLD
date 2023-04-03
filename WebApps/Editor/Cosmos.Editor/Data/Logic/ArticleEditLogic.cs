@@ -1155,6 +1155,7 @@ namespace Cosmos.Cms.Data.Logic
                         Title = item.Title,
                         Updated = item.Updated,
                         UrlPath = item.UrlPath,
+                        ParentUrlPath = item.UrlPath.Substring(0, Math.Max(item.UrlPath.LastIndexOf('/'), 0)),
                         VersionNumber = item.VersionNumber,
                         AuthorInfo = JsonConvert.SerializeObject(authorInfo).Replace("\"", "'")
                     };

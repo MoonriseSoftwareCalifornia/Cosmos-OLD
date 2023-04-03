@@ -74,7 +74,9 @@
                     licenseKey: '',
                     autosave: {
                         save(editor) {
-                            return parent.ccms_saveEditorChanges(editor);
+                            setTimeout(function () {
+                                return parent.ccms_saveEditorChanges(editor);
+                            }, 4000);
                         }
                     },
                     simpleUpload: {
@@ -132,6 +134,14 @@
                                 parent.ccms_signal_focus_others(editor, "blur");
                             }
                         });
+                        const imageUploadEditing = editor.plugins.get('ImageUploadEditing');
+
+                        imageUploadEditing.on('uploadComplete', (evt, { data, imageElement }) => {
+                            
+                            parent.ccms_setBannerImage(data.url);
+
+                        });
+
                         parent.ccms_signal_focus_others(editor, "join");
                         window.editor = editor;
                         ccms_editors.push(editor);

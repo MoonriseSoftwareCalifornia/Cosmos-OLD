@@ -621,15 +621,14 @@
 
             const anchor = ckeditor.data.toModel(viewFragment);
             ckeditor.model.insertContent(anchor);
-            ckeditor.editing.view.focus();
 
             clearFileMgrPaths();
 
-            // Allow time for save
-            setTimeout(function () { autoSaveOn = true; }, 5000);
+            autoSaveOn = true;
         });
 
         next = null;
+
     }
 
     function insertPageLink() {
@@ -660,6 +659,8 @@
             ckeditor.model.insertContent(anchor);
             ckeditor.editing.view.focus();
         });
+
+        saveChanges(null, null, true);
     }
 
     function insertFileLink(path) {
@@ -685,7 +686,7 @@
             clearFileMgrPaths();
 
             // Allow time for save
-            setTimeout(function () { autoSaveOn = true; }, 3000);
+            autoSaveOn = true;
         });
 
         next = null;
@@ -700,6 +701,16 @@
             });
             resolve();
         });
+    }
+
+    function ccms_setBannerImage(url) {
+        const value = $("#BannerImage").val();
+
+        if (value === null || value === "") {
+            $("#BannerImage").val(url);
+        }
+
+        checkBannerImage();
     }
 
     // Methods for live editor (child page)

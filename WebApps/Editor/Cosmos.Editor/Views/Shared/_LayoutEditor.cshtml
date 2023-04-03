@@ -695,14 +695,18 @@
                 if (selectFileMode === "file") {
                     insertFileLink(p[0]);
                 } else if (selectFileMode === "image") {
-                    insertImage(p[0]);
+                    const url = $("#BannerImage").val();
+                    if (url === null || url === "") {
+                        $("#BannerImage").val(p[0]);
+                    }
+                    insertImage(p[0]); // Live or code editor inserts image
                 } else if (selectFileMode === "bannerimage") {
                     let imgRoot = "@options.Value.SiteSettings.BlobPublicUrl.TrimEnd('/')";
                     $("#BannerImage").val(imgRoot + "/" + p[0]);
-                    saveChanges(null, null, false);
-                    checkBannerImage();
                 }
 
+                saveChanges(null, null, true);
+                checkBannerImage();
                 return true;
             });
 

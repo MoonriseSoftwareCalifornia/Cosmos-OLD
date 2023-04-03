@@ -35,6 +35,12 @@ namespace Cosmos.Common.Data
         public string UrlPath { get; set; }
 
         /// <summary>
+        /// Sets the parent URL page
+        /// </summary>
+        [Display(Name = "Parent URL Path")]
+        public string ParentUrlPath { get;set; }
+
+        /// <summary>
         ///     Version number of the article.
         /// </summary>
         [Display(Name = "Article version")]
