@@ -2,10 +2,6 @@
 
 Cosmos WPS is a modern content management system that is "out of the box" fast, secure, open, and easy to use.  Its cloud-first design comes with built-in integration with Content Distribution Networks (CDN) and Web Application Firewalls (WAF), and supports regional replication redundancy.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://www.cosmoswps.com/Cosmos/Documentation/Installation)
-
-[See our product website.](https://www.cosmoswps.com) for the latest information on how to deploy and use Cosmos.
-
 ## About
 
 Cosmos is a ["Decoupled" system](https://en.wikipedia.org/wiki/Headless_content_management_system#Decoupled_CMS), meaning content distribution is separated from content management. This provides significant performance and security benefits.
