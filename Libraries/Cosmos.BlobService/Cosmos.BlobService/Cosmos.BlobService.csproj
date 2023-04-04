@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <AssemblyVersion>7.4.8.4</AssemblyVersion>
-    <FileVersion>7.4.8.4</FileVersion>
-    <Version>7.4.8.4</Version>
+    <AssemblyVersion>7.4.8.5</AssemblyVersion>
+    <FileVersion>7.4.8.5</FileVersion>
+    <Version>7.4.8.5</Version>
     <Title>Azure Blob and Amazon S3 Storage Provider</Title>
     <Authors>toiyabe62</Authors>
     <Company>Cosmos Software LLC</Company>

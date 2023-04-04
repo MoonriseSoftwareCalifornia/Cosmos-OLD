@@ -82,9 +82,24 @@ namespace Cosmos.Cms
             //
             // Add the Cosmos database context here
             //
-            services.AddDbContext<ApplicationDbContext>(options =>
-              options.UseCosmos(connectionString: connectionString, databaseName: cosmosIdentityDbName));
-
+            var cosmosRegionName = Configuration.GetValue<string>("CosmosRegionName");
+            if (string.IsNullOrEmpty(cosmosRegionName))
+            {
+                services.AddDbContext<ApplicationDbContext>(options =>
+                  options.UseCosmos(connectionString: connectionString, databaseName: cosmosIdentityDbName));
+            }
+            else
+            {
+                services.AddDbContext<ApplicationDbContext>(options =>
+                {
+                    options.UseCosmos(connectionString: connectionString, databaseName: cosmosIdentityDbName,
+                        cosmosOps =>
+                        {
+                            cosmosOps.Region(cosmosRegionName);
+                        });
+                });
+            }
+                
             //
             // Add Cosmos Identity here
             //

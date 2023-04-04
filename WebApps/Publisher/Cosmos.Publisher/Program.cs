@@ -7,6 +7,7 @@ using Cosmos.Cms.Common.Services.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,9 +43,23 @@ var cosmosIdentityDbName = builder.Configuration.GetValue<string>("CosmosIdentit
 //
 // Add the Cosmos database context here
 //
-#pragma warning disable CS8604 // Possible null reference argument.
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseCosmos(connectionString: connectionString, databaseName: cosmosIdentityDbName));
+var cosmosRegionName = builder.Configuration.GetValue<string>("CosmosRegionName");
+if (string.IsNullOrEmpty(cosmosRegionName))
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+      options.UseCosmos(connectionString: connectionString, databaseName: cosmosIdentityDbName));
+}
+else
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    {
+        options.UseCosmos(connectionString: connectionString, databaseName: cosmosIdentityDbName,
+            cosmosOps =>
+            {
+                cosmosOps.Region(cosmosRegionName);
+            });
+    });
+}
 #pragma warning restore CS8604 // Possible null reference argument.
 
 builder.Services.AddMvc()
