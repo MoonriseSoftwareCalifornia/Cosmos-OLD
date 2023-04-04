@@ -205,6 +205,7 @@
 		<PackageReference Include="Azure.ResourceManager" Version="1.4.0" />
 		<PackageReference Include="Azure.ResourceManager.Cdn" Version="1.1.0" />
 		<PackageReference Include="Cosmos.BlobService" Version="7.4.7.20" />
+		<PackageReference Include="Cosmos.Common" Version="7.4.8.4" />
 		<PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.4" />
@@ -218,11 +219,7 @@
 		<PackageReference Include="PasswordGenerator" Version="2.1.0" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.0.1" />
 		<PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.28.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\..\..\Libraries\Cosmos.Common\Cosmos.Common\Cosmos.Common.csproj" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.28.1" />
 	</ItemGroup>
 
 	<ProjectExtensions>
