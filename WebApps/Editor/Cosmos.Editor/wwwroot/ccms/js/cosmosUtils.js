@@ -1,4 +1,4 @@
-﻿// Cosmos CMS utility functions
+﻿// Cosmos utility functions
 
 $(document).ready(function () {
     cosmosBuildTOC(".divCcmsToc");
@@ -39,7 +39,7 @@ function cosmosBuildTOC(targetClassId, startTitle, ordByPubDate, pageNo, pageSiz
     });
 }
 
-// Cosmos CMS Table of Contents generator
+// Cosmos Table of Contents generator
 function cosmosGetTOC(parentTitle, orderbypub, pageNo, pageSize, callback) {
 
     if (orderbypub === null || typeof (orderbypub) === "undefined") {

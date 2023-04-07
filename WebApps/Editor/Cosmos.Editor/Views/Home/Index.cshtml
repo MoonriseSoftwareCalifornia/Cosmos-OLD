@@ -50,6 +50,19 @@
                 location.href = "/Home/CcmsContentIndex?target=@Model.UrlPath";
             } else {
                 window.parent.setupIframe();
+                // Need to handle external links
+                var anchors = document.querySelectorAll("a");
+                anchors.forEach(function (a) {
+                    a.addEventListener("click", function (event) {
+                        const url = a.href.toLowerCase();
+                        if (url.startsWith("http:") || url.startsWith("https:")) {
+                            event.preventDefault();
+                            // Possible external URL
+                            window.parent.location.href = url;
+                        }
+                    });
+                });
+
             }
         });
 

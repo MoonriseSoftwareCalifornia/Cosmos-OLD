@@ -812,7 +812,7 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Open Cosmos CMS logs
+        /// Open Cosmos logs
         /// </summary>
         /// <returns></returns>
         [Authorize(Roles = "Administrators, Editors")]
