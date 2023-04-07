@@ -11,12 +11,12 @@ WORKDIR /src
 COPY ["WebApps/Editor/Cosmos.Editor/Cosmos.Editor.csproj", "Cosmos.Editor/Cosmos.Editor.csproj"]
 COPY ["WebApps/Editor/Cosmos.Editor/", "Cosmos.Editor/"]
 
-WORKDIR "/src/Cosmos.Editor"
-RUN dotnet restore "Cosmos.Editor.csproj"
-RUN dotnet build "Cosmos.Editor.csproj" -c Release -o /app/build
+# WORKDIR "/src/Cosmos.Editor"
+RUN dotnet restore "Cosmos.Editor/Cosmos.Editor.csproj"
+RUN dotnet build "Cosmos.Editor/Cosmos.Editor.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "Cosmos.Editor.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Cosmos.Editor/Cosmos.Editor.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
 WORKDIR /app
