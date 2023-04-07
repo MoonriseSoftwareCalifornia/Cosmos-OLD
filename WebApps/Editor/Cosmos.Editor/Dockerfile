@@ -10,7 +10,8 @@ WORKDIR /src
 # COPY ["nuget.config", "."]
 # COPY ["WebApps/Editor/Cosmos.Editor/Cosmos.Editor.csproj", "Cosmos.Editor/Cosmos.Editor.csproj"]
 COPY . .
-RUN dotnet restore "Cosmos.Editor/Cosmos.Editor.csproj"
+# RUN dotnet restore "Cosmos.Editor/Cosmos.Editor.csproj"
+RUN dotnet restore
 
 WORKDIR "/src/Cosmos.Editor"
 RUN dotnet build "Cosmos.Editor.csproj" -c Release -o /app/build
