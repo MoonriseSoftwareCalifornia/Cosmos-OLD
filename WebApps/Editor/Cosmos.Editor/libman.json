@@ -3,12 +3,12 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "monaco-editor@0.35.0",
+      "library": "monaco-editor@0.37.1",
       "destination": "wwwroot/lib/monaco-editor/"
     },
     {
       "provider": "unpkg",
-      "library": "emmet-monaco-es@5.1.2",
+      "library": "emmet-monaco-es@5.2.2",
       "destination": "wwwroot/lib/emmet-monaco-es"
     },
     {

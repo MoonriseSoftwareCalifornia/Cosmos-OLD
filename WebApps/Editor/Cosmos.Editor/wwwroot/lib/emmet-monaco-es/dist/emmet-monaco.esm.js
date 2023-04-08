@@ -1,28 +1,3 @@
-/******************************************************************************
-Copyright (c) Microsoft Corporation.
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
-OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
-PERFORMANCE OF THIS SOFTWARE.
-***************************************************************************** */
-
-function __spreadArray(to, from, pack) {
-    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
-        if (ar || !(i in from)) {
-            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
-            ar[i] = from[i];
-        }
-    }
-    return to.concat(ar || Array.prototype.slice.call(from));
-}
-
 /**
  * Check if given code is a number
  */
@@ -43,6 +18,17 @@ function isAlphaNumericWord(code) {
 }
 function isAlphaWord(code) {
     return code === 95 /* _ */ || isAlpha$1(code);
+}
+/**
+ * Check for Umlauts i.e. ä, Ä, ö, Ö, ü and Ü
+ */
+function isUmlaut(code) {
+    return code === 196
+        || code == 214
+        || code === 220
+        || code === 228
+        || code === 246
+        || code === 252;
 }
 /**
  * Check if given character code is a white-space character: a space character
@@ -253,7 +239,7 @@ function group(scanner, options) {
         const result = statements(scanner, options);
         const token = next(scanner);
         if (isBracket$2(token, 'group', false)) {
-            result.repeat = repeater(scanner);
+            result.repeat = repeater$1(scanner);
         }
         return result;
     }
@@ -330,16 +316,25 @@ function attributeSet(scanner) {
 function shortAttribute(scanner, type, options) {
     if (isOperator$1(peek$3(scanner), type)) {
         scanner.pos++;
+        // Consume multiple operators
+        let count = 1;
+        while (isOperator$1(peek$3(scanner), type)) {
+            scanner.pos++;
+            count++;
+        }
         const attr = {
             name: [createLiteral$1(type)]
         };
+        if (count > 1) {
+            attr.multiple = true;
+        }
         // Consume expression after shorthand start for React-like components
         if (options.jsx && text(scanner)) {
             attr.value = getText(scanner);
             attr.expression = true;
         }
         else {
-            attr.value = literal$2(scanner) ? slice(scanner) : void 0;
+            attr.value = literal$1$1(scanner) ? slice(scanner) : void 0;
         }
         return attr;
     }
@@ -354,16 +349,18 @@ function attribute(scanner) {
             value: slice(scanner)
         };
     }
-    if (literal$2(scanner, true)) {
-        return {
-            name: slice(scanner),
-            value: consume$2(scanner, isEquals) && (quoted(scanner) || literal$2(scanner, true))
-                ? slice(scanner)
-                : void 0
-        };
+    if (literal$1$1(scanner, true)) {
+        const name = slice(scanner);
+        let value;
+        if (consume$2(scanner, isEquals)) {
+            if (quoted(scanner) || literal$1$1(scanner, true)) {
+                value = slice(scanner);
+            }
+        }
+        return { name, value };
     }
 }
-function repeater(scanner) {
+function repeater$1(scanner) {
     return isRepeater(peek$3(scanner))
         ? scanner.tokens[scanner.pos++]
         : void 0;
@@ -389,7 +386,7 @@ function quoted(scanner) {
 /**
  * Consumes literal (unquoted value) from given scanner
  */
-function literal$2(scanner, allowBrackets) {
+function literal$1$1(scanner, allowBrackets) {
     const start = scanner.pos;
     const brackets = {
         attribute: 0,
@@ -447,7 +444,7 @@ function elementName(scanner, options) {
             }
         }
     }
-    while (readable$1(scanner) && consume$2(scanner, isElementName)) {
+    while (readable$1(scanner) && consume$2(scanner, isElementName$1)) {
         // empty
     }
     if (scanner.pos !== start) {
@@ -523,7 +520,7 @@ function isCapitalizedLiteral(token) {
     }
     return false;
 }
-function isElementName(token) {
+function isElementName$1(token) {
     return token.type === 'Literal' || token.type === 'RepeaterNumber' || token.type === 'RepeaterPlaceholder';
 }
 function isClassNameOperator(token) {
@@ -560,11 +557,60 @@ function isCloseOperator(token) {
     return isOperator$1(token, 'close');
 }
 
+var Chars$3;
+(function (Chars) {
+    /** `{` character */
+    Chars[Chars["CurlyBracketOpen"] = 123] = "CurlyBracketOpen";
+    /** `}` character */
+    Chars[Chars["CurlyBracketClose"] = 125] = "CurlyBracketClose";
+    /** `\\` character */
+    Chars[Chars["Escape"] = 92] = "Escape";
+    /** `=` character */
+    Chars[Chars["Equals"] = 61] = "Equals";
+    /** `[` character */
+    Chars[Chars["SquareBracketOpen"] = 91] = "SquareBracketOpen";
+    /** `]` character */
+    Chars[Chars["SquareBracketClose"] = 93] = "SquareBracketClose";
+    /** `*` character */
+    Chars[Chars["Asterisk"] = 42] = "Asterisk";
+    /** `#` character */
+    Chars[Chars["Hash"] = 35] = "Hash";
+    /** `$` character */
+    Chars[Chars["Dollar"] = 36] = "Dollar";
+    /** `-` character */
+    Chars[Chars["Dash"] = 45] = "Dash";
+    /** `.` character */
+    Chars[Chars["Dot"] = 46] = "Dot";
+    /** `/` character */
+    Chars[Chars["Slash"] = 47] = "Slash";
+    /** `:` character */
+    Chars[Chars["Colon"] = 58] = "Colon";
+    /** `!` character */
+    Chars[Chars["Excl"] = 33] = "Excl";
+    /** `@` character */
+    Chars[Chars["At"] = 64] = "At";
+    /** `_` character */
+    Chars[Chars["Underscore"] = 95] = "Underscore";
+    /** `(` character */
+    Chars[Chars["RoundBracketOpen"] = 40] = "RoundBracketOpen";
+    /** `)` character */
+    Chars[Chars["RoundBracketClose"] = 41] = "RoundBracketClose";
+    /** `+` character */
+    Chars[Chars["Sibling"] = 43] = "Sibling";
+    /** `>` character */
+    Chars[Chars["Child"] = 62] = "Child";
+    /** `^` character */
+    Chars[Chars["Climb"] = 94] = "Climb";
+    /** `'` character */
+    Chars[Chars["SingleQuote"] = 39] = "SingleQuote";
+    /** `""` character */
+    Chars[Chars["DoubleQuote"] = 34] = "DoubleQuote";
+})(Chars$3 || (Chars$3 = {}));
 /**
  * If consumes escape character, sets current stream range to escaped value
  */
 function escaped(scanner) {
-    if (scanner.eat(92 /* Escape */)) {
+    if (scanner.eat(Chars$3.Escape)) {
         scanner.start = scanner.pos;
         if (!scanner.eof()) {
             scanner.pos++;
@@ -610,9 +656,9 @@ function getToken$1(scanner, ctx) {
     return field$2(scanner, ctx)
         || repeaterPlaceholder(scanner)
         || repeaterNumber(scanner)
-        || repeater$1(scanner)
+        || repeater(scanner)
         || whiteSpace$1(scanner)
-        || literal$1$1(scanner, ctx)
+        || literal$2(scanner, ctx)
         || operator$1(scanner)
         || quote(scanner)
         || bracket$1(scanner);
@@ -620,8 +666,9 @@ function getToken$1(scanner, ctx) {
 /**
  * Consumes literal from given scanner
  */
-function literal$1$1(scanner, ctx) {
+function literal$2(scanner, ctx) {
     const start = scanner.pos;
+    const expressionStart = ctx.expression;
     let value = '';
     while (!scanner.eof()) {
         // Consume escaped sequence no matter of context
@@ -630,18 +677,38 @@ function literal$1$1(scanner, ctx) {
             continue;
         }
         const ch = scanner.peek();
-        if (ch === ctx.quote || ch === 36 /* Dollar */ || isAllowedOperator(ch, ctx)) {
+        if (ch === Chars$3.Slash && !ctx.quote && !ctx.expression && !ctx.attribute) {
+            // Special case for `/` character between numbers in class names
+            const prev = scanner.string.charCodeAt(scanner.pos - 1);
+            const next = scanner.string.charCodeAt(scanner.pos + 1);
+            if (isNumber$1(prev) && isNumber$1(next)) {
+                value += scanner.string[scanner.pos++];
+                continue;
+            }
+        }
+        if (ch === ctx.quote || ch === Chars$3.Dollar || isAllowedOperator(ch, ctx)) {
             // 1. Found matching quote
             // 2. The `$` character has special meaning in every context
             // 3. Depending on context, some characters should be treated as operators
             break;
         }
-        if (ctx.expression && ch === 125 /* CurlyBracketClose */) {
-            break;
+        if (expressionStart) {
+            // Consume nested expressions, e.g. span{{foo}}
+            if (ch === Chars$3.CurlyBracketOpen) {
+                ctx.expression++;
+            }
+            else if (ch === Chars$3.CurlyBracketClose) {
+                if (ctx.expression > expressionStart) {
+                    ctx.expression--;
+                }
+                else {
+                    break;
+                }
+            }
         }
-        if (!ctx.quote && !ctx.expression) {
+        else if (!ctx.quote) {
             // Consuming element name
-            if (!ctx.attribute && !isElementName$1(ch)) {
+            if (!ctx.attribute && !isElementName(ch)) {
                 break;
             }
             if (isAllowedSpace(ch, ctx) || isAllowedRepeater(ch, ctx) || isQuote$2(ch) || bracketType(ch)) {
@@ -683,7 +750,7 @@ function quote(scanner) {
     if (isQuote$2(ch)) {
         return {
             type: 'Quote',
-            single: ch === 39 /* SingleQuote */,
+            single: ch === Chars$3.SingleQuote,
             start: scanner.pos++,
             end: scanner.pos
         };
@@ -723,9 +790,9 @@ function operator$1(scanner) {
  * Consumes node repeat token from current stream position and returns its
  * parsed value
  */
-function repeater$1(scanner) {
+function repeater(scanner) {
     const start = scanner.pos;
-    if (scanner.eat(42 /* Asterisk */)) {
+    if (scanner.eat(Chars$3.Asterisk)) {
         scanner.start = scanner.pos;
         let count = 1;
         let implicit = false;
@@ -750,7 +817,7 @@ function repeater$1(scanner) {
  */
 function repeaterPlaceholder(scanner) {
     const start = scanner.pos;
-    if (scanner.eat(36 /* Dollar */) && scanner.eat(35 /* Hash */)) {
+    if (scanner.eat(Chars$3.Dollar) && scanner.eat(Chars$3.Hash)) {
         return {
             type: 'RepeaterPlaceholder',
             value: void 0,
@@ -765,17 +832,17 @@ function repeaterPlaceholder(scanner) {
  */
 function repeaterNumber(scanner) {
     const start = scanner.pos;
-    if (scanner.eatWhile(36 /* Dollar */)) {
+    if (scanner.eatWhile(Chars$3.Dollar)) {
         const size = scanner.pos - start;
         let reverse = false;
         let base = 1;
         let parent = 0;
-        if (scanner.eat(64 /* At */)) {
+        if (scanner.eat(Chars$3.At)) {
             // Consume numbering modifiers
-            while (scanner.eat(94 /* Climb */)) {
+            while (scanner.eat(Chars$3.Climb)) {
                 parent++;
             }
-            reverse = scanner.eat(45 /* Dash */);
+            reverse = scanner.eat(Chars$3.Dash);
             scanner.start = scanner.pos;
             if (scanner.eatWhile(isNumber$1)) {
                 base = Number(scanner.current());
@@ -796,20 +863,20 @@ function repeaterNumber(scanner) {
 function field$2(scanner, ctx) {
     const start = scanner.pos;
     // Fields are allowed inside expressions and attributes
-    if ((ctx.expression || ctx.attribute) && scanner.eat(36 /* Dollar */) && scanner.eat(123 /* CurlyBracketOpen */)) {
+    if ((ctx.expression || ctx.attribute) && scanner.eat(Chars$3.Dollar) && scanner.eat(Chars$3.CurlyBracketOpen)) {
         scanner.start = scanner.pos;
         let index;
         let name = '';
         if (scanner.eatWhile(isNumber$1)) {
             // It’s a field
             index = Number(scanner.current());
-            name = scanner.eat(58 /* Colon */) ? consumePlaceholder$2(scanner) : '';
+            name = scanner.eat(Chars$3.Colon) ? consumePlaceholder$2(scanner) : '';
         }
         else if (isAlpha$1(scanner.peek())) {
             // It’s a variable
             name = consumePlaceholder$2(scanner);
         }
-        if (scanner.eat(125 /* CurlyBracketClose */)) {
+        if (scanner.eat(Chars$3.CurlyBracketClose)) {
             return {
                 type: 'Field',
                 index, name,
@@ -830,10 +897,10 @@ function consumePlaceholder$2(stream) {
     const stack = [];
     stream.start = stream.pos;
     while (!stream.eof()) {
-        if (stream.eat(123 /* CurlyBracketOpen */)) {
+        if (stream.eat(Chars$3.CurlyBracketOpen)) {
             stack.push(stream.pos);
         }
-        else if (stream.eat(125 /* CurlyBracketClose */)) {
+        else if (stream.eat(Chars$3.CurlyBracketClose)) {
             if (!stack.length) {
                 stream.pos--;
                 break;
@@ -873,19 +940,19 @@ function isAllowedSpace(ch, ctx) {
  * Check if given character can be consumed as repeater in current context
  */
 function isAllowedRepeater(ch, ctx) {
-    return ch === 42 /* Asterisk */ && !ctx.attribute && !ctx.expression;
+    return ch === Chars$3.Asterisk && !ctx.attribute && !ctx.expression;
 }
 /**
  * If given character is a bracket, returns it’s type
  */
 function bracketType(ch) {
-    if (ch === 40 /* RoundBracketOpen */ || ch === 41 /* RoundBracketClose */) {
+    if (ch === Chars$3.RoundBracketOpen || ch === Chars$3.RoundBracketClose) {
         return 'group';
     }
-    if (ch === 91 /* SquareBracketOpen */ || ch === 93 /* SquareBracketClose */) {
+    if (ch === Chars$3.SquareBracketOpen || ch === Chars$3.SquareBracketClose) {
         return 'attribute';
     }
-    if (ch === 123 /* CurlyBracketOpen */ || ch === 125 /* CurlyBracketClose */) {
+    if (ch === Chars$3.CurlyBracketOpen || ch === Chars$3.CurlyBracketClose) {
         return 'expression';
     }
 }
@@ -893,31 +960,32 @@ function bracketType(ch) {
  * If given character is an operator, returns it’s type
  */
 function operatorType$1(ch) {
-    return (ch === 62 /* Child */ && 'child')
-        || (ch === 43 /* Sibling */ && 'sibling')
-        || (ch === 94 /* Climb */ && 'climb')
-        || (ch === 46 /* Dot */ && 'class')
-        || (ch === 35 /* Hash */ && 'id')
-        || (ch === 47 /* Slash */ && 'close')
-        || (ch === 61 /* Equals */ && 'equal')
+    return (ch === Chars$3.Child && 'child')
+        || (ch === Chars$3.Sibling && 'sibling')
+        || (ch === Chars$3.Climb && 'climb')
+        || (ch === Chars$3.Dot && 'class')
+        || (ch === Chars$3.Hash && 'id')
+        || (ch === Chars$3.Slash && 'close')
+        || (ch === Chars$3.Equals && 'equal')
         || void 0;
 }
 /**
  * Check if given character is an open bracket
  */
 function isOpenBracket$2(ch) {
-    return ch === 123 /* CurlyBracketOpen */
-        || ch === 91 /* SquareBracketOpen */
-        || ch === 40 /* RoundBracketOpen */;
+    return ch === Chars$3.CurlyBracketOpen
+        || ch === Chars$3.SquareBracketOpen
+        || ch === Chars$3.RoundBracketOpen;
 }
 /**
  * Check if given character is allowed in element name
  */
-function isElementName$1(ch) {
+function isElementName(ch) {
     return isAlphaNumericWord(ch)
-        || ch === 45 /* Dash */
-        || ch === 58 /* Colon */
-        || ch === 33 /* Excl */;
+        || isUmlaut(ch)
+        || ch === Chars$3.Dash
+        || ch === Chars$3.Colon
+        || ch === Chars$3.Excl;
 }
 
 const operators = {
@@ -1204,7 +1272,8 @@ function convertAttribute(node, state) {
         value,
         boolean: isBoolean,
         implied,
-        valueType
+        valueType,
+        multiple: node.multiple
     };
 }
 /**
@@ -1318,6 +1387,57 @@ function parseAbbreviation(abbr, options) {
     }
 }
 
+var OperatorType;
+(function (OperatorType) {
+    OperatorType["Sibling"] = "+";
+    OperatorType["Important"] = "!";
+    OperatorType["ArgumentDelimiter"] = ",";
+    OperatorType["ValueDelimiter"] = "-";
+    OperatorType["PropertyDelimiter"] = ":";
+})(OperatorType || (OperatorType = {}));
+
+var Chars$2;
+(function (Chars) {
+    /** `#` character */
+    Chars[Chars["Hash"] = 35] = "Hash";
+    /** `$` character */
+    Chars[Chars["Dollar"] = 36] = "Dollar";
+    /** `-` character */
+    Chars[Chars["Dash"] = 45] = "Dash";
+    /** `.` character */
+    Chars[Chars["Dot"] = 46] = "Dot";
+    /** `:` character */
+    Chars[Chars["Colon"] = 58] = "Colon";
+    /** `,` character */
+    Chars[Chars["Comma"] = 44] = "Comma";
+    /** `!` character */
+    Chars[Chars["Excl"] = 33] = "Excl";
+    /** `@` character */
+    Chars[Chars["At"] = 64] = "At";
+    /** `%` character */
+    Chars[Chars["Percent"] = 37] = "Percent";
+    /** `_` character */
+    Chars[Chars["Underscore"] = 95] = "Underscore";
+    /** `(` character */
+    Chars[Chars["RoundBracketOpen"] = 40] = "RoundBracketOpen";
+    /** `)` character */
+    Chars[Chars["RoundBracketClose"] = 41] = "RoundBracketClose";
+    /** `{` character */
+    Chars[Chars["CurlyBracketOpen"] = 123] = "CurlyBracketOpen";
+    /** `}` character */
+    Chars[Chars["CurlyBracketClose"] = 125] = "CurlyBracketClose";
+    /** `+` character */
+    Chars[Chars["Sibling"] = 43] = "Sibling";
+    /** `'` character */
+    Chars[Chars["SingleQuote"] = 39] = "SingleQuote";
+    /** `"` character */
+    Chars[Chars["DoubleQuote"] = 34] = "DoubleQuote";
+    /** `t` character */
+    Chars[Chars["Transparent"] = 116] = "Transparent";
+    /** `/` character */
+    Chars[Chars["Slash"] = 47] = "Slash";
+})(Chars$2 || (Chars$2 = {}));
+
 function tokenize(abbr, isValue) {
     let brackets = 0;
     let token;
@@ -1351,6 +1471,7 @@ function tokenize(abbr, isValue) {
  */
 function getToken(scanner, short) {
     return field$1(scanner)
+        || customProperty(scanner)
         || numberValue(scanner)
         || colorValue(scanner)
         || stringValue(scanner)
@@ -1361,20 +1482,20 @@ function getToken(scanner, short) {
 }
 function field$1(scanner) {
     const start = scanner.pos;
-    if (scanner.eat(36 /* Dollar */) && scanner.eat(123 /* CurlyBracketOpen */)) {
+    if (scanner.eat(Chars$2.Dollar) && scanner.eat(Chars$2.CurlyBracketOpen)) {
         scanner.start = scanner.pos;
         let index;
         let name = '';
         if (scanner.eatWhile(isNumber$1)) {
             // It’s a field
             index = Number(scanner.current());
-            name = scanner.eat(58 /* Colon */) ? consumePlaceholder$1(scanner) : '';
+            name = scanner.eat(Chars$2.Colon) ? consumePlaceholder$1(scanner) : '';
         }
         else if (isAlpha$1(scanner.peek())) {
             // It’s a variable
             name = consumePlaceholder$1(scanner);
         }
-        if (scanner.eat(125 /* CurlyBracketClose */)) {
+        if (scanner.eat(Chars$2.CurlyBracketClose)) {
             return {
                 type: 'Field',
                 index, name,
@@ -1395,10 +1516,10 @@ function consumePlaceholder$1(stream) {
     const stack = [];
     stream.start = stream.pos;
     while (!stream.eof()) {
-        if (stream.eat(123 /* CurlyBracketOpen */)) {
+        if (stream.eat(Chars$2.CurlyBracketOpen)) {
             stack.push(stream.pos);
         }
-        else if (stream.eat(125 /* CurlyBracketClose */)) {
+        else if (stream.eat(Chars$2.CurlyBracketClose)) {
             if (!stack.length) {
                 stream.pos--;
                 break;
@@ -1428,15 +1549,15 @@ function literal$1(scanner, short) {
         // SCSS or LESS variable
         // NB a bit dirty hack: if abbreviation starts with identifier prefix,
         // consume alpha characters only to allow embedded variables
-        scanner.eatWhile(start ? isKeyword : isLiteral);
+        scanner.eatWhile(start ? isKeyword : isLiteral$1);
     }
     else if (scanner.eat(isAlphaWord)) {
-        scanner.eatWhile(short ? isLiteral : isKeyword);
+        scanner.eatWhile(short ? isLiteral$1 : isKeyword);
     }
     else {
         // Allow dots only at the beginning of literal
-        scanner.eat(46 /* Dot */);
-        scanner.eatWhile(isLiteral);
+        scanner.eat(Chars$2.Dot);
+        scanner.eatWhile(isLiteral$1);
     }
     if (start !== scanner.pos) {
         scanner.start = start;
@@ -1462,7 +1583,7 @@ function numberValue(scanner) {
         const rawValue = scanner.current();
         // eat unit, which can be a % or alpha word
         scanner.start = scanner.pos;
-        scanner.eat(37 /* Percent */) || scanner.eatWhile(isAlphaWord);
+        scanner.eat(Chars$2.Percent) || scanner.eatWhile(isAlphaWord);
         return {
             type: 'NumberValue',
             value: Number(rawValue),
@@ -1496,7 +1617,7 @@ function stringValue(scanner) {
         return {
             type: 'StringValue',
             value: scanner.substring(start + 1, scanner.pos - (finished ? 1 : 0)),
-            quote: ch === 39 /* SingleQuote */ ? 'single' : 'double',
+            quote: ch === Chars$2.SingleQuote ? 'single' : 'double',
             start,
             end: scanner.pos
         };
@@ -1512,7 +1633,7 @@ function colorValue(scanner) {
     // #fff.5 → rgba(255, 255, 255, 0.5)
     // #t     → transparent
     const start = scanner.pos;
-    if (scanner.eat(35 /* Hash */)) {
+    if (scanner.eat(Chars$2.Hash)) {
         const valueStart = scanner.pos;
         let color = '';
         let alpha = '';
@@ -1520,7 +1641,7 @@ function colorValue(scanner) {
             color = scanner.substring(valueStart, scanner.pos);
             alpha = colorAlpha(scanner);
         }
-        else if (scanner.eat(116 /* Transparent */)) {
+        else if (scanner.eat(Chars$2.Transparent)) {
             color = '0';
             alpha = colorAlpha(scanner) || '0';
         }
@@ -1549,7 +1670,7 @@ function colorValue(scanner) {
  */
 function colorAlpha(scanner) {
     const start = scanner.pos;
-    if (scanner.eat(46 /* Dot */)) {
+    if (scanner.eat(Chars$2.Dot)) {
         scanner.start = start;
         if (scanner.eatWhile(isNumber$1)) {
             return scanner.current();
@@ -1572,14 +1693,31 @@ function whiteSpace(scanner) {
     }
 }
 /**
+ * Consumes custom CSS property: --foo-bar
+ */
+function customProperty(scanner) {
+    const start = scanner.pos;
+    if (scanner.eat(Chars$2.Dash) && scanner.eat(Chars$2.Dash)) {
+        scanner.start = start;
+        scanner.eatWhile(isKeyword);
+        return {
+            type: 'CustomProperty',
+            value: scanner.current(),
+            start,
+            end: scanner.pos
+        };
+    }
+    scanner.pos = start;
+}
+/**
  * Consumes bracket from given scanner
  */
 function bracket(scanner) {
     const ch = scanner.peek();
-    if (isBracket(ch)) {
+    if (isBracket$1(ch)) {
         return {
             type: 'Bracket',
-            open: ch === 40 /* RoundBracketOpen */,
+            open: ch === Chars$2.RoundBracketOpen,
             start: scanner.pos++,
             end: scanner.pos
         };
@@ -1605,11 +1743,11 @@ function operator(scanner) {
  */
 function consumeNumber(stream) {
     const start = stream.pos;
-    stream.eat(45 /* Dash */);
+    stream.eat(Chars$2.Dash);
     const afterNegative = stream.pos;
     const hasDecimal = stream.eatWhile(isNumber$1);
     const prevPos = stream.pos;
-    if (stream.eat(46 /* Dot */)) {
+    if (stream.eat(Chars$2.Dot)) {
         // It’s perfectly valid to have numbers like `1.`, which enforces
         // value to float unit type
         const hasFloat = stream.eatWhile(isNumber$1);
@@ -1625,17 +1763,17 @@ function consumeNumber(stream) {
     return stream.pos !== start;
 }
 function isIdentPrefix(code) {
-    return code === 64 /* At */ || code === 36 /* Dollar */;
+    return code === Chars$2.At || code === Chars$2.Dollar;
 }
 /**
  * If given character is an operator, returns it’s type
  */
 function operatorType(ch) {
-    return (ch === 43 /* Sibling */ && "+" /* Sibling */)
-        || (ch === 33 /* Excl */ && "!" /* Important */)
-        || (ch === 44 /* Comma */ && "," /* ArgumentDelimiter */)
-        || (ch === 58 /* Colon */ && ":" /* PropertyDelimiter */)
-        || (ch === 45 /* Dash */ && "-" /* ValueDelimiter */)
+    return (ch === Chars$2.Sibling && OperatorType.Sibling)
+        || (ch === Chars$2.Excl && OperatorType.Important)
+        || (ch === Chars$2.Comma && OperatorType.ArgumentDelimiter)
+        || (ch === Chars$2.Colon && OperatorType.PropertyDelimiter)
+        || (ch === Chars$2.Dash && OperatorType.ValueDelimiter)
         || void 0;
 }
 /**
@@ -1645,13 +1783,13 @@ function isHex(code) {
     return isNumber$1(code) || isAlpha$1(code, 65, 70); // A-F
 }
 function isKeyword(code) {
-    return isAlphaNumericWord(code) || code === 45 /* Dash */;
+    return isAlphaNumericWord(code) || code === Chars$2.Dash;
 }
-function isBracket(code) {
-    return code === 40 /* RoundBracketOpen */ || code === 41 /* RoundBracketClose */;
+function isBracket$1(code) {
+    return code === Chars$2.RoundBracketOpen || code === Chars$2.RoundBracketClose;
 }
-function isLiteral(code) {
-    return isAlphaWord(code) || code === 37 /* Percent */ || code === 47 /* Slash */;
+function isLiteral$1(code) {
+    return isAlphaWord(code) || code === Chars$2.Percent || code === Chars$2.Slash;
 }
 /**
  * Parses given color value from abbreviation into RGBA format
@@ -1786,7 +1924,7 @@ function consumeProperty(scanner, options) {
     const value = [];
     const token = peek$2(scanner);
     const valueMode = !!options.value;
-    if (!valueMode && isLiteral$1(token) && !isFunctionStart(scanner)) {
+    if (!valueMode && isLiteral(token) && !isFunctionStart(scanner)) {
         scanner.pos++;
         name = token.value;
         // Consume any following value delimiter after property name
@@ -1822,7 +1960,7 @@ function consumeValue(scanner, inArgument) {
         token = peek$2(scanner);
         if (isValue(token)) {
             scanner.pos++;
-            if (isLiteral$1(token) && (args = consumeArguments(scanner))) {
+            if (isLiteral(token) && (args = consumeArguments(scanner))) {
                 result.push({
                     type: 'FunctionCall',
                     name: token.value,
@@ -1861,17 +1999,17 @@ function consumeArguments(scanner) {
         return args;
     }
 }
-function isLiteral$1(token) {
+function isLiteral(token) {
     return token && token.type === 'Literal';
 }
-function isBracket$1(token, open) {
+function isBracket(token, open) {
     return token && token.type === 'Bracket' && (open == null || token.open === open);
 }
 function isOpenBracket$1(token) {
-    return isBracket$1(token, true);
+    return isBracket(token, true);
 }
 function isCloseBracket$1(token) {
-    return isBracket$1(token, false);
+    return isBracket(token, false);
 }
 function isWhiteSpace$1(token) {
     return token && token.type === 'WhiteSpace';
@@ -1880,32 +2018,33 @@ function isOperator(token, operator) {
     return token && token.type === 'Operator' && (!operator || token.operator === operator);
 }
 function isSiblingOperator(token) {
-    return isOperator(token, "+" /* Sibling */);
+    return isOperator(token, OperatorType.Sibling);
 }
 function isArgumentDelimiter(token) {
-    return isOperator(token, "," /* ArgumentDelimiter */);
+    return isOperator(token, OperatorType.ArgumentDelimiter);
 }
 function isFragmentDelimiter(token) {
     return isArgumentDelimiter(token);
 }
 function isImportant(token) {
-    return isOperator(token, "!" /* Important */);
+    return isOperator(token, OperatorType.Important);
 }
 function isValue(token) {
     return token.type === 'StringValue'
         || token.type === 'ColorValue'
         || token.type === 'NumberValue'
         || token.type === 'Literal'
-        || token.type === 'Field';
+        || token.type === 'Field'
+        || token.type === 'CustomProperty';
 }
 function isValueDelimiter(token) {
-    return isOperator(token, ":" /* PropertyDelimiter */)
-        || isOperator(token, "-" /* ValueDelimiter */);
+    return isOperator(token, OperatorType.PropertyDelimiter)
+        || isOperator(token, OperatorType.ValueDelimiter);
 }
 function isFunctionStart(scanner) {
     const t1 = scanner.tokens[scanner.pos];
     const t2 = scanner.tokens[scanner.pos + 1];
-    return t1 && t2 && isLiteral$1(t1) && t2.type === 'Bracket';
+    return t1 && t2 && isLiteral(t1) && t2.type === 'Bracket';
 }
 
 /**
@@ -2009,7 +2148,7 @@ function append(tokens, value) {
  * The `fn` callback accepts context node, list of ancestor nodes and optional
  * state object
  */
-function walk(node, fn, state) {
+function walk$1(node, fn, state) {
     const ancestors = [node];
     const callback = (ctx) => {
         fn(ctx, ancestors, state);
@@ -2106,6 +2245,8 @@ function mergeNodes(from, to) {
     }
 }
 
+const expressionStart = '{';
+const expressionEnd = '}';
 function createOutputStream(options, level = 0) {
     return {
         options,
@@ -2129,7 +2270,7 @@ function push(stream, text) {
 function pushString(stream, value) {
     // If given value contains newlines, we should push content line-by-line and
     // use `pushNewline()` to maintain proper line/column state
-    const lines = splitByLines(value);
+    const lines = splitByLines$1(value);
     for (let i = 0, il = lines.length - 1; i <= il; i++) {
         push(stream, lines[i]);
         if (i !== il) {
@@ -2182,7 +2323,7 @@ function attrName(name, config) {
  */
 function attrQuote(attr, config, isOpen) {
     if (attr.valueType === 'expression') {
-        return isOpen ? '{' : '}';
+        return isOpen ? expressionStart : expressionEnd;
     }
     return config.options['output.attributeQuotes'] === 'single' ? '\'' : '"';
 }
@@ -2217,7 +2358,7 @@ function isInline(node, config) {
 /**
  * Splits given text by lines
  */
-function splitByLines(text) {
+function splitByLines$1(text) {
     return text.split(/\r\n|\r|\n/g);
 }
 /**
@@ -2483,24 +2624,6 @@ function findRepeater(ancestors) {
 }
 
 /**
- * JSX transformer: replaces `class` and `for` attributes with `className` and
- * `htmlFor` attributes respectively
- */
-function jsx(node) {
-    if (node.attributes) {
-        node.attributes.forEach(rename);
-    }
-}
-function rename(attr) {
-    if (attr.name === 'class') {
-        attr.name = 'className';
-    }
-    else if (attr.name === 'for') {
-        attr.name = 'htmlFor';
-    }
-}
-
-/**
  * XSL transformer: removes `select` attributes from certain nodes that contain
  * children
  */
@@ -2682,7 +2805,7 @@ function uniqueClass(item, ix, arr) {
     return !!item && arr.indexOf(item) === ix;
 }
 
-function walk$1(abbr, visitor, state) {
+function walk(abbr, visitor, state) {
     const callback = (ctx, index, items) => {
         const { parent, current } = state;
         state.parent = current;
@@ -2752,7 +2875,7 @@ function pushTokens(tokens, state) {
  * Splits given value token by lines: returns array where each entry is a token list
  * for a single line
  */
-function splitByLines$1(tokens) {
+function splitByLines(tokens) {
     const result = [];
     let line = [];
     for (const t of tokens) {
@@ -2780,6 +2903,17 @@ function shouldOutputAttribute(attr) {
     return !attr.implied || attr.valueType !== 'raw' || (!!attr.value && attr.value.length > 0);
 }
 
+var TemplateChars;
+(function (TemplateChars) {
+    /** `[` character */
+    TemplateChars[TemplateChars["Start"] = 91] = "Start";
+    /** `]` character */
+    TemplateChars[TemplateChars["End"] = 93] = "End";
+    /* `_` character */
+    TemplateChars[TemplateChars["Underscore"] = 95] = "Underscore";
+    /* `-` character */
+    TemplateChars[TemplateChars["Dash"] = 45] = "Dash";
+})(TemplateChars || (TemplateChars = {}));
 /**
  * Splits given string into template tokens.
  * Template is a string which contains placeholders which are uppercase names
@@ -2816,25 +2950,25 @@ function template(text) {
  * Consumes placeholder like `[#ID]` from given scanner
  */
 function consumePlaceholder(scanner) {
-    if (peek(scanner) === 91 /* Start */) {
+    if (peek$1(scanner) === TemplateChars.Start) {
         const start = ++scanner.pos;
         let namePos = start;
         let afterPos = start;
         let stack = 1;
         while (scanner.pos < scanner.text.length) {
-            const code = peek(scanner);
+            const code = peek$1(scanner);
             if (isTokenStart(code)) {
                 namePos = scanner.pos;
-                while (isToken(peek(scanner))) {
+                while (isToken(peek$1(scanner))) {
                     scanner.pos++;
                 }
                 afterPos = scanner.pos;
             }
             else {
-                if (code === 91 /* Start */) {
+                if (code === TemplateChars.Start) {
                     stack++;
                 }
-                else if (code === 93 /* End */) {
+                else if (code === TemplateChars.End) {
                     if (--stack === 0) {
                         return {
                             before: scanner.text.slice(start, namePos),
@@ -2848,7 +2982,7 @@ function consumePlaceholder(scanner) {
         }
     }
 }
-function peek(scanner, pos = scanner.pos) {
+function peek$1(scanner, pos = scanner.pos) {
     return scanner.text.charCodeAt(pos);
 }
 function isTokenStart(code) {
@@ -2857,8 +2991,8 @@ function isTokenStart(code) {
 function isToken(code) {
     return isTokenStart(code)
         || (code > 47 && code < 58) /* 0-9 */
-        || code === 95 /* Underscore */
-        || code === 45 /* Dash */;
+        || code === TemplateChars.Underscore
+        || code === TemplateChars.Dash;
 }
 
 function createCommentState(config) {
@@ -2927,10 +3061,15 @@ function output(node, tokens, state) {
 }
 
 const htmlTagRegex = /^<([\w\-:]+)[\s>]/;
+const reservedKeywords = new Set([
+    'for', 'while', 'of', 'async', 'await', 'const', 'let', 'var', 'continue',
+    'break', 'debugger', 'do', 'export', 'import', 'in', 'instanceof', 'new', 'return',
+    'switch', 'this', 'throw', 'try', 'catch', 'typeof', 'void', 'with', 'yield'
+]);
 function html(abbr, config) {
     const state = createWalkState(config);
     state.comment = createCommentState(config);
-    walk$1(abbr, element, state);
+    walk(abbr, element$1, state);
     return state.out.value;
 }
 /**
@@ -2940,9 +3079,9 @@ function html(abbr, config) {
  * @param items List of `node`’s siblings
  * @param state Current walk state
  */
-function element(node, index, items, state, next) {
+function element$1(node, index, items, state, next) {
     const { out, config } = state;
-    const format = shouldFormat(node, index, items, state);
+    const format = shouldFormat$1(node, index, items, state);
     // Pick offset level for current node
     const level = getIndent(state);
     out.level += level;
@@ -3000,10 +3139,27 @@ function element(node, index, items, state, next) {
 function pushAttribute(attr, state) {
     const { out, config } = state;
     if (attr.name) {
-        const name = attrName(attr.name, config);
-        const lQuote = attrQuote(attr, config, true);
-        const rQuote = attrQuote(attr, config);
-        let value = attr.value;
+        const attributes = config.options['markup.attributes'];
+        const valuePrefix = config.options['markup.valuePrefix'];
+        let { name, value } = attr;
+        let lQuote = attrQuote(attr, config, true);
+        let rQuote = attrQuote(attr, config);
+        if (attributes) {
+            name = getMultiValue(name, attributes, attr.multiple) || name;
+        }
+        name = attrName(name, config);
+        const prefix = valuePrefix
+            ? getMultiValue(attr.name, valuePrefix, attr.multiple)
+            : null;
+        if (prefix && (value === null || value === void 0 ? void 0 : value.length) === 1 && typeof value[0] === 'string') {
+            // Add given prefix in object notation
+            const val = value[0];
+            value = [isPropKey(val) ? `${prefix}.${val}` : `${prefix}['${val}']`];
+            if (config.options['jsx.enabled']) {
+                lQuote = expressionStart;
+                rQuote = expressionEnd;
+            }
+        }
         if (isBooleanAttribute(attr, config) && !value) {
             // If attribute value is omitted and it’s a boolean value, check for
             // `compactBoolean` option: if it’s disabled, set value to attribute name
@@ -3049,7 +3205,7 @@ function pushSnippet(node, state, next) {
 /**
  * Check if given node should be formatted in its parent context
  */
-function shouldFormat(node, index, items, state) {
+function shouldFormat$1(node, index, items, state) {
     const { config, parent } = state;
     if (!config.options['output.format']) {
         return false;
@@ -3107,7 +3263,7 @@ function shouldFormat(node, index, items, state) {
         }
         // Edge case: inline node contains node that should receive formatting
         for (let i = 0, il = node.children.length; i < il; i++) {
-            if (shouldFormat(node.children[i], i, node.children, state)) {
+            if (shouldFormat$1(node.children[i], i, node.children, state)) {
                 return true;
             }
         }
@@ -3143,11 +3299,17 @@ function startsWithBlockTag(value, config) {
     }
     return false;
 }
+function getMultiValue(key, data, multiple) {
+    return (multiple && data[`${key}*`]) || data[key];
+}
+function isPropKey(name) {
+    return !reservedKeywords.has(name) && /^[a-zA-Z_$][\w_$]*$/.test(name);
+}
 
 function indentFormat(abbr, config, options) {
     const state = createWalkState(config);
     state.options = options || {};
-    walk$1(abbr, element$1, state);
+    walk(abbr, element, state);
     return state.out.value;
 }
 /**
@@ -3157,14 +3319,14 @@ function indentFormat(abbr, config, options) {
  * @param items List of `node`’s siblings
  * @param state Current walk state
  */
-function element$1(node, index, items, state, next) {
+function element(node, index, items, state, next) {
     const { out, options } = state;
     const { primary, secondary } = collectAttributes(node);
     // Pick offset level for current node
     const level = state.parent ? 1 : 0;
     out.level += level;
     // Do not indent top-level elements
-    if (shouldFormat$1(node, index, items, state)) {
+    if (shouldFormat(node, index, items, state)) {
         pushNewline(out, true);
     }
     if (node.name && (node.name !== 'div' || !primary.length)) {
@@ -3259,7 +3421,7 @@ function pushValue(node, state) {
         return;
     }
     const value = node.value || caret;
-    const lines = splitByLines$1(value);
+    const lines = splitByLines(value);
     const { out, options } = state;
     if (lines.length === 1) {
         if (node.name || node.attributes) {
@@ -3307,7 +3469,7 @@ function valueLength(tokens) {
     }
     return len;
 }
-function shouldFormat$1(node, index, items, state) {
+function shouldFormat(node, index, items, state) {
     // Do not format first top-level element or snippets
     if (!state.parent && index === 0) {
         return false;
@@ -3351,15 +3513,15 @@ const formatters = { html, haml, slim, pug };
  * Parses given Emmet abbreviation into a final abbreviation tree with all
  * required transformations applied
  */
-function parse(abbr, config) {
+function parse$1(abbr, config) {
     let oldTextValue;
     if (typeof abbr === 'string') {
-        let parseOpt = config;
+        const parseOpt = Object.assign({}, config);
         if (config.options['jsx.enabled']) {
-            parseOpt = Object.assign(Object.assign({}, parseOpt), { jsx: true });
+            parseOpt.jsx = true;
         }
         if (config.options['markup.href']) {
-            parseOpt = Object.assign(Object.assign({}, parseOpt), { href: true });
+            parseOpt.href = true;
         }
         abbr = parseAbbreviation(abbr, parseOpt);
         // remove text field before snippets(abbr, config) call
@@ -3372,7 +3534,7 @@ function parse(abbr, config) {
     // may produce multiple nodes
     // 2. Transform every resolved node
     abbr = resolveSnippets(abbr, config);
-    walk(abbr, transform, config);
+    walk$1(abbr, transform, config);
     config.text = oldTextValue !== null && oldTextValue !== void 0 ? oldTextValue : config.text;
     return abbr;
 }
@@ -3393,14 +3555,16 @@ function transform(node, ancestors, config) {
     if (config.syntax === 'xsl') {
         xsl(node);
     }
-    if (config.options['jsx.enabled']) {
-        jsx(node);
-    }
     if (config.options['bem.enabled']) {
         bem(node, ancestors, config);
     }
 }
 
+var CSSSnippetType;
+(function (CSSSnippetType) {
+    CSSSnippetType["Raw"] = "Raw";
+    CSSSnippetType["Property"] = "Property";
+})(CSSSnippetType || (CSSSnippetType = {}));
 const reProperty = /^([a-z-]+)(?:\s*:\s*([^\n\r;]+?);*)?$/;
 const opt = { value: true };
 /**
@@ -3420,7 +3584,7 @@ function createSnippet(key, value) {
             }
         }
         return {
-            type: "Property" /* Property */,
+            type: CSSSnippetType.Property,
             key,
             property: m[1],
             value: parsed,
@@ -3428,7 +3592,7 @@ function createSnippet(key, value) {
             dependencies: []
         };
     }
-    return { type: "Raw" /* Raw */, key, value };
+    return { type: CSSSnippetType.Raw, key, value };
 }
 /**
  * Nests more specific CSS properties into shorthand ones, e.g.
@@ -3474,7 +3638,7 @@ function parseValue(value) {
     return parse$2(value.trim(), opt)[0].value;
 }
 function isProperty(snippet) {
-    return snippet.type === "Property" /* Property */;
+    return snippet.type === CSSSnippetType.Property;
 }
 function collectKeywords(cssVal, dest) {
     for (const v of cssVal.value) {
@@ -3619,11 +3783,21 @@ function pad(value, len) {
     return value;
 }
 
+const CSSAbbreviationScope = {
+    /** Include all possible snippets in match */
+    Global: '@@global',
+    /** Include raw snippets only (e.g. no properties) in abbreviation match */
+    Section: '@@section',
+    /** Include properties only in abbreviation match */
+    Property: '@@property',
+    /** Resolve abbreviation in context of CSS property value */
+    Value: '@@value',
+};
 function css(abbr, config) {
     var _a;
     const out = createOutputStream(config.options);
     const format = config.options['output.format'];
-    if (((_a = config.context) === null || _a === void 0 ? void 0 : _a.name) === "@@section" /* Section */) {
+    if (((_a = config.context) === null || _a === void 0 ? void 0 : _a.name) === CSSAbbreviationScope.Section) {
         // For section context, filter out unmatched snippets
         abbr = abbr.filter(node => node.snippet);
     }
@@ -3714,7 +3888,7 @@ function outputToken(token, out, config) {
     if (token.type === 'ColorValue') {
         push(out, color(token, config.options['stylesheet.shortHex']));
     }
-    else if (token.type === 'Literal') {
+    else if (token.type === 'Literal' || token.type === 'CustomProperty') {
         pushString(out, token.value);
     }
     else if (token.type === 'NumberValue') {
@@ -3764,7 +3938,7 @@ const gradientName = 'lg';
  * Parses given Emmet abbreviation into a final abbreviation tree with all
  * required transformations applied
  */
-function parse$1(abbr, config) {
+function parse(abbr, config) {
     var _a;
     const snippets = ((_a = config.cache) === null || _a === void 0 ? void 0 : _a.stylesheetSnippets) || convertSnippets(config.snippets);
     if (config.cache) {
@@ -3799,7 +3973,7 @@ function resolveNode(node, snippets, config) {
         if (isValueScope(config)) {
             // Resolve as value of given CSS property
             const propName = config.context.name;
-            const snippet = snippets.find(s => s.type === "Property" /* Property */ && s.property === propName);
+            const snippet = snippets.find(s => s.type === CSSSnippetType.Property && s.property === propName);
             resolveValueKeywords(node, config, snippet, score);
             node.snippet = snippet;
         }
@@ -3807,7 +3981,7 @@ function resolveNode(node, snippets, config) {
             const snippet = findBestMatch(node.name, snippets, score, true);
             node.snippet = snippet;
             if (snippet) {
-                if (snippet.type === "Property" /* Property */) {
+                if (snippet.type === CSSSnippetType.Property) {
                     resolveAsProperty(node, snippet, config);
                 }
                 else {
@@ -4104,7 +4278,7 @@ function wrapWithField(node, config, state = { index: 1 }) {
  */
 function isValueScope(config) {
     if (config.context) {
-        return config.context.name === "@@value" /* Value */ || !config.context.name.startsWith('@@');
+        return config.context.name === CSSAbbreviationScope.Value || !config.context.name.startsWith('@@');
     }
     return false;
 }
@@ -4113,11 +4287,11 @@ function isValueScope(config) {
  */
 function getSnippetsForScope(snippets, config) {
     if (config.context) {
-        if (config.context.name === "@@section" /* Section */) {
-            return snippets.filter(s => s.type === "Raw" /* Raw */);
+        if (config.context.name === CSSAbbreviationScope.Section) {
+            return snippets.filter(s => s.type === CSSSnippetType.Raw);
         }
-        if (config.context.name === "@@property" /* Property */) {
-            return snippets.filter(s => s.type === "Property" /* Property */);
+        if (config.context.name === CSSAbbreviationScope.Property) {
+            return snippets.filter(s => s.type === CSSSnippetType.Property);
         }
     }
     return snippets;
@@ -4155,11 +4329,13 @@ var markupSnippets = {
 	"meta:compat": "meta[http-equiv=X-UA-Compatible content='${1:IE=7}']",
 	"meta:edge": "meta:compat[content='${1:ie=edge}']",
 	"meta:redirect": "meta[http-equiv=refresh content='0; url=${1:http://example.com}']",
+	"meta:refresh": "meta[http-equiv=refresh content='${1:5}']",
 	"meta:kw": "meta[name=keywords content]",
 	"meta:desc": "meta[name=description content]",
 	"style": "style",
 	"script": "script",
 	"script:src": "script[src]",
+	"script:module": "script[type=module src]",
 	"img": "img[src alt]/",
 	"img:s|img:srcset": "img[srcset src alt]",
 	"img:z|img:sizes": "img[sizes srcset src alt]",
@@ -4269,7 +4445,7 @@ var markupSnippets = {
 	"ri:t|ri:type": "pic>src:t+img",
 
 	"!!!": "{<!DOCTYPE html>}",
-	"doc": "html[lang=${lang}]>(head>meta[charset=${charset}]+meta[http-equiv='X-UA-Compatible'][content='IE=edge']+meta:vp+title{${1:Document}})+body",
+	"doc": "html[lang=${lang}]>(head>meta[charset=${charset}]+meta:vp+title{${1:Document}})+body",
 	"!|html:5": "!!!+doc",
 
 	"c": "{<!-- ${0} -->}",
@@ -4339,9 +4515,10 @@ var stylesheetSnippets = {
 	"bdw": "border-width",
 	"bfv": "backface-visibility:hidden|visible",
 	"bg": "background:${1:#000}",
+	"bg:n": "background: none",
 	"bga": "background-attachment:fixed|scroll",
 	"bgbk": "background-break:bounding-box|each-box|continuous",
-	"bgc": "background-color:#${1:fff}",
+	"bgc": "background-color:${1:#fff}",
 	"bgcp": "background-clip:padding-box|border-box|content-box|no-clip",
 	"bgi": "background-image:url(${0})",
 	"bgo": "background-origin:padding-box|border-box|content-box",
@@ -4373,7 +4550,7 @@ var stylesheetSnippets = {
 	"cp": "clip:auto|rect(${1:top} ${2:right} ${3:bottom} ${4:left})",
 	"cps": "caption-side:top|bottom",
 	"cur": "cursor:pointer|auto|default|crosshair|hand|help|move|pointer|text",
-	"d": "display:block|none|flex|inline-flex|inline|inline-block|grid|inline-grid|subgrid|list-item|run-in|compact|table|inline-table|table-caption|table-column|table-column-group|table-header-group|table-footer-group|table-row|table-row-group|table-cell|ruby|ruby-base|ruby-base-group|ruby-text|ruby-text-group",
+	"d": "display:block|none|flex|inline-flex|inline|inline-block|grid|inline-grid|subgrid|list-item|run-in|contents|table|inline-table|table-caption|table-column|table-column-group|table-header-group|table-footer-group|table-row|table-row-group|table-cell|ruby|ruby-base|ruby-base-group|ruby-text|ruby-text-group",
 	"ec": "empty-cells:show|hide",
 	"f": "font:${1:1em} ${2:sans-serif}",
 	"fd": "font-display:auto|block|swap|fallback|optional",
@@ -4401,6 +4578,7 @@ var stylesheetSnippets = {
 	"fxw": "flex-wrap:nowrap|wrap|wrap-reverse",
 	"fsz": "font-size",
 	"fsza": "font-size-adjust",
+	"g": "gap",
 	"gtc": "grid-template-columns:repeat(${0})|minmax()",
 	"gtr": "grid-template-rows:repeat(${0})|minmax()",
 	"gta": "grid-template-areas",
@@ -4566,7 +4744,7 @@ const defaultSyntaxes = {
     markup: 'html',
     stylesheet: 'css'
 };
-const defaultOptions = {
+const defaultOptions$1 = {
     'inlineElements': [
         'a', 'abbr', 'acronym', 'applet', 'b', 'basefont', 'bdo',
         'big', 'br', 'button', 'cite', 'code', 'del', 'dfn', 'em', 'font', 'i',
@@ -4622,7 +4800,7 @@ const defaultConfig = {
     syntax: 'html',
     variables,
     snippets: {},
-    options: defaultOptions
+    options: defaultOptions$1
 };
 /**
  * Default per-syntax config
@@ -4648,6 +4826,26 @@ const syntaxConfig = {
         }
     },
     jsx: {
+        options: {
+            'jsx.enabled': true,
+            'markup.attributes': {
+                'class': 'className',
+                'class*': 'styleName',
+                'for': 'htmlFor'
+            },
+            'markup.valuePrefix': {
+                'class*': 'styles'
+            }
+        }
+    },
+    vue: {
+        options: {
+            'markup.attributes': {
+                'class*': ':class',
+            }
+        }
+    },
+    svelte: {
         options: {
             'jsx.enabled': true
         }
@@ -4712,7 +4910,7 @@ function sol(scanner) {
 /**
  * “Peeks” character code an current scanner location without advancing it
  */
-function peek$1(scanner, offset = 0) {
+function peek(scanner, offset = 0) {
     return scanner.text.charCodeAt(scanner.pos - 1 + offset);
 }
 /**
@@ -4731,8 +4929,8 @@ function consume(scanner, match) {
         return false;
     }
     const ok = typeof match === 'function'
-        ? match(peek$1(scanner))
-        : match === peek$1(scanner);
+        ? match(peek(scanner))
+        : match === peek(scanner);
     if (ok) {
         scanner.pos--;
     }
@@ -4746,11 +4944,17 @@ function consumeWhile(scanner, match) {
     return scanner.pos < start;
 }
 
+var Chars$1;
+(function (Chars) {
+    Chars[Chars["SingleQuote"] = 39] = "SingleQuote";
+    Chars[Chars["DoubleQuote"] = 34] = "DoubleQuote";
+    Chars[Chars["Escape"] = 92] = "Escape";
+})(Chars$1 || (Chars$1 = {}));
 /**
  * Check if given character code is a quote
  */
 function isQuote(c) {
-    return c === 39 /* SingleQuote */ || c === 34 /* DoubleQuote */;
+    return c === Chars$1.SingleQuote || c === Chars$1.DoubleQuote;
 }
 /**
  * Consumes quoted value, if possible
@@ -4761,7 +4965,7 @@ function consumeQuoted(scanner) {
     const quote = previous(scanner);
     if (isQuote(quote)) {
         while (!sol(scanner)) {
-            if (previous(scanner) === quote && peek$1(scanner) !== 92 /* Escape */) {
+            if (previous(scanner) === quote && peek(scanner) !== Chars$1.Escape) {
                 return true;
             }
         }
@@ -4770,33 +4974,59 @@ function consumeQuoted(scanner) {
     return false;
 }
 
+var Brackets;
+(function (Brackets) {
+    Brackets[Brackets["SquareL"] = 91] = "SquareL";
+    Brackets[Brackets["SquareR"] = 93] = "SquareR";
+    Brackets[Brackets["RoundL"] = 40] = "RoundL";
+    Brackets[Brackets["RoundR"] = 41] = "RoundR";
+    Brackets[Brackets["CurlyL"] = 123] = "CurlyL";
+    Brackets[Brackets["CurlyR"] = 125] = "CurlyR";
+})(Brackets || (Brackets = {}));
 const bracePairs = {
-    [91 /* SquareL */]: 93 /* SquareR */,
-    [40 /* RoundL */]: 41 /* RoundR */,
-    [123 /* CurlyL */]: 125 /* CurlyR */,
+    [Brackets.SquareL]: Brackets.SquareR,
+    [Brackets.RoundL]: Brackets.RoundR,
+    [Brackets.CurlyL]: Brackets.CurlyR,
 };
 
+var Chars;
+(function (Chars) {
+    Chars[Chars["Tab"] = 9] = "Tab";
+    Chars[Chars["Space"] = 32] = "Space";
+    /** `-` character */
+    Chars[Chars["Dash"] = 45] = "Dash";
+    /** `/` character */
+    Chars[Chars["Slash"] = 47] = "Slash";
+    /** `:` character */
+    Chars[Chars["Colon"] = 58] = "Colon";
+    /** `=` character */
+    Chars[Chars["Equals"] = 61] = "Equals";
+    /** `<` character */
+    Chars[Chars["AngleLeft"] = 60] = "AngleLeft";
+    /** `>` character */
+    Chars[Chars["AngleRight"] = 62] = "AngleRight";
+})(Chars || (Chars = {}));
 /**
  * Check if given reader’s current position points at the end of HTML tag
  */
 function isHtml(scanner) {
     const start = scanner.pos;
-    if (!consume(scanner, 62 /* AngleRight */)) {
+    if (!consume(scanner, Chars.AngleRight)) {
         return false;
     }
     let ok = false;
-    consume(scanner, 47 /* Slash */); // possibly self-closed element
+    consume(scanner, Chars.Slash); // possibly self-closed element
     while (!sol(scanner)) {
         consumeWhile(scanner, isWhiteSpace);
         if (consumeIdent(scanner)) {
             // ate identifier: could be a tag name, boolean attribute or unquoted
             // attribute value
-            if (consume(scanner, 47 /* Slash */)) {
+            if (consume(scanner, Chars.Slash)) {
                 // either closing tag or invalid tag
-                ok = consume(scanner, 60 /* AngleLeft */);
+                ok = consume(scanner, Chars.AngleLeft);
                 break;
             }
-            else if (consume(scanner, 60 /* AngleLeft */)) {
+            else if (consume(scanner, Chars.AngleLeft)) {
                 // opening tag
                 ok = true;
                 break;
@@ -4805,7 +5035,7 @@ function isHtml(scanner) {
                 // boolean attribute
                 continue;
             }
-            else if (consume(scanner, 61 /* Equals */)) {
+            else if (consume(scanner, Chars.Equals)) {
                 // simple unquoted value or invalid attribute
                 if (consumeIdent(scanner)) {
                     continue;
@@ -4837,7 +5067,7 @@ function consumeAttribute(scanner) {
 }
 function consumeAttributeWithQuotedValue(scanner) {
     const start = scanner.pos;
-    if (consumeQuoted(scanner) && consume(scanner, 61 /* Equals */) && consumeIdent(scanner)) {
+    if (consumeQuoted(scanner) && consume(scanner, Chars.Equals) && consumeIdent(scanner)) {
         return true;
     }
     scanner.pos = start;
@@ -4847,7 +5077,7 @@ function consumeAttributeWithUnquotedValue(scanner) {
     const start = scanner.pos;
     const stack = [];
     while (!sol(scanner)) {
-        const ch = peek$1(scanner);
+        const ch = peek(scanner);
         if (isCloseBracket(ch)) {
             stack.push(ch);
         }
@@ -4862,7 +5092,7 @@ function consumeAttributeWithUnquotedValue(scanner) {
         }
         scanner.pos--;
     }
-    if (start !== scanner.pos && consume(scanner, 61 /* Equals */) && consumeIdent(scanner)) {
+    if (start !== scanner.pos && consume(scanner, Chars.Equals) && consumeIdent(scanner)) {
         return true;
     }
     scanner.pos = start;
@@ -4878,7 +5108,7 @@ function consumeIdent(scanner) {
  * Check if given character code belongs to HTML identifier
  */
 function isIdent(ch) {
-    return ch === 58 /* Colon */ || ch === 45 /* Dash */ || isAlpha(ch) || isNumber(ch);
+    return ch === Chars.Colon || ch === Chars.Dash || isAlpha(ch) || isNumber(ch);
 }
 /**
  * Check if given character code is alpha code (letter though A to Z)
@@ -4897,24 +5127,24 @@ function isNumber(ch) {
  * Check if given code is a whitespace
  */
 function isWhiteSpace(ch) {
-    return ch === 32 /* Space */ || ch === 9 /* Tab */;
+    return ch === Chars.Space || ch === Chars.Tab;
 }
 /**
  * Check if given code may belong to unquoted attribute value
  */
 function isUnquotedValue(ch) {
-    return !isNaN(ch) && ch !== 61 /* Equals */ && !isWhiteSpace(ch) && !isQuote(ch);
+    return !isNaN(ch) && ch !== Chars.Equals && !isWhiteSpace(ch) && !isQuote(ch);
 }
 function isOpenBracket(ch) {
-    return ch === 123 /* CurlyL */ || ch === 40 /* RoundL */ || ch === 91 /* SquareL */;
+    return ch === Brackets.CurlyL || ch === Brackets.RoundL || ch === Brackets.SquareL;
 }
 function isCloseBracket(ch) {
-    return ch === 125 /* CurlyR */ || ch === 41 /* RoundR */ || ch === 93 /* SquareR */;
+    return ch === Brackets.CurlyR || ch === Brackets.RoundR || ch === Brackets.SquareR;
 }
 
 const code = (ch) => ch.charCodeAt(0);
 const specialChars = '#.*:$-_!@%^+>/'.split('').map(code);
-const defaultOptions$1 = {
+const defaultOptions = {
     type: 'markup',
     lookAhead: true,
     prefix: ''
@@ -4930,7 +5160,7 @@ const defaultOptions$1 = {
  */
 function extractAbbreviation$1(line, pos = line.length, options = {}) {
     // make sure `pos` is within line range
-    const opt = Object.assign(Object.assign({}, defaultOptions$1), options);
+    const opt = Object.assign(Object.assign({}, defaultOptions), options);
     pos = Math.min(line.length, Math.max(0, pos == null ? line.length : pos));
     if (opt.lookAhead) {
         pos = offsetPastAutoClosed(line, pos, opt);
@@ -4944,14 +5174,14 @@ function extractAbbreviation$1(line, pos = line.length, options = {}) {
     scanner.pos = pos;
     const stack = [];
     while (!sol(scanner)) {
-        ch = peek$1(scanner);
-        if (stack.includes(125 /* CurlyR */)) {
-            if (ch === 125 /* CurlyR */) {
+        ch = peek(scanner);
+        if (stack.includes(Brackets.CurlyR)) {
+            if (ch === Brackets.CurlyR) {
                 stack.push(ch);
                 scanner.pos--;
                 continue;
             }
-            if (ch !== 123 /* CurlyL */) {
+            if (ch !== Brackets.CurlyL) {
                 scanner.pos--;
                 continue;
             }
@@ -4965,7 +5195,7 @@ function extractAbbreviation$1(line, pos = line.length, options = {}) {
                 break;
             }
         }
-        else if (stack.includes(93 /* SquareR */) || stack.includes(125 /* CurlyR */)) {
+        else if (stack.includes(Brackets.SquareR) || stack.includes(Brackets.CurlyR)) {
             // respect all characters inside attribute sets or text nodes
             scanner.pos--;
             continue;
@@ -5017,7 +5247,7 @@ function getStartOffset(line, pos, prefix) {
     scanner.pos = pos;
     let result;
     while (!sol(scanner)) {
-        if (consumePair(scanner, 93 /* SquareR */, 91 /* SquareL */) || consumePair(scanner, 125 /* CurlyR */, 123 /* CurlyL */)) {
+        if (consumePair(scanner, Brackets.SquareR, Brackets.SquareL) || consumePair(scanner, Brackets.CurlyR, Brackets.CurlyL)) {
             continue;
         }
         result = scanner.pos;
@@ -5068,10 +5298,10 @@ function isAbbreviation(ch) {
         || specialChars.includes(ch); // special character
 }
 function isOpenBrace(ch, syntax) {
-    return ch === 40 /* RoundL */ || (syntax === 'markup' && (ch === 91 /* SquareL */ || ch === 123 /* CurlyL */));
+    return ch === Brackets.RoundL || (syntax === 'markup' && (ch === Brackets.SquareL || ch === Brackets.CurlyL));
 }
 function isCloseBrace(ch, syntax) {
-    return ch === 41 /* RoundR */ || (syntax === 'markup' && (ch === 93 /* SquareR */ || ch === 125 /* CurlyR */));
+    return ch === Brackets.RoundR || (syntax === 'markup' && (ch === Brackets.SquareR || ch === Brackets.CurlyR));
 }
 
 function expandAbbreviation$1(abbr, config) {
@@ -5086,7 +5316,7 @@ function expandAbbreviation$1(abbr, config) {
  * provided in config
  */
 function markup(abbr, config) {
-    return stringify(parse(abbr, config), config);
+    return stringify(parse$1(abbr, config), config);
 }
 /**
  * Expands given *stylesheet* abbreviation (a special Emmet abbreviation designed for
@@ -5094,13 +5324,13 @@ function markup(abbr, config) {
  * provided in config
  */
 function stylesheet(abbr, config) {
-    return css(parse$1(abbr, config), config);
+    return css(parse(abbr, config), config);
 }
 
-var cssData = {
+const cssData = {
     "properties": ["additive-symbols", "align-content", "align-items", "justify-items", "justify-self", "justify-items", "align-self", "all", "alt", "animation", "animation-delay", "animation-direction", "animation-duration", "animation-fill-mode", "animation-iteration-count", "animation-name", "animation-play-state", "animation-timing-function", "backface-visibility", "background", "background-attachment", "background-blend-mode", "background-clip", "background-color", "background-image", "background-origin", "background-position", "background-position-x", "background-position-y", "background-repeat", "background-size", "behavior", "block-size", "border", "border-block-end", "border-block-start", "border-block-end-color", "border-block-start-color", "border-block-end-style", "border-block-start-style", "border-block-end-width", "border-block-start-width", "border-bottom", "border-bottom-color", "border-bottom-left-radius", "border-bottom-right-radius", "border-bottom-style", "border-bottom-width", "border-collapse", "border-color", "border-image", "border-image-outset", "border-image-repeat", "border-image-slice", "border-image-source", "border-image-width", "border-inline-end", "border-inline-start", "border-inline-end-color", "border-inline-start-color", "border-inline-end-style", "border-inline-start-style", "border-inline-end-width", "border-inline-start-width", "border-left", "border-left-color", "border-left-style", "border-left-width", "border-radius", "border-right", "border-right-color", "border-right-style", "border-right-width", "border-spacing", "border-style", "border-top", "border-top-color", "border-top-left-radius", "border-top-right-radius", "border-top-style", "border-top-width", "border-width", "bottom", "box-decoration-break", "box-shadow", "box-sizing", "break-after", "break-before", "break-inside", "caption-side", "caret-color", "clear", "clip", "clip-path", "clip-rule", "color", "color-interpolation-filters", "column-count", "column-fill", "column-gap", "column-rule", "column-rule-color", "column-rule-style", "column-rule-width", "columns", "column-span", "column-width", "contain", "content", "counter-increment", "counter-reset", "cursor", "direction", "display", "empty-cells", "enable-background", "fallback", "fill", "fill-opacity", "fill-rule", "filter", "flex", "flex-basis", "flex-direction", "flex-flow", "flex-grow", "flex-shrink", "flex-wrap", "float", "flood-color", "flood-opacity", "font", "font-family", "font-feature-settings", "font-kerning", "font-language-override", "font-size", "font-size-adjust", "font-stretch", "font-style", "font-synthesis", "font-variant", "font-variant-alternates", "font-variant-caps", "font-variant-east-asian", "font-variant-ligatures", "font-variant-numeric", "font-variant-position", "font-weight", "glyph-orientation-horizontal", "glyph-orientation-vertical", "grid-area", "grid-auto-columns", "grid-auto-flow", "grid-auto-rows", "grid-column", "grid-column-end", "grid-column-gap", "grid-column-start", "grid-gap", "grid-row", "grid-row-end", "grid-row-gap", "grid-row-start", "grid-template", "grid-template-areas", "grid-template-columns", "grid-template-rows", "height", "hyphens", "image-orientation", "image-rendering", "ime-mode", "inline-size", "isolation", "justify-content", "kerning", "left", "letter-spacing", "lighting-color", "line-break", "line-height", "list-style", "list-style-image", "list-style-position", "list-style-type", "margin", "margin-block-end", "margin-block-start", "margin-bottom", "margin-inline-end", "margin-inline-start", "margin-left", "margin-right", "margin-top", "marker", "marker-end", "marker-mid", "marker-start", "mask-type", "max-block-size", "max-height", "max-inline-size", "max-width", "min-block-size", "min-height", "min-inline-size", "min-width", "mix-blend-mode", "motion", "motion-offset", "motion-path", "motion-rotation", "-moz-animation", "-moz-animation-delay", "-moz-animation-direction", "-moz-animation-duration", "-moz-animation-iteration-count", "-moz-animation-name", "-moz-animation-play-state", "-moz-animation-timing-function", "-moz-appearance", "-moz-backface-visibility", "-moz-background-clip", "-moz-background-inline-policy", "-moz-background-origin", "-moz-border-bottom-colors", "-moz-border-image", "-moz-border-left-colors", "-moz-border-right-colors", "-moz-border-top-colors", "-moz-box-align", "-moz-box-direction", "-moz-box-flex", "-moz-box-flexgroup", "-moz-box-ordinal-group", "-moz-box-orient", "-moz-box-pack", "-moz-box-sizing", "-moz-column-count", "-moz-column-gap", "-moz-column-rule", "-moz-column-rule-color", "-moz-column-rule-style", "-moz-column-rule-width", "-moz-columns", "-moz-column-width", "-moz-font-feature-settings", "-moz-hyphens", "-moz-perspective", "-moz-perspective-origin", "-moz-text-align-last", "-moz-text-decoration-color", "-moz-text-decoration-line", "-moz-text-decoration-style", "-moz-text-size-adjust", "-moz-transform", "-moz-transform-origin", "-moz-transition", "-moz-transition-delay", "-moz-transition-duration", "-moz-transition-property", "-moz-transition-timing-function", "-moz-user-focus", "-moz-user-select", "-ms-accelerator", "-ms-behavior", "-ms-block-progression", "-ms-content-zoom-chaining", "-ms-content-zooming", "-ms-content-zoom-limit", "-ms-content-zoom-limit-max", "-ms-content-zoom-limit-min", "-ms-content-zoom-snap", "-ms-content-zoom-snap-points", "-ms-content-zoom-snap-type", "-ms-filter", "-ms-flex", "-ms-flex-align", "-ms-flex-direction", "-ms-flex-flow", "-ms-flex-item-align", "-ms-flex-line-pack", "-ms-flex-order", "-ms-flex-pack", "-ms-flex-wrap", "-ms-flow-from", "-ms-flow-into", "-ms-grid-column", "-ms-grid-column-align", "-ms-grid-columns", "-ms-grid-column-span", "-ms-grid-layer", "-ms-grid-row", "-ms-grid-row-align", "-ms-grid-rows", "-ms-grid-row-span", "-ms-high-contrast-adjust", "-ms-hyphenate-limit-chars", "-ms-hyphenate-limit-lines", "-ms-hyphenate-limit-zone", "-ms-hyphens", "-ms-ime-mode", "-ms-interpolation-mode", "-ms-layout-grid", "-ms-layout-grid-char", "-ms-layout-grid-line", "-ms-layout-grid-mode", "-ms-layout-grid-type", "-ms-line-break", "-ms-overflow-style", "-ms-perspective", "-ms-perspective-origin", "-ms-perspective-origin-x", "-ms-perspective-origin-y", "-ms-progress-appearance", "-ms-scrollbar-3dlight-color", "-ms-scrollbar-arrow-color", "-ms-scrollbar-base-color", "-ms-scrollbar-darkshadow-color", "-ms-scrollbar-face-color", "-ms-scrollbar-highlight-color", "-ms-scrollbar-shadow-color", "-ms-scrollbar-track-color", "-ms-scroll-chaining", "-ms-scroll-limit", "-ms-scroll-limit-x-max", "-ms-scroll-limit-x-min", "-ms-scroll-limit-y-max", "-ms-scroll-limit-y-min", "-ms-scroll-rails", "-ms-scroll-snap-points-x", "-ms-scroll-snap-points-y", "-ms-scroll-snap-type", "-ms-scroll-snap-x", "-ms-scroll-snap-y", "-ms-scroll-translation", "-ms-text-align-last", "-ms-text-autospace", "-ms-text-combine-horizontal", "-ms-text-justify", "-ms-text-kashida-space", "-ms-text-overflow", "-ms-text-size-adjust", "-ms-text-underline-position", "-ms-touch-action", "-ms-touch-select", "-ms-transform", "-ms-transform-origin", "-ms-transform-origin-x", "-ms-transform-origin-y", "-ms-transform-origin-z", "-ms-user-select", "-ms-word-break", "-ms-word-wrap", "-ms-wrap-flow", "-ms-wrap-margin", "-ms-wrap-through", "-ms-writing-mode", "-ms-zoom", "-ms-zoom-animation", "nav-down", "nav-index", "nav-left", "nav-right", "nav-up", "negative", "-o-animation", "-o-animation-delay", "-o-animation-direction", "-o-animation-duration", "-o-animation-fill-mode", "-o-animation-iteration-count", "-o-animation-name", "-o-animation-play-state", "-o-animation-timing-function", "object-fit", "object-position", "-o-border-image", "-o-object-fit", "-o-object-position", "opacity", "order", "orphans", "-o-table-baseline", "-o-tab-size", "-o-text-overflow", "-o-transform", "-o-transform-origin", "-o-transition", "-o-transition-delay", "-o-transition-duration", "-o-transition-property", "-o-transition-timing-function", "offset-block-end", "offset-block-start", "offset-inline-end", "offset-inline-start", "outline", "outline-color", "outline-offset", "outline-style", "outline-width", "overflow", "overflow-wrap", "overflow-x", "overflow-y", "pad", "padding", "padding-bottom", "padding-block-end", "padding-block-start", "padding-inline-end", "padding-inline-start", "padding-left", "padding-right", "padding-top", "page-break-after", "page-break-before", "page-break-inside", "paint-order", "perspective", "perspective-origin", "pointer-events", "position", "prefix", "quotes", "range", "resize", "right", "ruby-align", "ruby-overhang", "ruby-position", "ruby-span", "scrollbar-3dlight-color", "scrollbar-arrow-color", "scrollbar-base-color", "scrollbar-darkshadow-color", "scrollbar-face-color", "scrollbar-highlight-color", "scrollbar-shadow-color", "scrollbar-track-color", "scroll-behavior", "scroll-snap-coordinate", "scroll-snap-destination", "scroll-snap-points-x", "scroll-snap-points-y", "scroll-snap-type", "shape-image-threshold", "shape-margin", "shape-outside", "shape-rendering", "size", "src", "stop-color", "stop-opacity", "stroke", "stroke-dasharray", "stroke-dashoffset", "stroke-linecap", "stroke-linejoin", "stroke-miterlimit", "stroke-opacity", "stroke-width", "suffix", "system", "symbols", "table-layout", "tab-size", "text-align", "text-align-last", "text-anchor", "text-decoration", "text-decoration-color", "text-decoration-line", "text-decoration-style", "text-indent", "text-justify", "text-orientation", "text-overflow", "text-rendering", "text-shadow", "text-transform", "text-underline-position", "top", "touch-action", "transform", "transform-origin", "transform-style", "transition", "transition-delay", "transition-duration", "transition-property", "transition-timing-function", "unicode-bidi", "unicode-range", "user-select", "vertical-align", "visibility", "-webkit-animation", "-webkit-animation-delay", "-webkit-animation-direction", "-webkit-animation-duration", "-webkit-animation-fill-mode", "-webkit-animation-iteration-count", "-webkit-animation-name", "-webkit-animation-play-state", "-webkit-animation-timing-function", "-webkit-appearance", "-webkit-backdrop-filter", "-webkit-backface-visibility", "-webkit-background-clip", "-webkit-background-composite", "-webkit-background-origin", "-webkit-border-image", "-webkit-box-align", "-webkit-box-direction", "-webkit-box-flex", "-webkit-box-flex-group", "-webkit-box-ordinal-group", "-webkit-box-orient", "-webkit-box-pack", "-webkit-box-reflect", "-webkit-box-sizing", "-webkit-break-after", "-webkit-break-before", "-webkit-break-inside", "-webkit-column-break-after", "-webkit-column-break-before", "-webkit-column-break-inside", "-webkit-column-count", "-webkit-column-gap", "-webkit-column-rule", "-webkit-column-rule-color", "-webkit-column-rule-style", "-webkit-column-rule-width", "-webkit-columns", "-webkit-column-span", "-webkit-column-width", "-webkit-filter", "-webkit-flow-from", "-webkit-flow-into", "-webkit-font-feature-settings", "-webkit-hyphens", "-webkit-line-break", "-webkit-margin-bottom-collapse", "-webkit-margin-collapse", "-webkit-margin-start", "-webkit-margin-top-collapse", "-webkit-mask-clip", "-webkit-mask-image", "-webkit-mask-origin", "-webkit-mask-repeat", "-webkit-mask-size", "-webkit-nbsp-mode", "-webkit-overflow-scrolling", "-webkit-padding-start", "-webkit-perspective", "-webkit-perspective-origin", "-webkit-region-fragment", "-webkit-tap-highlight-color", "-webkit-text-fill-color", "-webkit-text-size-adjust", "-webkit-text-stroke", "-webkit-text-stroke-color", "-webkit-text-stroke-width", "-webkit-touch-callout", "-webkit-transform", "-webkit-transform-origin", "-webkit-transform-origin-x", "-webkit-transform-origin-y", "-webkit-transform-origin-z", "-webkit-transform-style", "-webkit-transition", "-webkit-transition-delay", "-webkit-transition-duration", "-webkit-transition-property", "-webkit-transition-timing-function", "-webkit-user-drag", "-webkit-user-modify", "-webkit-user-select", "white-space", "widows", "width", "will-change", "word-break", "word-spacing", "word-wrap", "writing-mode", "z-index", "zoom"]
 };
-var htmlData = {
+const htmlData = {
     "tags": [
         "body", "head", "html",
         "address", "blockquote", "dd", "div", "section", "article", "aside", "header", "footer", "nav", "menu", "dl", "dt", "fieldset", "form", "frame", "frameset", "h1", "h2", "h3", "h4", "h5", "h6", "iframe", "noframes", "object", "ol", "p", "ul", "applet", "center", "dir", "hr", "pre",
@@ -5113,20 +5343,20 @@ var htmlData = {
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-var snippetKeyCache = new Map();
-var markupSnippetKeys;
-var stylesheetCustomSnippetsKeyCache = new Map();
-var htmlAbbreviationStartRegex = /^[a-z,A-Z,!,(,[,#,\.\{]/;
+const snippetKeyCache = new Map();
+let markupSnippetKeys;
+const stylesheetCustomSnippetsKeyCache = new Map();
+const htmlAbbreviationStartRegex = /^[a-z,A-Z,!,(,[,#,\.\{]/;
 // take off { for jsx because it interferes with the language
-var jsxAbbreviationStartRegex = /^[a-z,A-Z,!,(,[,#,\.]/;
-var cssAbbreviationRegex = /^-?[a-z,A-Z,!,@,#]/;
-var htmlAbbreviationRegex = /[a-z,A-Z\.]/;
-var commonlyUsedTags = __spreadArray(__spreadArray([], htmlData.tags, true), ['lorem'], false);
-var bemFilterSuffix = 'bem';
-var filterDelimitor = '|';
-var trimFilterSuffix = 't';
-var commentFilterSuffix = 'c';
-var maxFilters = 3;
+const jsxAbbreviationStartRegex = /^[a-z,A-Z,!,(,[,#,\.]/;
+const cssAbbreviationRegex = /^-?[a-z,A-Z,!,@,#]/;
+const htmlAbbreviationRegex = /[a-z,A-Z\.]/;
+const commonlyUsedTags = [...htmlData.tags, 'lorem'];
+const bemFilterSuffix = 'bem';
+const filterDelimitor = '|';
+const trimFilterSuffix = 't';
+const commentFilterSuffix = 'c';
+const maxFilters = 3;
 /**
  * Returns all applicable emmet expansions for abbreviation at given position in a CompletionList
  * @param model TextModel in which completions are requested
@@ -5136,36 +5366,36 @@ var maxFilters = 3;
  */
 function doComplete(monaco, model, position, syntax, emmetConfig) {
     var _a;
-    var isStyleSheetRes = isStyleSheet(syntax);
+    const isStyleSheetRes = isStyleSheet(syntax);
     // Fetch markupSnippets so that we can provide possible abbreviation completions
     // For example, when text at position is `a`, completions should return `a:blank`, `a:link`, `acr` etc.
     if (!isStyleSheetRes) {
         if (!snippetKeyCache.has(syntax)) {
-            var registry = getDefaultSnippets(syntax);
+            const registry = getDefaultSnippets(syntax);
             snippetKeyCache.set(syntax, Object.keys(registry));
         }
         markupSnippetKeys = (_a = snippetKeyCache.get(syntax)) !== null && _a !== void 0 ? _a : [];
     }
-    var extractOptions = {
+    const extractOptions = {
         lookAhead: !isStyleSheetRes,
         type: getSyntaxType(syntax),
     };
-    var extractedValue = extractAbbreviation(monaco, model, position, extractOptions);
+    const extractedValue = extractAbbreviation(monaco, model, position, extractOptions);
     if (!extractedValue)
         return;
-    var abbreviationRange = extractedValue.abbreviationRange, abbreviation = extractedValue.abbreviation, currentLineTillPosition = extractedValue.currentLineTillPosition, filter = extractedValue.filter;
-    var currentWord = getCurrentWord(currentLineTillPosition);
+    const { abbreviationRange, abbreviation, currentLineTillPosition, filter } = extractedValue;
+    const currentWord = getCurrentWord(currentLineTillPosition);
     // Don't attempt to expand open tags
-    if (currentWord === abbreviation && currentLineTillPosition.endsWith("<".concat(abbreviation)) && !isStyleSheetRes) {
+    if (currentWord === abbreviation && currentLineTillPosition.endsWith(`<${abbreviation}`) && !isStyleSheetRes) {
         return;
     }
-    var expandOptions = getExpandOptions(syntax, filter);
-    var expandedText = '';
-    var expandedAbbr;
-    var completionItems = [];
+    const expandOptions = getExpandOptions(syntax, filter);
+    let expandedText = '';
+    let expandedAbbr;
+    let completionItems = [];
     // Create completion item after expanding given abbreviation
     // if abbreviation is valid and expanded value is not noise
-    var createExpandedAbbr = function (syntax, abbr) {
+    const createExpandedAbbr = (syntax, abbr) => {
         if (!isAbbreviationValid(syntax, abbreviation))
             return;
         try {
@@ -5193,7 +5423,7 @@ function doComplete(monaco, model, position, syntax, emmetConfig) {
     createExpandedAbbr(syntax, abbreviation);
     if (isStyleSheetRes) {
         // When abbr is longer than usual emmet snippets and matches better with existing css property, then no emmet
-        if (abbreviation.length > 4 && cssData.properties.some(function (x) { return x.startsWith(abbreviation); })) {
+        if (abbreviation.length > 4 && cssData.properties.some((x) => x.startsWith(abbreviation))) {
             return { suggestions: [], incomplete: true };
         }
         if (expandedAbbr && expandedText.length) {
@@ -5203,18 +5433,18 @@ function doComplete(monaco, model, position, syntax, emmetConfig) {
             expandedAbbr.label = removeTabStops(expandedText);
             expandedAbbr.filterText = abbreviation;
             // Custom snippets should show up in completions if abbreviation is a prefix
-            var stylesheetCustomSnippetsKeys = stylesheetCustomSnippetsKeyCache.has(syntax)
+            const stylesheetCustomSnippetsKeys = stylesheetCustomSnippetsKeyCache.has(syntax)
                 ? stylesheetCustomSnippetsKeyCache.get(syntax)
                 : stylesheetCustomSnippetsKeyCache.get('css');
             completionItems = makeSnippetSuggestion(monaco, stylesheetCustomSnippetsKeys !== null && stylesheetCustomSnippetsKeys !== void 0 ? stylesheetCustomSnippetsKeys : [], abbreviation, abbreviation, abbreviationRange, expandOptions, 'Emmet Custom Snippet', false);
-            if (!completionItems.find(function (x) { return x.insertText === (expandedAbbr === null || expandedAbbr === void 0 ? void 0 : expandedAbbr.insertText); })) {
+            if (!completionItems.find((x) => x.insertText === (expandedAbbr === null || expandedAbbr === void 0 ? void 0 : expandedAbbr.insertText))) {
                 // Fix for https://github.com/Microsoft/vscode/issues/28933#issuecomment-309236902
                 // When user types in propertyname, emmet uses it to match with snippet names, resulting in width -> widows or font-family -> font: family
                 // Filter out those cases here.
-                var abbrRegex = new RegExp('.*' +
+                const abbrRegex = new RegExp('.*' +
                     abbreviation
                         .split('')
-                        .map(function (x) { return (x === '$' || x === '+' ? '\\' + x : x); })
+                        .map((x) => (x === '$' || x === '+' ? '\\' + x : x))
                         .join('.*') +
                     '.*', 'i');
                 if (/\d/.test(abbreviation) || abbrRegex.test(expandedAbbr.label)) {
@@ -5224,21 +5454,21 @@ function doComplete(monaco, model, position, syntax, emmetConfig) {
         }
     }
     else {
-        var tagToFindMoreSuggestionsFor = abbreviation;
-        var newTagMatches = abbreviation.match(/(>|\+)([\w:-]+)$/);
+        let tagToFindMoreSuggestionsFor = abbreviation;
+        const newTagMatches = abbreviation.match(/(>|\+)([\w:-]+)$/);
         if (newTagMatches && newTagMatches.length === 3) {
             tagToFindMoreSuggestionsFor = newTagMatches[2];
         }
         if (syntax !== 'xml') {
-            var commonlyUsedTagSuggestions = makeSnippetSuggestion(monaco, commonlyUsedTags, tagToFindMoreSuggestionsFor, abbreviation, abbreviationRange, expandOptions, 'Emmet Abbreviation');
+            const commonlyUsedTagSuggestions = makeSnippetSuggestion(monaco, commonlyUsedTags, tagToFindMoreSuggestionsFor, abbreviation, abbreviationRange, expandOptions, 'Emmet Abbreviation');
             completionItems = completionItems.concat(commonlyUsedTagSuggestions);
         }
         if (emmetConfig.showAbbreviationSuggestions === true) {
-            var abbreviationSuggestions = makeSnippetSuggestion(monaco, markupSnippetKeys.filter(function (x) { return !commonlyUsedTags.includes(x); }), tagToFindMoreSuggestionsFor, abbreviation, abbreviationRange, expandOptions, 'Emmet Abbreviation');
+            const abbreviationSuggestions = makeSnippetSuggestion(monaco, markupSnippetKeys.filter((x) => !commonlyUsedTags.includes(x)), tagToFindMoreSuggestionsFor, abbreviation, abbreviationRange, expandOptions, 'Emmet Abbreviation');
             // Workaround for the main expanded abbr not appearing before the snippet suggestions
             if (expandedAbbr && abbreviationSuggestions.length > 0 && tagToFindMoreSuggestionsFor !== abbreviation) {
                 expandedAbbr.sortText = '0' + expandedAbbr.label;
-                abbreviationSuggestions.forEach(function (item) {
+                abbreviationSuggestions.forEach((item) => {
                     // Workaround for snippet suggestions items getting filtered out as the complete abbr does not start with snippetKey
                     item.filterText = abbreviation;
                     // Workaround for the main expanded abbr not appearing before the snippet suggestions
@@ -5251,30 +5481,29 @@ function doComplete(monaco, model, position, syntax, emmetConfig) {
         if (syntax === 'html' &&
             completionItems.length >= 2 &&
             abbreviation.includes(':') &&
-            (expandedAbbr === null || expandedAbbr === void 0 ? void 0 : expandedAbbr.insertText) === "<".concat(abbreviation, ">${0}</").concat(abbreviation, ">")) {
-            completionItems = completionItems.filter(function (item) { return item.label !== abbreviation; });
+            (expandedAbbr === null || expandedAbbr === void 0 ? void 0 : expandedAbbr.insertText) === `<${abbreviation}>\${0}</${abbreviation}>`) {
+            completionItems = completionItems.filter((item) => item.label !== abbreviation);
         }
     }
     if (emmetConfig.showSuggestionsAsSnippets === true) {
-        completionItems.forEach(function (x) { return (x.kind = monaco.languages.CompletionItemKind.Snippet); });
+        completionItems.forEach((x) => (x.kind = monaco.languages.CompletionItemKind.Snippet));
     }
     return completionItems.length ? { suggestions: completionItems, incomplete: true } : undefined;
 }
 /**
  * Create & return snippets for snippet keys that start with given prefix
  */
-function makeSnippetSuggestion(monaco, snippetKeys, prefix, abbreviation, abbreviationRange, expandOptions, snippetDetail, skipFullMatch) {
-    if (skipFullMatch === void 0) { skipFullMatch = true; }
+function makeSnippetSuggestion(monaco, snippetKeys, prefix, abbreviation, abbreviationRange, expandOptions, snippetDetail, skipFullMatch = true) {
     if (!prefix || !snippetKeys) {
         return [];
     }
-    var snippetCompletions = [];
-    snippetKeys.forEach(function (snippetKey) {
+    const snippetCompletions = [];
+    snippetKeys.forEach((snippetKey) => {
         if (!snippetKey.startsWith(prefix.toLowerCase()) || (skipFullMatch && snippetKey === prefix.toLowerCase())) {
             return;
         }
-        var currentAbbr = abbreviation + snippetKey.substr(prefix.length);
-        var expandedAbbr;
+        const currentAbbr = abbreviation + snippetKey.substr(prefix.length);
+        let expandedAbbr;
         try {
             expandedAbbr = expandAbbreviation$1(currentAbbr, expandOptions);
         }
@@ -5282,7 +5511,7 @@ function makeSnippetSuggestion(monaco, snippetKeys, prefix, abbreviation, abbrev
         if (!expandedAbbr) {
             return;
         }
-        var item = {
+        const item = {
             kind: monaco.languages.CompletionItemKind.Property,
             label: prefix + snippetKey.substr(prefix.length),
             documentation: replaceTabStopsWithCursors(expandedAbbr),
@@ -5297,7 +5526,7 @@ function makeSnippetSuggestion(monaco, snippetKeys, prefix, abbreviation, abbrev
 }
 function getCurrentWord(currentLineTillPosition) {
     if (currentLineTillPosition) {
-        var matches = currentLineTillPosition.match(/[\w,:,-,\.]*$/);
+        const matches = currentLineTillPosition.match(/[\w,:,-,\.]*$/);
         if (matches) {
             return matches[0];
         }
@@ -5316,12 +5545,12 @@ function addFinalTabStop(text) {
     if (!text || !text.trim()) {
         return text;
     }
-    var maxTabStop = -1;
-    var maxTabStopRanges = [];
-    var foundLastStop = false;
-    var replaceWithLastStop = false;
-    var i = 0;
-    var n = text.length;
+    let maxTabStop = -1;
+    let maxTabStopRanges = [];
+    let foundLastStop = false;
+    let replaceWithLastStop = false;
+    let i = 0;
+    const n = text.length;
     try {
         while (i < n && !foundLastStop) {
             // Look for ${
@@ -5329,8 +5558,8 @@ function addFinalTabStop(text) {
                 continue;
             }
             // Find tabstop
-            var numberStart = -1;
-            var numberEnd = -1;
+            let numberStart = -1;
+            let numberEnd = -1;
             while (i < n && /\d/.test(text[i])) {
                 numberStart = numberStart < 0 ? i : numberStart;
                 numberEnd = i + 1;
@@ -5341,12 +5570,12 @@ function addFinalTabStop(text) {
                 continue;
             }
             // If ${0} was found, then break
-            var currentTabStop = text.substring(numberStart, numberEnd);
+            const currentTabStop = text.substring(numberStart, numberEnd);
             foundLastStop = currentTabStop === '0';
             if (foundLastStop) {
                 break;
             }
-            var foundPlaceholder = false;
+            let foundPlaceholder = false;
             if (text[i++] == ':') {
                 // TODO: Nested placeholders may break here
                 while (i < n) {
@@ -5360,25 +5589,25 @@ function addFinalTabStop(text) {
             // Decide to replace currentTabStop with ${0} only if its the max among all tabstops and is not a placeholder
             if (Number(currentTabStop) > Number(maxTabStop)) {
                 maxTabStop = Number(currentTabStop);
-                maxTabStopRanges = [{ numberStart: numberStart, numberEnd: numberEnd }];
+                maxTabStopRanges = [{ numberStart, numberEnd }];
                 replaceWithLastStop = !foundPlaceholder;
             }
             else if (Number(currentTabStop) === maxTabStop) {
-                maxTabStopRanges.push({ numberStart: numberStart, numberEnd: numberEnd });
+                maxTabStopRanges.push({ numberStart, numberEnd });
             }
         }
     }
     catch (e) { }
     if (replaceWithLastStop && !foundLastStop) {
-        for (var i_1 = 0; i_1 < maxTabStopRanges.length; i_1++) {
-            var rangeStart = maxTabStopRanges[i_1].numberStart;
-            var rangeEnd = maxTabStopRanges[i_1].numberEnd;
+        for (let i = 0; i < maxTabStopRanges.length; i++) {
+            const rangeStart = maxTabStopRanges[i].numberStart;
+            const rangeEnd = maxTabStopRanges[i].numberEnd;
             text = text.substr(0, rangeStart) + '0' + text.substr(rangeEnd);
         }
     }
     return text;
 }
-var emmetSnippetField = function (index, placeholder) { return "${".concat(index).concat(placeholder ? ':' + placeholder : '', "}"); };
+const emmetSnippetField = (index, placeholder) => `\${${index}${placeholder ? ':' + placeholder : ''}}`;
 /** Returns whether or not syntax is a supported stylesheet syntax, like CSS */
 function isStyleSheet(syntax) {
     return syntax === 'css';
@@ -5389,25 +5618,25 @@ function getSyntaxType(syntax) {
 }
 /** Returns the default snippets that Emmet suggests */
 function getDefaultSnippets(syntax) {
-    var syntaxType = getSyntaxType(syntax);
-    var emptyUserConfig = { type: syntaxType, syntax: syntax };
-    var resolvedConfig = resolveConfig(emptyUserConfig);
+    const syntaxType = getSyntaxType(syntax);
+    const emptyUserConfig = { type: syntaxType, syntax };
+    const resolvedConfig = resolveConfig(emptyUserConfig);
     // https://github.com/microsoft/vscode/issues/97632
     // don't return markup (HTML) snippets for XML
     return syntax === 'xml' ? {} : resolvedConfig.snippets;
 }
 function getFilters(text, pos) {
-    var filter;
-    for (var i = 0; i < maxFilters; i++) {
-        if (text.endsWith("".concat(filterDelimitor).concat(bemFilterSuffix), pos)) {
+    let filter;
+    for (let i = 0; i < maxFilters; i++) {
+        if (text.endsWith(`${filterDelimitor}${bemFilterSuffix}`, pos)) {
             pos -= bemFilterSuffix.length + 1;
             filter = filter ? bemFilterSuffix + ',' + filter : bemFilterSuffix;
         }
-        else if (text.endsWith("".concat(filterDelimitor).concat(commentFilterSuffix), pos)) {
+        else if (text.endsWith(`${filterDelimitor}${commentFilterSuffix}`, pos)) {
             pos -= commentFilterSuffix.length + 1;
             filter = filter ? commentFilterSuffix + ',' + filter : commentFilterSuffix;
         }
-        else if (text.endsWith("".concat(filterDelimitor).concat(trimFilterSuffix), pos)) {
+        else if (text.endsWith(`${filterDelimitor}${trimFilterSuffix}`, pos)) {
             pos -= trimFilterSuffix.length + 1;
             filter = filter ? trimFilterSuffix + ',' + filter : trimFilterSuffix;
         }
@@ -5427,19 +5656,19 @@ function getFilters(text, pos) {
  * @param options The options to pass to the @emmetio/extract-abbreviation module
  */
 function extractAbbreviation(monaco, model, position, options) {
-    var currentLine = model.getLineContent(position.lineNumber);
-    var currentLineTillPosition = currentLine.substr(0, position.column - 1);
-    var _a = getFilters(currentLineTillPosition, position.column - 1), pos = _a.pos, filter = _a.filter;
-    var lengthOccupiedByFilter = filter ? filter.length + 1 : 0;
-    var result = extractAbbreviation$1(currentLine, pos, options);
+    const currentLine = model.getLineContent(position.lineNumber);
+    const currentLineTillPosition = currentLine.substr(0, position.column - 1);
+    const { pos, filter } = getFilters(currentLineTillPosition, position.column - 1);
+    const lengthOccupiedByFilter = filter ? filter.length + 1 : 0;
+    const result = extractAbbreviation$1(currentLine, pos, options);
     if (!result)
         return;
-    var rangeToReplace = new monaco.Range(position.lineNumber, result.location + 1, position.lineNumber, result.location + result.abbreviation.length + lengthOccupiedByFilter + 1);
+    const rangeToReplace = new monaco.Range(position.lineNumber, result.location + 1, position.lineNumber, result.location + result.abbreviation.length + lengthOccupiedByFilter + 1);
     return {
         abbreviationRange: rangeToReplace,
         abbreviation: result.abbreviation,
-        currentLineTillPosition: currentLineTillPosition,
-        filter: filter,
+        currentLineTillPosition,
+        filter,
     };
 }
 /**
@@ -5455,7 +5684,7 @@ function isAbbreviationValid(syntax, abbreviation) {
     if (isStyleSheet(syntax)) {
         if (abbreviation.includes('#')) {
             if (abbreviation.startsWith('#')) {
-                var hexColorRegex = /^#[\d,a-f,A-F]{1,6}$/;
+                const hexColorRegex = /^#[\d,a-f,A-F]{1,6}$/;
                 return hexColorRegex.test(abbreviation);
             }
             else if (commonlyUsedTags.includes(abbreviation.substring(0, abbreviation.indexOf('#')))) {
@@ -5487,17 +5716,17 @@ function isExpandedTextNoise(syntax, abbreviation, expandedText, options) {
     // Unresolved css abbreviations get expanded to a blank property value
     // Eg: abc -> abc: ; or abc:d -> abc: d; which is noise if it gets suggested for every word typed
     if (isStyleSheet(syntax) && options) {
-        var between = (_a = options['stylesheet.between']) !== null && _a !== void 0 ? _a : ': ';
-        var after = (_b = options['stylesheet.after']) !== null && _b !== void 0 ? _b : ';';
+        const between = (_a = options['stylesheet.between']) !== null && _a !== void 0 ? _a : ': ';
+        const after = (_b = options['stylesheet.after']) !== null && _b !== void 0 ? _b : ';';
         // Remove overlapping between `abbreviation` and `between`, if any
-        var endPrefixIndex = abbreviation.indexOf(between[0], Math.max(abbreviation.length - between.length, 0));
+        let endPrefixIndex = abbreviation.indexOf(between[0], Math.max(abbreviation.length - between.length, 0));
         endPrefixIndex = endPrefixIndex >= 0 ? endPrefixIndex : abbreviation.length;
-        var abbr = abbreviation.substring(0, endPrefixIndex);
-        return (expandedText === "".concat(abbr).concat(between, "${0}").concat(after) ||
+        const abbr = abbreviation.substring(0, endPrefixIndex);
+        return (expandedText === `${abbr}${between}\${0}${after}` ||
             expandedText.replace(/\s/g, '') === abbreviation.replace(/\s/g, '') + after);
     }
     // we don't want common html tags suggested for xml
-    if (syntax === 'xml' && commonlyUsedTags.some(function (tag) { return tag.startsWith(abbreviation.toLowerCase()); })) {
+    if (syntax === 'xml' && commonlyUsedTags.some((tag) => tag.startsWith(abbreviation.toLowerCase()))) {
         return true;
     }
     if (commonlyUsedTags.includes(abbreviation.toLowerCase()) || markupSnippetKeys.includes(abbreviation)) {
@@ -5515,7 +5744,7 @@ function isExpandedTextNoise(syntax, abbreviation, expandedText, options) {
     if (abbreviation === '.') {
         return false;
     }
-    var dotMatches = abbreviation.match(/^([a-z,A-Z,\d]*)\.$/);
+    const dotMatches = abbreviation.match(/^([a-z,A-Z,\d]*)\.$/);
     if (dotMatches) {
         // Valid html tags such as `div.`
         if (dotMatches[1] && htmlData.tags.includes(dotMatches[1])) {
@@ -5531,17 +5760,17 @@ function isExpandedTextNoise(syntax, abbreviation, expandedText, options) {
     }
     // Unresolved html abbreviations get expanded as if it were a tag
     // Eg: abc -> <abc></abc> which is noise if it gets suggested for every word typed
-    return expandedText.toLowerCase() === "<".concat(abbreviation.toLowerCase(), ">${1}</").concat(abbreviation.toLowerCase(), ">");
+    return expandedText.toLowerCase() === `<${abbreviation.toLowerCase()}>\${1}</${abbreviation.toLowerCase()}>`;
 }
 /**
  * Returns options to be used by emmet
  */
 function getExpandOptions(syntax, filter) {
-    var type = getSyntaxType(syntax);
-    var filters = filter ? filter.split(',').map(function (x) { return x.trim(); }) : [];
-    var bemEnabled = filters.includes('bem');
-    var commentEnabled = filters.includes('c');
-    var combinedOptions = {
+    const type = getSyntaxType(syntax);
+    const filters = filter ? filter.split(',').map((x) => x.trim()) : [];
+    const bemEnabled = filters.includes('bem');
+    const commentEnabled = filters.includes('c');
+    const combinedOptions = {
         'output.formatSkip': ['html'],
         'output.formatForce': ['body'],
         'output.field': emmetSnippetField,
@@ -5573,11 +5802,11 @@ function getExpandOptions(syntax, filter) {
         'output.selfClosingStyle': 'html',
     };
     return {
-        type: type,
+        type,
         options: combinedOptions,
         variables: {},
         snippets: {},
-        syntax: syntax,
+        syntax,
         // context: null,
         text: undefined,
         maxRepeat: 1000,
@@ -5590,8 +5819,8 @@ function getExpandOptions(syntax, filter) {
  * @param config options used by the @emmetio/expand-abbreviation module to expand given abbreviation
  */
 function expandAbbreviation(abbreviation, config) {
-    var expandedText;
-    var resolvedConfig = resolveConfig(config);
+    let expandedText;
+    const resolvedConfig = resolveConfig(config);
     if (config.type === 'stylesheet') {
         if (typeof abbreviation === 'string') {
             expandedText = expandAbbreviation$1(abbreviation, resolvedConfig);
@@ -5612,7 +5841,7 @@ function expandAbbreviation(abbreviation, config) {
 }
 
 function isValidEmmetToken(tokens, index, syntax, language) {
-    var currentTokenType = tokens[index].type;
+    const currentTokenType = tokens[index].type;
     if (syntax === 'html') {
         // prevent emmet triggered within attributes
         return ((currentTokenType === '' && (index === 0 || tokens[index - 1].type === 'delimiter.html')) ||
@@ -5632,28 +5861,58 @@ function isValidEmmetToken(tokens, index, syntax, language) {
     }
     return false;
 }
-// vscode did a complex node analysis, we just use monaco's built-in tokenizer
-// to achieve almost the same effect
-function isValidLocationForEmmetAbbreviation(model, position, syntax, language) {
-    var column = position.column, lineNumber = position.lineNumber;
-    // get current line's tokens
-    var _tokenization = 
+const tokenEnvCache = new WeakMap();
+function getTokenizationEnv(model) {
+    if (tokenEnvCache.has(model))
+        return tokenEnvCache.get(model);
+    let _tokenization = 
     // monaco-editor < 0.34.0
     model._tokenization ||
-        // monaco-editor >= 0.34.0
+        // monaco-editor 0.34.0
         model.tokenization._tokenization;
-    var _tokenizationStateStore = _tokenization._tokenizationStateStore;
-    var _tokenizationSupport = 
+    // monaco-editor <= 0.34.0
+    let _tokenizationStateStore = _tokenization === null || _tokenization === void 0 ? void 0 : _tokenization._tokenizationStateStore;
+    // monaco-editor >= 0.35.0
+    if (!_tokenization || !_tokenizationStateStore) {
+        const _t = model.tokenization;
+        if (_t.grammarTokens) {
+            // monaco-editor >= 0.37.0
+            _tokenization = _t.grammarTokens._defaultBackgroundTokenizer;
+            _tokenizationStateStore = _tokenization._tokenizerWithStateStore;
+        }
+        else {
+            // monaco-editor >= 0.35.0 && < 0.37.0, source code was minified
+            Object.values(_t).some((val) => (_tokenization = val.tokenizeViewport && val));
+            Object.values(_tokenization).some((val) => (_tokenizationStateStore = val.tokenizationSupport && val));
+        }
+    }
+    const _tokenizationSupport = 
     // monaco-editor >= 0.32.0
     _tokenizationStateStore.tokenizationSupport ||
         // monaco-editor < 0.32.0
         _tokenization._tokenizationSupport;
-    var state = _tokenizationStateStore.getBeginState(lineNumber - 1).clone();
-    var tokenizationResult = _tokenizationSupport.tokenize(model.getLineContent(lineNumber), true, state, 0);
-    var tokens = tokenizationResult.tokens;
-    var valid = false;
+    const env = {
+        _stateStore: _tokenizationStateStore,
+        _support: _tokenizationSupport,
+    };
+    tokenEnvCache.set(model, env);
+    return env;
+}
+// vscode did a complex node analysis, we just use monaco's built-in tokenizer
+// to achieve almost the same effect
+function isValidLocationForEmmetAbbreviation(model, position, syntax, language) {
+    var _a;
+    const { column, lineNumber } = position;
+    // get current line's tokens
+    const { _stateStore, _support } = getTokenizationEnv(model);
+    // monaco-editor < 0.37.0 uses `getBeginState` while monaco-editor >= 0.37.0 uses `getStartState`
+    // note: lineNumber difference between two api
+    const state = ((_a = _stateStore.getBeginState) === null || _a === void 0 ? void 0 : _a.call(_stateStore, lineNumber - 1).clone()) || _stateStore.getStartState(lineNumber).clone();
+    const tokenizationResult = _support.tokenize(model.getLineContent(lineNumber), true, state, 0);
+    const tokens = tokenizationResult.tokens;
+    let valid = false;
     // get token type at current column
-    for (var i = tokens.length - 1; i >= 0; i--) {
+    for (let i = tokens.length - 1; i >= 0; i--) {
         if (column - 1 > tokens[i].offset) {
             valid = isValidEmmetToken(tokens, i, syntax, language);
             break;
@@ -5663,7 +5922,7 @@ function isValidLocationForEmmetAbbreviation(model, position, syntax, language) 
 }
 
 // https://github.com/microsoft/vscode/blob/main/extensions/emmet/src/util.ts#L86
-var LANGUAGE_MODES = {
+const LANGUAGE_MODES = {
     html: ['!', '.', '}', ':', '*', '$', ']', '/', '>', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
     jade: ['!', '.', '}', ':', '*', '$', ']', '/', '>', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
     slim: ['!', '.', '}', ':', '*', '$', ']', '/', '>', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
@@ -5679,12 +5938,12 @@ var LANGUAGE_MODES = {
     typescript: ['!', '.', '}', '*', '$', ']', '/', '>', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
 };
 // https://github.com/microsoft/vscode/blob/main/extensions/emmet/src/util.ts#L124
-var MAPPED_MODES = {
+const MAPPED_MODES = {
     handlebars: 'html',
     php: 'html',
     twig: 'html',
 };
-var DEFAULT_CONFIG = {
+const DEFAULT_CONFIG = {
     showExpandedAbbreviation: 'always',
     showAbbreviationSuggestions: true,
     showSuggestionsAsSnippets: false,
@@ -5702,33 +5961,23 @@ function registerProvider(monaco, languages, syntax) {
         console.error("emmet-monaco-es: 'monaco' should be either declared on window or passed as first parameter");
         return;
     }
-    var providers = languages.map(function (language) {
-        return monaco.languages.registerCompletionItemProvider(language, {
-            triggerCharacters: LANGUAGE_MODES[MAPPED_MODES[language] || language],
-            provideCompletionItems: function (model, position) {
-                return isValidLocationForEmmetAbbreviation(model, position, syntax, language)
-                    ? doComplete(monaco, model, position, syntax, DEFAULT_CONFIG)
-                    : undefined;
-            },
-        });
-    });
-    return function () {
-        providers.forEach(function (provider) { return provider.dispose(); });
+    const providers = languages.map((language) => monaco.languages.registerCompletionItemProvider(language, {
+        triggerCharacters: LANGUAGE_MODES[MAPPED_MODES[language] || language],
+        provideCompletionItems: (model, position) => isValidLocationForEmmetAbbreviation(model, position, syntax, language)
+            ? doComplete(monaco, model, position, syntax, DEFAULT_CONFIG)
+            : undefined,
+    }));
+    return () => {
+        providers.forEach((provider) => provider.dispose());
     };
 }
-function emmetHTML(monaco, languages) {
-    if (monaco === void 0) { monaco = window.monaco; }
-    if (languages === void 0) { languages = ['html']; }
+function emmetHTML(monaco = window.monaco, languages = ['html']) {
     return registerProvider(monaco, languages, 'html');
 }
-function emmetCSS(monaco, languages) {
-    if (monaco === void 0) { monaco = window.monaco; }
-    if (languages === void 0) { languages = ['css']; }
+function emmetCSS(monaco = window.monaco, languages = ['css']) {
     return registerProvider(monaco, languages, 'css');
 }
-function emmetJSX(monaco, languages) {
-    if (monaco === void 0) { monaco = window.monaco; }
-    if (languages === void 0) { languages = ['javascript']; }
+function emmetJSX(monaco = window.monaco, languages = ['javascript']) {
     return registerProvider(monaco, languages, 'jsx');
 }
 
