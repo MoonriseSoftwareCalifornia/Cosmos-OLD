@@ -17,6 +17,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Cosmos.BlobService;
 
 namespace Cosmos.Cms.Controllers
 {
@@ -31,6 +32,7 @@ namespace Cosmos.Cms.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly StorageContext _storageContext;
         //private readonly SignInManager<IdentityUser> _signInManager;
 
         #region SETUP TESTS
@@ -63,6 +65,7 @@ namespace Cosmos.Cms.Controllers
             return await _dbContext.Articles.CosmosAnyAsync();
         }
 
+
         #endregion
 
         /// <summary>
@@ -73,11 +76,13 @@ namespace Cosmos.Cms.Controllers
         /// <param name="dbContext"></param>
         /// <param name="articleLogic"></param>
         /// <param name="userManager"></param>
+        /// <param name="storageContext"></param>
         public HomeController(ILogger<HomeController> logger,
             IOptions<CosmosConfig> cosmosConfig,
             ApplicationDbContext dbContext,
             ArticleEditLogic articleLogic,
-            UserManager<IdentityUser> userManager
+            UserManager<IdentityUser> userManager,
+            StorageContext storageContext
             )
         {
             _logger = logger;
@@ -85,6 +90,7 @@ namespace Cosmos.Cms.Controllers
             _articleLogic = articleLogic;
             _dbContext = dbContext;
             _userManager = userManager;
+            _storageContext = storageContext;
         }
 
         /// <summary>
@@ -127,13 +133,13 @@ namespace Cosmos.Cms.Controllers
         [ResponseCache(NoStore = true)]
         public async Task<IActionResult> Index()
         {
-            if (_options.Value.SiteSettings.AllowSetup ?? false)
-            {
-                if (!await EnsureAdminSetup())
-                {
-                    return RedirectToAction("Index", "Setup");
-                }
-            }
+            //if (_options.Value.SiteSettings.AllowSetup ?? false)
+            //{
+            //    if (!await EnsureAdminSetup())
+            //    {
+            //        return RedirectToAction("Index", "Setup");
+            //    }
+            //}
             try
             {
                 if (User.Identity?.IsAuthenticated == false)
@@ -160,13 +166,16 @@ namespace Cosmos.Cms.Controllers
                         !User.IsInRole("Administrators")) return RedirectToAction("AccessPending");
                 }
 
-
+                // Enable static website for Azure BLOB storage
+                await _storageContext.EnableAzureStaticWebsite();
 
                 // If we do not yet have a layout, go to a page where we can select one.
                 if (!await EnsureLayoutExists()) return RedirectToAction("Index", "Layouts");
 
                 // If there are not web pages yet, let's go create a new home page.
                 if (!await EnsureArticleExists()) return RedirectToAction("Index", "Editor");
+
+                
 
                 //
                 // If yes, do NOT include headers that allow caching.

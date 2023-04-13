@@ -221,6 +221,32 @@ namespace Cosmos.BlobService.Drivers
         }
 
         /// <summary>
+        /// Enables the static website and sets default CORS rule
+        /// </summary>
+        /// <returns></returns>
+        public async Task EnableStaticWebsite()
+        {
+            BlobServiceProperties properties = await _blobServiceClient.GetPropertiesAsync();
+
+            if (!properties.StaticWebsite.Enabled)
+            {
+                properties.StaticWebsite.Enabled = true;
+
+                if (properties.Cors == null)
+                {
+                    var corsRule = new BlobCorsRule();
+                    corsRule.AllowedMethods = "GET,HEAD,OPTIONS";
+                    corsRule.AllowedOrigins = "*";
+                    corsRule.AllowedHeaders = "*";
+                    corsRule.ExposedHeaders = "*";
+                    properties.Cors = new List<BlobCorsRule>() { corsRule };
+                }
+
+                _blobServiceClient.SetProperties(properties);
+            }
+        }
+
+        /// <summary>
         ///     Gets a client for a blob.
         /// </summary>
         /// <param name="target"></param>
@@ -239,7 +265,7 @@ namespace Cosmos.BlobService.Drivers
         }
 
         /// <summary>
-        /// Get blob itmes by path
+        /// Get blob itmes by path.
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
@@ -275,6 +301,7 @@ namespace Cosmos.BlobService.Drivers
                 UploadDateTime = mark
             };
         }
+
         public Task<List<FileMetadata>> GetInventory()
         {
             throw new NotImplementedException();

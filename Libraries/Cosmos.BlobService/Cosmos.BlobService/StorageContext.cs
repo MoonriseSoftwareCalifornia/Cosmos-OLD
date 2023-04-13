@@ -112,6 +112,24 @@ namespace Cosmos.BlobService
         }
 
         /// <summary>
+        /// Enables the Azure BLOB storage static website.
+        /// </summary>
+        /// <returns></returns>
+        public async Task EnableAzureStaticWebsite()
+        {
+            var drivers = GetDrivers();
+
+            foreach (var driver in drivers)
+            {
+                if (driver.GetType() == typeof(AzureStorage))
+                {
+                    var azureStorage = (AzureStorage)driver;
+                    await azureStorage.EnableStaticWebsite();
+                }
+            }
+        }
+
+        /// <summary>
         ///     Gets a file
         /// </summary>
         /// <param name="target"></param>
