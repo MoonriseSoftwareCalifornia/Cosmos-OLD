@@ -1,0 +1,24 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_editor_ut6hcjo6p6kbm_name": {
+            "value": null
+        },
+        "sites_publisher_ut6hcjo6p6kbm_name": {
+            "value": null
+        },
+        "virtualNetworks_cosmosvnet_name": {
+            "value": null
+        },
+        "serverfarms_appplanut6hcjo6p6kbm_name": {
+            "value": null
+        },
+        "storageAccounts_filesut6hcjo6p6kbm_name": {
+            "value": null
+        },
+        "databaseAccounts_cosmos_ut6hcjo6p6kbm_name": {
+            "value": null
+        }
+    }
+}

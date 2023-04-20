@@ -10,7 +10,10 @@ az deployment group create --name blanktemplate --resource-group DemoInstallGrou
 
 az deployment group create --name blanktemplate --resource-group DemoInstallGroup --template-file "azuredeployfileshare.json"
 
+az deployment group create --name blanktemplate --resource-group DemoInstallGroup --template-file "cosmosDbServerless.json"
+
 az deployment group create --name blanktemplate --resource-group RGCustomerMoonriseSoftware --template-file "azuremicrosoftcdn.json"
 
-
 az deployment group create --name blanktemplate --resource-group CosmosWpsWebsite --template-file "azuredeploycserverless.json"
+
+az deployment group create --name blanktemplate --resource-group DemoInstallGroup --template-file "azuredeploy-vnet.json"
