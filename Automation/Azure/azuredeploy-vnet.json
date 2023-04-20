@@ -35,7 +35,7 @@
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2022-09-01",
             "name": "[variables('vnetName')]",
-            "location": "westus",
+            "location": "[variables('location')]",
             "properties": {
                 "addressSpace": {
                     "addressPrefixes": [
@@ -150,7 +150,7 @@
                 },
                 "locations": [
                     {
-                        "locationName": "West US",
+                        "locationName": "[variables('location')]",
                         "provisioningState": "Succeeded",
                         "failoverPriority": 0,
                         "isZoneRedundant": false
