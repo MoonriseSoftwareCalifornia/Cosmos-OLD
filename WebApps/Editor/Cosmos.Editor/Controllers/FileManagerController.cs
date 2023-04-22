@@ -31,6 +31,7 @@ namespace Cosmos.Cms.Controllers
     /// <summary>
     /// File manager controller
     /// </summary>
+    //[ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
     public class FileManagerController : BaseController
     {
@@ -1036,7 +1037,6 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
-        [ResponseCache(NoStore = true)]
         public async Task<IActionResult> EditCode(string path)
         {
             try
@@ -1127,7 +1127,6 @@ namespace Cosmos.Cms.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [ResponseCache(NoStore = true)]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCode(FileManagerEditCodeViewModel model)
         {
@@ -1222,7 +1221,6 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
-        [ResponseCache(NoStore = true)]
         public IActionResult EditImage(string target)
         {
             if (string.IsNullOrEmpty(target))
@@ -1246,7 +1244,6 @@ namespace Cosmos.Cms.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        [ResponseCache(NoStore = true)]
         public async Task<IActionResult> EditImage([FromBody]FileRobotImagePost model)
         {
             //FileRobotImagePost model
@@ -1322,7 +1319,7 @@ namespace Cosmos.Cms.Controllers
         /// <param name="width"></param>
         /// <param name="height"></param>
         /// <returns></returns>
-        [ResponseCache(NoStore = true)]
+        //[ResponseCache(NoStore = true)]
         public async Task<IActionResult> GetImageThumbnail(string target, int width = 120, int height = 120)
         {
             var extension = Path.GetExtension(target.ToLower());

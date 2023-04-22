@@ -14,6 +14,7 @@ namespace Cosmos.Cms.Controllers
     /// <summary>
     /// Contact Us Controller
     /// </summary>
+    //[ResponseCache(NoStore = true)]
     public class ContactUsController : Controller
     {
         private readonly ArticleEditLogic _articleLogic;

@@ -21,6 +21,7 @@ namespace CDT.Cosmos.Cms.Controllers
     /// <summary>
     /// Templates controller
     /// </summary>
+    //[ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators, Editors")]
     public class TemplatesController : BaseController
     {

@@ -20,6 +20,12 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Azure.Cosmos.Fluent;
+using Microsoft.Extensions.Caching.Cosmos;
 
 namespace Cosmos.Cms
 {
@@ -99,7 +105,7 @@ namespace Cosmos.Cms
                         });
                 });
             }
-                
+
             //
             // Add Cosmos Identity here
             //
@@ -108,6 +114,24 @@ namespace Cosmos.Cms
                 )
                 .AddDefaultUI() // Use this if Identity Scaffolding added
                 .AddDefaultTokenProviders();
+
+            // Add shared data protection here
+            services.AddDataProtection().PersistKeysToDbContext<ApplicationDbContext>();
+
+            // Add IDistributed cache using Cosmos DB
+            // See: https://github.com/Azure/Microsoft.Extensions.Caching.Cosmos
+            services.AddCosmosCache((CosmosCacheOptions cacheOptions) =>
+            {
+                cacheOptions.ContainerName = "EditorCache";
+                cacheOptions.DatabaseName = cosmosIdentityDbName;
+                cacheOptions.ClientBuilder = new CosmosClientBuilder(connectionString);
+                cacheOptions.CreateIfNotExists = true;
+            });
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromSeconds(3600);
+                options.Cookie.IsEssential = true;
+            });
 
             // https://docs.microsoft.com/en-us/aspnet/core/security/authentication/accconfirm?view=aspnetcore-3.1&tabs=visual-studio
             services.ConfigureApplicationCookie(o =>
@@ -157,6 +181,7 @@ namespace Cosmos.Cms
 
             // End add SendGrid
 
+            // Add the BLOB and File Storage contexts for Cosmos WPS
             services.AddCosmosStorageContext(Configuration);
 
             // Add file share storage context
@@ -190,8 +215,12 @@ namespace Cosmos.Cms
                     });
             });
 
+            //
+
             // Add this before identity
+            // See also: https://learn.microsoft.com/en-us/aspnet/core/performance/caching/response?view=aspnetcore-7.0
             services.AddControllersWithViews();
+
             services.AddRazorPages();
 
             services.AddMvc()
@@ -263,6 +292,8 @@ namespace Cosmos.Cms
             });
             // END
 
+            services.AddResponseCaching();
+
             // https://docs.microsoft.com/en-us/dotnet/core/compatibility/aspnet-core/5.0/middleware-database-error-page-obsolete
             //services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -281,6 +312,11 @@ namespace Cosmos.Cms
             IApplicationBuilder app,
             IWebHostEnvironment env)
         {
+            // BEGIN
+            // https://seankilleen.com/2020/06/solved-net-core-azure-ad-in-docker-container-incorrectly-uses-an-non-https-redirect-uri/
+            app.UseForwardedHeaders();
+            // END
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -292,11 +328,6 @@ namespace Cosmos.Cms
                 app.UseHsts();
             }
 
-            // BEGIN
-            // https://seankilleen.com/2020/06/solved-net-core-azure-ad-in-docker-container-incorrectly-uses-an-non-https-redirect-uri/
-            app.UseForwardedHeaders();
-            // END
-
             // app.UseHttpsRedirection(); // See: https://github.com/dotnet/aspnetcore/issues/18594
             app.UseStaticFiles();
             app.UseRouting();
@@ -304,6 +335,23 @@ namespace Cosmos.Cms
             app.UseCors();
 
             app.UseResponseCaching(); //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-3.1
+
+
+            //app.Use(async (context, next) =>
+            //{
+            //    //
+            //    //context.Response.Headers[HeaderNames.CacheControl] = "no-store";
+            //    context.Response.GetTypedHeaders().CacheControl =
+            //        new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
+            //        {
+            //            NoStore = true,
+            //            NoCache = false
+            //        };
+            //    //context.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Vary] =
+            //    //    new string[] { "Accept-Encoding" };
+
+            //    await next();
+            //});
 
             app.UseAuthentication();
             app.UseAuthorization();

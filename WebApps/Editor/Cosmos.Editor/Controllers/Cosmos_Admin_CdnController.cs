@@ -21,6 +21,7 @@ namespace Cosmos.Cms.Controllers
     /// <summary>
     /// Cosmos Systems Administrator Controller
     /// </summary>
+    //[ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators, Editors")]
     public class Cosmos_Admin_CdnController : Controller
     {

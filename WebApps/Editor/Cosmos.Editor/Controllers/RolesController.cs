@@ -12,6 +12,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
     /// <summary>
     /// Role management controller
     /// </summary>
+    //[ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators")]
     public class RolesController : Controller
     {

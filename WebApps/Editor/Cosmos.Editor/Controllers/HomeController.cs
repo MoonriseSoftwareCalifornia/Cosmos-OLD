@@ -25,6 +25,7 @@ namespace Cosmos.Cms.Controllers
     /// Home page controller
     /// </summary>
     [Authorize]
+    [ResponseCache(NoStore = true)]
     public class HomeController : Controller
     {
         private readonly ArticleEditLogic _articleLogic;
@@ -130,7 +131,6 @@ namespace Cosmos.Cms.Controllers
         /// Index page
         /// </summary>
         /// <returns></returns>
-        [ResponseCache(NoStore = true)]
         public async Task<IActionResult> Index()
         {
             //if (_options.Value.SiteSettings.AllowSetup ?? false)
@@ -178,10 +178,10 @@ namespace Cosmos.Cms.Controllers
                 
 
                 //
-                // If yes, do NOT include headers that allow caching.
+                // If yes, do NOT include headers that allow caching. 
                 //
                 Response.Headers[HeaderNames.CacheControl] = "no-store";
-                Response.Headers[HeaderNames.Pragma] = "no-cache";
+                //Response.Headers[HeaderNames.Pragma] = "no-cache"; This conflicts with Azure Frontdoor premium with private links and affinity set.
 
                 var article = await _articleLogic.GetByUrl(HttpContext.Request.Path, HttpContext.Request.Query["lang"]); // ?? await _articleLogic.GetByUrl(id, langCookie);
 
@@ -217,7 +217,6 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [ResponseCache(NoStore = true)]
         public async Task<IActionResult> Preview(string id)
         {
             try
@@ -255,11 +254,10 @@ namespace Cosmos.Cms.Controllers
         /// Error page
         /// </summary>
         /// <returns></returns>
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            Response.Headers[HeaderNames.CacheControl] = "no-store";
-            Response.Headers[HeaderNames.Pragma] = "no-cache";
+            //Response.Headers[HeaderNames.CacheControl] = "no-store";
+            //Response.Headers[HeaderNames.Pragma] = "no-cache";
             ViewData["EditModeOn"] = false;
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }

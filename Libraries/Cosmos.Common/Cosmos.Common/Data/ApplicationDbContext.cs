@@ -1,4 +1,5 @@
 ﻿using Cosmos.Common.Data;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
@@ -8,7 +9,7 @@ namespace Cosmos.Common.Data
     /// <summary>
     ///     Database Context for Cosmos CMS
     /// </summary>
-    public class ApplicationDbContext : AspNetCore.Identity.CosmosDb.CosmosIdentityDbContext<IdentityUser, IdentityRole>
+    public class ApplicationDbContext : AspNetCore.Identity.CosmosDb.CosmosIdentityDbContext<IdentityUser, IdentityRole>, IDataProtectionKeyContext
     {
         /// <summary>
         ///     Constructor
@@ -155,6 +156,10 @@ namespace Cosmos.Common.Data
         /// </summary>
         public DbSet<Template> Templates { get; set; }
 
+        /// <summary>
+        /// Data protection keys
+        /// </summary>
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
 
         #endregion
     }

@@ -2,139 +2,38 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "profiles_cosmos_profile_name": {
-            "defaultValue": "cosmos-profile",
+        "sites_editor_ut6hcjo6p6kbm_name": {
+            "defaultValue": "editor-ut6hcjo6p6kbm",
             "type": "String"
         },
-        "sites_editor_vziit455xjerm_name": {
-            "defaultValue": "editor-vziit455xjerm",
+        "sites_publisher_ut6hcjo6p6kbm_name": {
+            "defaultValue": "publisher-ut6hcjo6p6kbm",
             "type": "String"
         },
-        "sites_publisher_vziit455xjerm_name": {
-            "defaultValue": "publisher-vziit455xjerm",
+        "virtualNetworks_cosmosvnet_name": {
+            "defaultValue": "cosmosvnet",
             "type": "String"
         },
-        "serverfarms_appplanvziit455xjerm_name": {
-            "defaultValue": "appplanvziit455xjerm",
+        "serverfarms_appplanut6hcjo6p6kbm_name": {
+            "defaultValue": "appplanut6hcjo6p6kbm",
             "type": "String"
         },
-        "virtualNetworks_vnetvziit455xjerm_name": {
-            "defaultValue": "vnetvziit455xjerm",
+        "storageAccounts_filesut6hcjo6p6kbm_name": {
+            "defaultValue": "filesut6hcjo6p6kbm",
             "type": "String"
         },
-        "storageAccounts_filesvziit455xjerm_name": {
-            "defaultValue": "filesvziit455xjerm",
-            "type": "String"
-        },
-        "storageAccounts_sfilesvziit455xjerm_name": {
-            "defaultValue": "sfilesvziit455xjerm",
-            "type": "String"
-        },
-        "databaseAccounts_cosmos_vziit455xjerm_name": {
-            "defaultValue": "cosmos-vziit455xjerm",
-            "type": "String"
-        },
-        "frontdoorwebapplicationfirewallpolicies_CosmosAllOn_name": {
-            "defaultValue": "CosmosAllOn",
+        "databaseAccounts_cosmos_ut6hcjo6p6kbm_name": {
+            "defaultValue": "cosmos-ut6hcjo6p6kbm",
             "type": "String"
         }
     },
     "variables": {},
     "resources": [
         {
-            "type": "Microsoft.Cdn/profiles",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[parameters('profiles_cosmos_profile_name')]",
-            "location": "Global",
-            "sku": {
-                "name": "Premium_AzureFrontDoor"
-            },
-            "kind": "frontdoor",
-            "properties": {
-                "originResponseTimeoutSeconds": 60,
-                "extendedProperties": {}
-            }
-        },
-        {
-            "type": "Microsoft.Network/frontdoorwebapplicationfirewallpolicies",
-            "apiVersion": "2022-05-01",
-            "name": "[parameters('frontdoorwebapplicationfirewallpolicies_CosmosAllOn_name')]",
-            "location": "Global",
-            "sku": {
-                "name": "Premium_AzureFrontDoor"
-            },
-            "properties": {
-                "policySettings": {
-                    "enabledState": "Enabled",
-                    "mode": "Detection",
-                    "requestBodyCheck": "Enabled"
-                },
-                "customRules": {
-                    "rules": []
-                },
-                "managedRules": {
-                    "managedRuleSets": [
-                        {
-                            "ruleSetType": "Microsoft_DefaultRuleSet",
-                            "ruleSetVersion": "2.0",
-                            "ruleSetAction": "Block",
-                            "ruleGroupOverrides": [],
-                            "exclusions": []
-                        },
-                        {
-                            "ruleSetType": "Microsoft_BotManagerRuleSet",
-                            "ruleSetVersion": "1.0",
-                            "ruleGroupOverrides": [],
-                            "exclusions": []
-                        }
-                    ]
-                }
-            }
-        },
-        {
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2022-09-01",
-            "name": "[parameters('storageAccounts_filesvziit455xjerm_name')]",
-            "location": "westus3",
-            "tags": {
-                "displayName": "storage20201023"
-            },
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "kind": "StorageV2",
-            "properties": {
-                "minimumTlsVersion": "TLS1_0",
-                "allowBlobPublicAccess": true,
-                "networkAcls": {
-                    "bypass": "AzureServices",
-                    "virtualNetworkRules": [],
-                    "ipRules": [],
-                    "defaultAction": "Allow"
-                },
-                "supportsHttpsTrafficOnly": true,
-                "encryption": {
-                    "services": {
-                        "file": {
-                            "keyType": "Account",
-                            "enabled": true
-                        },
-                        "blob": {
-                            "keyType": "Account",
-                            "enabled": true
-                        }
-                    },
-                    "keySource": "Microsoft.Storage"
-                },
-                "accessTier": "Hot"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2022-09-01",
-            "name": "[parameters('storageAccounts_sfilesvziit455xjerm_name')]",
-            "location": "westus3",
+            "name": "[parameters('storageAccounts_filesut6hcjo6p6kbm_name')]",
+            "location": "westus",
             "tags": {
                 "displayName": "storage20201023"
             },
@@ -172,20 +71,20 @@
         {
             "type": "Microsoft.Web/serverfarms",
             "apiVersion": "2022-09-01",
-            "name": "[parameters('serverfarms_appplanvziit455xjerm_name')]",
-            "location": "West US 3",
+            "name": "[parameters('serverfarms_appplanut6hcjo6p6kbm_name')]",
+            "location": "West US",
             "sku": {
-                "name": "P1v2",
-                "tier": "PremiumV2",
-                "size": "P1v2",
-                "family": "Pv2",
-                "capacity": 3
+                "name": "B1",
+                "tier": "Basic",
+                "size": "B1",
+                "family": "B",
+                "capacity": 1
             },
             "kind": "linux",
             "properties": {
                 "perSiteScaling": false,
                 "elasticScaleEnabled": false,
-                "maximumElasticWorkerCount": 3,
+                "maximumElasticWorkerCount": 1,
                 "isSpot": false,
                 "reserved": true,
                 "isXenon": false,
@@ -196,114 +95,12 @@
             }
         },
         {
-            "type": "Microsoft.Cdn/profiles/afdendpoints",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/cosmos')]",
-            "location": "Global",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]"
-            ],
-            "properties": {
-                "enabledState": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/afdendpoints",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/cosmos-editor')]",
-            "location": "Global",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]"
-            ],
-            "properties": {
-                "enabledState": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/afdendpoints",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/cosmos-storage-endpoint')]",
-            "location": "Global",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]"
-            ],
-            "properties": {
-                "enabledState": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/origingroups",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/default-origin-group')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]"
-            ],
-            "properties": {
-                "loadBalancingSettings": {
-                    "sampleSize": 4,
-                    "successfulSamplesRequired": 3,
-                    "additionalLatencyInMilliseconds": 50
-                },
-                "healthProbeSettings": {
-                    "probePath": "/",
-                    "probeRequestType": "HEAD",
-                    "probeProtocol": "Http",
-                    "probeIntervalInSeconds": 100
-                },
-                "sessionAffinityState": "Disabled"
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/origingroups",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/editor-origin')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]"
-            ],
-            "properties": {
-                "loadBalancingSettings": {
-                    "sampleSize": 4,
-                    "successfulSamplesRequired": 3,
-                    "additionalLatencyInMilliseconds": 50
-                },
-                "healthProbeSettings": {
-                    "probePath": "/",
-                    "probeRequestType": "HEAD",
-                    "probeProtocol": "Http",
-                    "probeIntervalInSeconds": 100
-                },
-                "sessionAffinityState": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/origingroups",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/storage-group')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]"
-            ],
-            "properties": {
-                "loadBalancingSettings": {
-                    "sampleSize": 4,
-                    "successfulSamplesRequired": 3,
-                    "additionalLatencyInMilliseconds": 50
-                },
-                "healthProbeSettings": {
-                    "probePath": "/",
-                    "probeRequestType": "HEAD",
-                    "probeProtocol": "Https",
-                    "probeIntervalInSeconds": 100
-                },
-                "sessionAffinityState": "Disabled"
-            }
-        },
-        {
             "type": "Microsoft.DocumentDB/databaseAccounts",
             "apiVersion": "2023-03-01-preview",
-            "name": "[parameters('databaseAccounts_cosmos_vziit455xjerm_name')]",
-            "location": "West US 3",
+            "name": "[parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]"
             ],
             "kind": "GlobalDocumentDB",
             "identity": {
@@ -316,7 +113,7 @@
                 "isVirtualNetworkFilterEnabled": true,
                 "virtualNetworkRules": [
                     {
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]",
                         "ignoreMissingVNetServiceEndpoint": false
                     }
                 ],
@@ -341,8 +138,8 @@
                 },
                 "locations": [
                     {
-                        "locationName": "West US 3",
-                        "provisioningState": "Succeeded",
+                        "locationName": "West US",
+                        "provisioningState": "Updating",
                         "failoverPriority": 0,
                         "isZoneRedundant": false
                     }
@@ -353,7 +150,23 @@
                         "name": "EnableServerless"
                     }
                 ],
-                "ipRules": [],
+                "ipRules": [
+                    {
+                        "ipAddressOrRange": "104.42.195.92"
+                    },
+                    {
+                        "ipAddressOrRange": "40.76.54.131"
+                    },
+                    {
+                        "ipAddressOrRange": "52.176.6.30"
+                    },
+                    {
+                        "ipAddressOrRange": "52.169.50.45"
+                    },
+                    {
+                        "ipAddressOrRange": "52.187.184.26"
+                    }
+                ],
                 "backupPolicy": {
                     "type": "Periodic",
                     "periodicModeProperties": {
@@ -372,9 +185,9 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -385,15 +198,15 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/00000000-0000-0000-0000-000000000001')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/00000000-0000-0000-0000-000000000001')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "roleName": "Cosmos DB Built-in Data Reader",
                 "type": "BuiltInRole",
                 "assignableScopes": [
-                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
                 ],
                 "permissions": [
                     {
@@ -411,15 +224,15 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/00000000-0000-0000-0000-000000000002')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/00000000-0000-0000-0000-000000000002')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "roleName": "Cosmos DB Built-in Data Contributor",
                 "type": "BuiltInRole",
                 "assignableScopes": [
-                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
                 ],
                 "permissions": [
                     {
@@ -436,10 +249,10 @@
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2022-09-01",
-            "name": "[parameters('virtualNetworks_vnetvziit455xjerm_name')]",
-            "location": "westus3",
+            "name": "[parameters('virtualNetworks_cosmosvnet_name')]",
+            "location": "westus",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]"
             ],
             "properties": {
                 "addressSpace": {
@@ -450,7 +263,7 @@
                 "subnets": [
                     {
                         "name": "default",
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]",
                         "properties": {
                             "addressPrefix": "10.0.0.0/24",
                             "serviceEndpoints": [
@@ -464,7 +277,7 @@
                             "delegations": [
                                 {
                                     "name": "delegation",
-                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default'), '/delegations/delegation')]",
+                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default'), '/delegations/delegation')]",
                                     "properties": {
                                         "serviceName": "Microsoft.Web/serverfarms"
                                     },
@@ -484,9 +297,9 @@
         {
             "type": "Microsoft.Network/virtualNetworks/subnets",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('virtualNetworks_vnetvziit455xjerm_name'), '/default')]",
+            "name": "[concat(parameters('virtualNetworks_cosmosvnet_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_vnetvziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworks_cosmosvnet_name'))]"
             ],
             "properties": {
                 "addressPrefix": "10.0.0.0/24",
@@ -501,7 +314,7 @@
                 "delegations": [
                     {
                         "name": "delegation",
-                        "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default'), '/delegations/delegation')]",
+                        "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default'), '/delegations/delegation')]",
                         "properties": {
                             "serviceName": "Microsoft.Web/serverfarms"
                         },
@@ -515,30 +328,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_filesvziit455xjerm_name'), '/default')]",
+            "name": "[concat(parameters('storageAccounts_filesut6hcjo6p6kbm_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesvziit455xjerm_name'))]"
-            ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                },
-                "deleteRetentionPolicy": {
-                    "allowPermanentDelete": false,
-                    "enabled": false
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/blobServices",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_sfilesvziit455xjerm_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sfilesvziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesut6hcjo6p6kbm_name'))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -557,9 +349,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_filesvziit455xjerm_name'), '/default')]",
+            "name": "[concat(parameters('storageAccounts_filesut6hcjo6p6kbm_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesvziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesut6hcjo6p6kbm_name'))]"
             ],
             "sku": {
                 "name": "Standard_LRS",
@@ -579,65 +371,11 @@
             }
         },
         {
-            "type": "Microsoft.Storage/storageAccounts/fileServices",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_sfilesvziit455xjerm_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sfilesvziit455xjerm_name'))]"
-            ],
-            "sku": {
-                "name": "Standard_LRS",
-                "tier": "Standard"
-            },
-            "properties": {
-                "protocolSettings": {
-                    "smb": {}
-                },
-                "cors": {
-                    "corsRules": []
-                },
-                "shareDeleteRetentionPolicy": {
-                    "enabled": true,
-                    "days": 7
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/privateEndpointConnections",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_filesvziit455xjerm_name'), '/', parameters('storageAccounts_filesvziit455xjerm_name'), '.02b167c8-2921-4ac7-8216-591b5d067388')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesvziit455xjerm_name'))]"
-            ],
-            "properties": {
-                "provisioningState": "Succeeded",
-                "privateEndpoint": {},
-                "privateLinkServiceConnectionState": {
-                    "status": "Approved",
-                    "description": "X-Bugcrowd-Digest",
-                    "actionRequired": "None"
-                }
-            }
-        },
-        {
             "type": "Microsoft.Storage/storageAccounts/queueServices",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_filesvziit455xjerm_name'), '/default')]",
+            "name": "[concat(parameters('storageAccounts_filesut6hcjo6p6kbm_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesvziit455xjerm_name'))]"
-            ],
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/queueServices",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_sfilesvziit455xjerm_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sfilesvziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "cors": {
@@ -648,22 +386,9 @@
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_filesvziit455xjerm_name'), '/default')]",
+            "name": "[concat(parameters('storageAccounts_filesut6hcjo6p6kbm_name'), '/default')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesvziit455xjerm_name'))]"
-            ],
-            "properties": {
-                "cors": {
-                    "corsRules": []
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/tableServices",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_sfilesvziit455xjerm_name'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sfilesvziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "cors": {
@@ -674,10 +399,10 @@
         {
             "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_editor_vziit455xjerm_name'), '/ftp')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_editor_ut6hcjo6p6kbm_name'), '/ftp')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "allow": true
@@ -686,10 +411,10 @@
         {
             "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_publisher_vziit455xjerm_name'), '/ftp')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_publisher_ut6hcjo6p6kbm_name'), '/ftp')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "allow": true
@@ -698,10 +423,10 @@
         {
             "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_editor_vziit455xjerm_name'), '/scm')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_editor_ut6hcjo6p6kbm_name'), '/scm')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "allow": true
@@ -710,10 +435,10 @@
         {
             "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_publisher_vziit455xjerm_name'), '/scm')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_publisher_ut6hcjo6p6kbm_name'), '/scm')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "allow": true
@@ -722,10 +447,10 @@
         {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_editor_vziit455xjerm_name'), '/web')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_editor_ut6hcjo6p6kbm_name'), '/web')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "numberOfWorkers": 1,
@@ -741,17 +466,18 @@
                     "hostingstart.html"
                 ],
                 "netFrameworkVersion": "v4.0",
-                "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-editor",
+                "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-editor:latest",
                 "requestTracingEnabled": false,
                 "remoteDebuggingEnabled": false,
-                "httpLoggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": true,
                 "acrUseManagedIdentityCreds": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$editor-vziit455xjerm",
+                "publishingUsername": "$editor-ut6hcjo6p6kbm",
                 "scmType": "None",
                 "use32BitWorkerProcess": true,
-                "webSocketsEnabled": false,
+                "webSocketsEnabled": true,
                 "alwaysOn": true,
                 "managedPipelineMode": "Integrated",
                 "virtualApplications": [
@@ -766,10 +492,11 @@
                     "rampUpRules": []
                 },
                 "autoHealEnabled": false,
-                "vnetName": "d4607eb5-2ed3-456d-b6d7-ad34065f5029_default",
+                "vnetName": "981d58d7-95f0-4681-a44b-d4935f8780e4_default",
                 "vnetRouteAllEnabled": true,
                 "vnetPrivatePortsCount": 0,
                 "localMySqlEnabled": false,
+                "managedServiceIdentityId": 2580,
                 "ipSecurityRestrictions": [
                     {
                         "ipAddress": "Any",
@@ -791,23 +518,30 @@
                 "scmIpSecurityRestrictionsUseMain": false,
                 "http20Enabled": true,
                 "minTlsVersion": "1.2",
-                "scmMinTlsVersion": "1.2",
-                "ftpsState": "AllAllowed",
+                "scmMinTlsVersion": "1.0",
+                "ftpsState": "Disabled",
                 "preWarmedInstanceCount": 0,
                 "elasticWebAppScaleLimit": 0,
-                "healthCheckPath": "/Identity/Account/Login",
+                "healthCheckPath": "/",
                 "functionsRuntimeScaleMonitoringEnabled": false,
-                "minimumElasticInstanceCount": 0,
-                "azureStorageAccounts": {}
+                "minimumElasticInstanceCount": 1,
+                "azureStorageAccounts": {
+                    "ccmssrc": {
+                        "type": "AzureFiles",
+                        "accountName": "filesut6hcjo6p6kbm",
+                        "shareName": "ccmsshare",
+                        "mountPath": "/ccmssrc"
+                    }
+                }
             }
         },
         {
             "type": "Microsoft.Web/sites/config",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_publisher_vziit455xjerm_name'), '/web')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_publisher_ut6hcjo6p6kbm_name'), '/web')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "numberOfWorkers": 1,
@@ -826,11 +560,12 @@
                 "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-publisher",
                 "requestTracingEnabled": false,
                 "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
                 "httpLoggingEnabled": false,
                 "acrUseManagedIdentityCreds": false,
                 "logsDirectorySizeLimit": 35,
                 "detailedErrorLoggingEnabled": false,
-                "publishingUsername": "$publisher-vziit455xjerm",
+                "publishingUsername": "$publisher-ut6hcjo6p6kbm",
                 "scmType": "None",
                 "use32BitWorkerProcess": true,
                 "webSocketsEnabled": false,
@@ -848,7 +583,7 @@
                     "rampUpRules": []
                 },
                 "autoHealEnabled": false,
-                "vnetName": "d4607eb5-2ed3-456d-b6d7-ad34065f5029_default",
+                "vnetName": "981d58d7-95f0-4681-a44b-d4935f8780e4_default",
                 "vnetRouteAllEnabled": true,
                 "vnetPrivatePortsCount": 0,
                 "localMySqlEnabled": false,
@@ -886,84 +621,68 @@
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_editor_vziit455xjerm_name'), '/', parameters('sites_editor_vziit455xjerm_name'), '.azurewebsites.net')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_editor_ut6hcjo6p6kbm_name'), '/', parameters('sites_editor_ut6hcjo6p6kbm_name'), '.azurewebsites.net')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
-                "siteName": "editor-vziit455xjerm",
+                "siteName": "editor-ut6hcjo6p6kbm",
                 "hostNameType": "Verified"
             }
         },
         {
             "type": "Microsoft.Web/sites/hostNameBindings",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_publisher_vziit455xjerm_name'), '/', parameters('sites_publisher_vziit455xjerm_name'), '.azurewebsites.net')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_publisher_ut6hcjo6p6kbm_name'), '/', parameters('sites_publisher_ut6hcjo6p6kbm_name'), '.azurewebsites.net')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
-                "siteName": "publisher-vziit455xjerm",
+                "siteName": "publisher-ut6hcjo6p6kbm",
                 "hostNameType": "Verified"
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites/privateEndpointConnections",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_publisher_vziit455xjerm_name'), '/281e8182-6300-4933-9f39-34b8036e6e55-520cab4e-4af7-4920-8d52-d639c52d0ac4')]",
-            "location": "West US 3",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_vziit455xjerm_name'))]"
-            ],
-            "properties": {
-                "privateLinkServiceConnectionState": {
-                    "status": "Approved",
-                    "description": "Private link request",
-                    "actionsRequired": "None"
-                }
-            }
-        },
-        {
-            "type": "Microsoft.Web/sites/privateEndpointConnections",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_editor_vziit455xjerm_name'), '/6728a678-4658-42ee-982b-b9f239780a4e-8e750545-d1da-4e61-82c1-755d6dcedf02')]",
-            "location": "West US 3",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_vziit455xjerm_name'))]"
-            ],
-            "properties": {
-                "privateLinkServiceConnectionState": {
-                    "status": "Approved",
-                    "description": "OIS-HMAC-256",
-                    "actionsRequired": "None"
-                }
             }
         },
         {
             "type": "Microsoft.Web/sites/snapshots",
             "apiVersion": "2015-08-01",
-            "name": "[concat(parameters('sites_editor_vziit455xjerm_name'), '/2023-04-21T00_11_13_9144513')]",
+            "name": "[concat(parameters('sites_editor_ut6hcjo6p6kbm_name'), '/2023-04-17T15_40_04_4133753')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_ut6hcjo6p6kbm_name'))]"
             ]
         },
         {
             "type": "Microsoft.Web/sites/snapshots",
             "apiVersion": "2015-08-01",
-            "name": "[concat(parameters('sites_publisher_vziit455xjerm_name'), '/2023-04-21T00_11_13_9144513')]",
+            "name": "[concat(parameters('sites_publisher_ut6hcjo6p6kbm_name'), '/2023-04-17T15_40_04_4133753')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_ut6hcjo6p6kbm_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_editor_ut6hcjo6p6kbm_name'), '/2023-04-17T16_40_04_5016893')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_ut6hcjo6p6kbm_name'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites/snapshots",
+            "apiVersion": "2015-08-01",
+            "name": "[concat(parameters('sites_publisher_ut6hcjo6p6kbm_name'), '/2023-04-17T16_40_04_5016893')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_ut6hcjo6p6kbm_name'))]"
             ]
         },
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/ArticleCatalog')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/ArticleCatalog')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -999,10 +718,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/ArticleLocks')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/ArticleLocks')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1038,10 +757,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/ArticleLogs')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/ArticleLogs')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1077,10 +796,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/ArticleNumber')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/ArticleNumber')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1116,10 +835,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Articles')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Articles')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1155,10 +874,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/CosmosCms')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/CosmosCms')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1194,10 +913,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Identity')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Identity')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1233,10 +952,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Identity_DeviceFlowCodes')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Identity_DeviceFlowCodes')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1272,10 +991,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Identity_Logins')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Identity_Logins')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1311,10 +1030,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Identity_PersistedGrant')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Identity_PersistedGrant')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1350,10 +1069,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Identity_Roles')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Identity_Roles')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1389,10 +1108,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Identity_Tokens')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Identity_Tokens')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1428,10 +1147,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Identity_UserRoles')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Identity_UserRoles')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1467,10 +1186,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Layouts')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Layouts')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1506,10 +1225,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Pages')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Pages')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1545,10 +1264,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Settings')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Settings')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1584,10 +1303,10 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(parameters('databaseAccounts_cosmos_vziit455xjerm_name'), '/CosmosCMS/Templates')]",
+            "name": "[concat(parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), '/CosmosCMS/Templates')]",
             "dependsOn": [
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_vziit455xjerm_name'), 'CosmosCMS')]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_vziit455xjerm_name'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'), 'CosmosCMS')]",
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('databaseAccounts_cosmos_ut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "resource": {
@@ -1623,10 +1342,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_filesvziit455xjerm_name'), '/default/$web')]",
+            "name": "[concat(parameters('storageAccounts_filesut6hcjo6p6kbm_name'), '/default/$web')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_filesvziit455xjerm_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesvziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/blobServices', parameters('storageAccounts_filesut6hcjo6p6kbm_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "immutableStorageWithVersioning": {
@@ -1640,24 +1359,10 @@
         {
             "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_filesvziit455xjerm_name'), '/default/ccmsshare')]",
+            "name": "[concat(parameters('storageAccounts_filesut6hcjo6p6kbm_name'), '/default/ccmsshare')]",
             "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_filesvziit455xjerm_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesvziit455xjerm_name'))]"
-            ],
-            "properties": {
-                "accessTier": "TransactionOptimized",
-                "shareQuota": 5120,
-                "enabledProtocols": "SMB"
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('storageAccounts_sfilesvziit455xjerm_name'), '/default/ccmsshare')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_sfilesvziit455xjerm_name'), 'default')]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_sfilesvziit455xjerm_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts/fileServices', parameters('storageAccounts_filesut6hcjo6p6kbm_name'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesut6hcjo6p6kbm_name'))]"
             ],
             "properties": {
                 "accessTier": "TransactionOptimized",
@@ -1668,28 +1373,31 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2022-09-01",
-            "name": "[parameters('sites_editor_vziit455xjerm_name')]",
-            "location": "West US 3",
+            "name": "[parameters('sites_editor_ut6hcjo6p6kbm_name')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_appplanvziit455xjerm_name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]"
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_appplanut6hcjo6p6kbm_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]"
             ],
             "kind": "app,linux,container",
+            "identity": {
+                "type": "SystemAssigned"
+            },
             "properties": {
                 "enabled": true,
                 "hostNameSslStates": [
                     {
-                        "name": "[concat(parameters('sites_editor_vziit455xjerm_name'), '.azurewebsites.net')]",
+                        "name": "[concat(parameters('sites_editor_ut6hcjo6p6kbm_name'), '.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Standard"
                     },
                     {
-                        "name": "[concat(parameters('sites_editor_vziit455xjerm_name'), '.scm.azurewebsites.net')]",
+                        "name": "[concat(parameters('sites_editor_ut6hcjo6p6kbm_name'), '.scm.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_appplanvziit455xjerm_name'))]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_appplanut6hcjo6p6kbm_name'))]",
                 "reserved": true,
                 "isXenon": false,
                 "hyperV": false,
@@ -1698,12 +1406,12 @@
                 "vnetContentShareEnabled": false,
                 "siteConfig": {
                     "numberOfWorkers": 1,
-                    "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-editor",
+                    "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-editor:latest",
                     "acrUseManagedIdentityCreds": false,
                     "alwaysOn": true,
                     "http20Enabled": true,
                     "functionAppScaleLimit": 0,
-                    "minimumElasticInstanceCount": 0
+                    "minimumElasticInstanceCount": 1
                 },
                 "scmSiteAlsoStopped": false,
                 "clientAffinityEnabled": true,
@@ -1716,35 +1424,35 @@
                 "httpsOnly": false,
                 "redundancyMode": "None",
                 "storageAccountRequired": false,
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]",
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]",
                 "keyVaultReferenceIdentity": "SystemAssigned"
             }
         },
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2022-09-01",
-            "name": "[parameters('sites_publisher_vziit455xjerm_name')]",
-            "location": "West US 3",
+            "name": "[parameters('sites_publisher_ut6hcjo6p6kbm_name')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_appplanvziit455xjerm_name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]"
+                "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_appplanut6hcjo6p6kbm_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]"
             ],
             "kind": "app,linux,container",
             "properties": {
                 "enabled": true,
                 "hostNameSslStates": [
                     {
-                        "name": "[concat(parameters('sites_publisher_vziit455xjerm_name'), '.azurewebsites.net')]",
+                        "name": "[concat(parameters('sites_publisher_ut6hcjo6p6kbm_name'), '.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Standard"
                     },
                     {
-                        "name": "[concat(parameters('sites_publisher_vziit455xjerm_name'), '.scm.azurewebsites.net')]",
+                        "name": "[concat(parameters('sites_publisher_ut6hcjo6p6kbm_name'), '.scm.azurewebsites.net')]",
                         "sslState": "Disabled",
                         "hostType": "Repository"
                     }
                 ],
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_appplanvziit455xjerm_name'))]",
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('serverfarms_appplanut6hcjo6p6kbm_name'))]",
                 "reserved": true,
                 "isXenon": false,
                 "hyperV": false,
@@ -1771,234 +1479,36 @@
                 "httpsOnly": false,
                 "redundancyMode": "None",
                 "storageAccountRequired": false,
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]",
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]",
                 "keyVaultReferenceIdentity": "SystemAssigned"
             }
         },
         {
             "type": "Microsoft.Web/sites/virtualNetworkConnections",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_editor_vziit455xjerm_name'), '/d4607eb5-2ed3-456d-b6d7-ad34065f5029_default')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_editor_ut6hcjo6p6kbm_name'), '/981d58d7-95f0-4681-a44b-d4935f8780e4_default')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_vziit455xjerm_name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_ut6hcjo6p6kbm_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]"
             ],
             "properties": {
-                "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]",
+                "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]",
                 "isSwift": true
             }
         },
         {
             "type": "Microsoft.Web/sites/virtualNetworkConnections",
             "apiVersion": "2022-09-01",
-            "name": "[concat(parameters('sites_publisher_vziit455xjerm_name'), '/d4607eb5-2ed3-456d-b6d7-ad34065f5029_default')]",
-            "location": "West US 3",
+            "name": "[concat(parameters('sites_publisher_ut6hcjo6p6kbm_name'), '/981d58d7-95f0-4681-a44b-d4935f8780e4_default')]",
+            "location": "West US",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_vziit455xjerm_name'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]"
+                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_ut6hcjo6p6kbm_name'))]",
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]"
             ],
             "properties": {
-                "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_vnetvziit455xjerm_name'), 'default')]",
+                "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworks_cosmosvnet_name'), 'default')]",
                 "isSwift": true
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/afdendpoints/routes",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/cosmos-editor/cosmos-editor')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles/afdendpoints', parameters('profiles_cosmos_profile_name'), 'cosmos-editor')]",
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]",
-                "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_cosmos_profile_name'), 'editor-origin')]"
-            ],
-            "properties": {
-                "customDomains": [],
-                "originGroup": {
-                    "id": "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_cosmos_profile_name'), 'editor-origin')]"
-                },
-                "ruleSets": [],
-                "supportedProtocols": [
-                    "Http",
-                    "Https"
-                ],
-                "patternsToMatch": [
-                    "/*"
-                ],
-                "forwardingProtocol": "HttpsOnly",
-                "linkToDefaultDomain": "Enabled",
-                "httpsRedirect": "Enabled",
-                "enabledState": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/afdendpoints/routes",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/cosmos-storage-endpoint/cosmos-storage-route')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles/afdendpoints', parameters('profiles_cosmos_profile_name'), 'cosmos-storage-endpoint')]",
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]",
-                "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_cosmos_profile_name'), 'storage-group')]"
-            ],
-            "properties": {
-                "customDomains": [],
-                "originGroup": {
-                    "id": "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_cosmos_profile_name'), 'storage-group')]"
-                },
-                "ruleSets": [],
-                "supportedProtocols": [
-                    "Http",
-                    "Https"
-                ],
-                "patternsToMatch": [
-                    "/pub/*"
-                ],
-                "forwardingProtocol": "MatchRequest",
-                "linkToDefaultDomain": "Enabled",
-                "httpsRedirect": "Enabled",
-                "enabledState": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/afdendpoints/routes",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/cosmos/default-route')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles/afdendpoints', parameters('profiles_cosmos_profile_name'), 'cosmos')]",
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]",
-                "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_cosmos_profile_name'), 'default-origin-group')]"
-            ],
-            "properties": {
-                "customDomains": [],
-                "originGroup": {
-                    "id": "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_cosmos_profile_name'), 'default-origin-group')]"
-                },
-                "ruleSets": [],
-                "supportedProtocols": [
-                    "Http",
-                    "Https"
-                ],
-                "patternsToMatch": [
-                    "/*"
-                ],
-                "forwardingProtocol": "MatchRequest",
-                "linkToDefaultDomain": "Enabled",
-                "httpsRedirect": "Enabled",
-                "enabledState": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/origingroups/origins",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/default-origin-group/default-origin')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_cosmos_profile_name'), 'default-origin-group')]",
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]",
-                "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_vziit455xjerm_name'))]"
-            ],
-            "properties": {
-                "hostName": "publisher-vziit455xjerm.azurewebsites.net",
-                "httpPort": 80,
-                "httpsPort": 443,
-                "originHostHeader": "publisher-vziit455xjerm.azurewebsites.net",
-                "priority": 1,
-                "weight": 1000,
-                "enabledState": "Enabled",
-                "sharedPrivateLinkResource": {
-                    "privateLink": {
-                        "id": "[resourceId('Microsoft.Web/sites', parameters('sites_publisher_vziit455xjerm_name'))]"
-                    },
-                    "groupId": "sites",
-                    "privateLinkLocation": "westus3",
-                    "requestMessage": "Private link request"
-                },
-                "enforceCertificateNameCheck": true
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/origingroups/origins",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/editor-origin/editor-origin')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_cosmos_profile_name'), 'editor-origin')]",
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]",
-                "[resourceId('Microsoft.Web/sites', parameters('sites_editor_vziit455xjerm_name'))]"
-            ],
-            "properties": {
-                "hostName": "editor-vziit455xjerm.azurewebsites.net",
-                "httpPort": 80,
-                "httpsPort": 443,
-                "originHostHeader": "editor-vziit455xjerm.azurewebsites.net",
-                "priority": 1,
-                "weight": 1000,
-                "enabledState": "Enabled",
-                "sharedPrivateLinkResource": {
-                    "privateLink": {
-                        "id": "[resourceId('Microsoft.Web/sites', parameters('sites_editor_vziit455xjerm_name'))]"
-                    },
-                    "groupId": "sites",
-                    "privateLinkLocation": "westus3",
-                    "requestMessage": "OIS-HMAC-256"
-                },
-                "enforceCertificateNameCheck": true
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/origingroups/origins",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/storage-group/storage-origin')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles/origingroups', parameters('profiles_cosmos_profile_name'), 'storage-group')]",
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesvziit455xjerm_name'))]"
-            ],
-            "properties": {
-                "hostName": "filesvziit455xjerm.z1.web.core.windows.net",
-                "httpPort": 80,
-                "httpsPort": 443,
-                "originHostHeader": "filesvziit455xjerm.z1.web.core.windows.net",
-                "priority": 1,
-                "weight": 1000,
-                "enabledState": "Enabled",
-                "sharedPrivateLinkResource": {
-                    "privateLink": {
-                        "id": "[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccounts_filesvziit455xjerm_name'))]"
-                    },
-                    "groupId": "web",
-                    "privateLinkLocation": "westus3",
-                    "requestMessage": "X-Bugcrowd-Digest"
-                },
-                "enforceCertificateNameCheck": true
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles/securitypolicies",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[concat(parameters('profiles_cosmos_profile_name'), '/CosmosAllOn-da9e1a58')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Cdn/profiles', parameters('profiles_cosmos_profile_name'))]",
-                "[resourceId('Microsoft.Network/frontdoorwebapplicationfirewallpolicies', parameters('frontdoorwebapplicationfirewallpolicies_CosmosAllOn_name'))]",
-                "[resourceId('Microsoft.Cdn/profiles/afdendpoints', parameters('profiles_cosmos_profile_name'), 'cosmos')]"
-            ],
-            "properties": {
-                "parameters": {
-                    "wafPolicy": {
-                        "id": "[resourceId('Microsoft.Network/frontdoorwebapplicationfirewallpolicies', parameters('frontdoorwebapplicationfirewallpolicies_CosmosAllOn_name'))]"
-                    },
-                    "associations": [
-                        {
-                            "domains": [
-                                {
-                                    "id": "[resourceId('Microsoft.Cdn/profiles/afdendpoints', parameters('profiles_cosmos_profile_name'), 'cosmos')]"
-                                }
-                            ],
-                            "patternsToMatch": [
-                                "/*"
-                            ]
-                        }
-                    ],
-                    "type": "WebApplicationFirewall"
-                }
             }
         }
     ]

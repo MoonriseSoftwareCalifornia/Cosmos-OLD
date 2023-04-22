@@ -1,6 +1,6 @@
 ﻿using AspNetCore.Identity.Services.SendGrid;
-using Cosmos.Common.Data;
 using Cosmos.Cms.Models;
+using Cosmos.Common.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -15,7 +15,6 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Cosmos.Cms.Controllers
 {
@@ -23,6 +22,7 @@ namespace Cosmos.Cms.Controllers
     /// <summary>
     /// User management controller
     /// </summary>
+    //[ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators")]
     public class UsersController : Controller
     {
@@ -721,7 +721,6 @@ namespace Cosmos.Cms.Controllers
         /// Error page
         /// </summary>
         /// <returns></returns>
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });

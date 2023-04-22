@@ -9,7 +9,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages
     /// Error page model
     /// </summary>
     [AllowAnonymous]
-    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    [ResponseCache(NoStore = true)]
     public class ErrorModel : PageModel
     {
         /// <summary>

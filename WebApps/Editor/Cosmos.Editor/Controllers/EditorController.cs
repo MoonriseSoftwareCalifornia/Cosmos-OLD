@@ -1,10 +1,10 @@
-﻿using Cosmos.Common.Data;
-using Cosmos.Common.Data.Logic;
-using Cosmos.Common.Models;
-using Cosmos.Cms.Common.Services.Configurations;
+﻿using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Models;
 using Cosmos.Cms.Services;
+using Cosmos.Common.Data;
+using Cosmos.Common.Data.Logic;
+using Cosmos.Common.Models;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,7 +16,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -29,6 +28,7 @@ namespace Cosmos.Cms.Controllers
     /// <summary>
     /// Editor controller
     /// </summary>
+    //[ResponseCache(NoStore = true)]
     [Authorize(Roles = "Reviewers, Administrators, Editors, Authors")]
     public class EditorController : BaseController
     {
@@ -1084,7 +1084,6 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [ResponseCache(NoStore = true)]
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
         public async Task<IActionResult> Edit(string id)
         {
@@ -1228,7 +1227,6 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [ResponseCache(NoStore = true)]
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
         public async Task<IActionResult> EditCode(Guid id)
         {
@@ -1307,7 +1305,6 @@ namespace Cosmos.Cms.Controllers
         /// <exception cref="NotFoundResult"></exception>
         /// <exception cref="UnauthorizedResult"></exception>
         [HttpPost]
-        [ResponseCache(NoStore = true)]
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
         public async Task<IActionResult> EditCode(EditCodePostModel model, bool updateExisting)
         {

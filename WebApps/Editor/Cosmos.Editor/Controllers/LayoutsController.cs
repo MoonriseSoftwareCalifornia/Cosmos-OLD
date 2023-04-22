@@ -28,6 +28,7 @@ namespace Cosmos.Cms.Controllers
     /// <summary>
     /// Layouts controller
     /// </summary>
+    //[ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators, Editors")]
     public class LayoutsController : BaseController
     {

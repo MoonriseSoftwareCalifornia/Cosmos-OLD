@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using System.Text;
+using Microsoft.Azure.Cosmos.Linq;
 
 namespace Cosmos.Cms.Publisher.Controllers
 {
@@ -140,5 +141,24 @@ namespace Cosmos.Cms.Publisher.Controllers
             return Json(result);
         }
 
+        /// <summary>
+        /// Returns a health check
+        /// </summary>
+        /// <returns></returns>
+        /// 
+        [AllowAnonymous]
+        public async Task<IActionResult> CWPS_UTILITIES_NET_PING_HEALTH_CHECK()
+        {
+            try
+            {
+                var t = await _dbContext.Users.CountAsync();
+                return Ok();
+            }
+            catch
+            {
+            }
+
+            return StatusCode(500);
+        }
     }
 }

@@ -26,6 +26,7 @@ namespace Cosmos.Cms.Controllers
     /// API Controller
     /// </summary>
     [AllowAnonymous]
+    //[ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators, Editors, Authors")]
     public class CodeController : Controller
     {
