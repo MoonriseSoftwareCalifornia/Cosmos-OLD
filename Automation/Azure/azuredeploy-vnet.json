@@ -28,7 +28,10 @@
         "publisherName": "[concat('publisher-', uniquestring(resourceGroup().id))]",
         "accountName": "[concat('cosmos-', uniqueString(resourceGroup().id))]",
         "databaseName": "CosmosCMS",
-        "sendGridApiKey": "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"
+        "sendGridApiKey": "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",
+        "dockerRegPassword": "y0SH6UcQ8JrYfrsPwf6Z1q9U+SU+iqvkfOC2yy4+6J+ACRDHZLtJ",
+        "dockerRegUrl":"https://moonrise.azurecr.io",
+        "dockerRegUsername": "moonrise"
     },
     "resources": [
         {
@@ -380,6 +383,10 @@
                         "CosmosAdminEmail": "[parameters('adminEmail')]",
                         "CosmosSendGridApiKey": "[variables('sendGridApiKey')]",
                         "CosmosPrimaryCloud": "azure",
+                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[variables('dockerRegPassword')]",
+                        "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",
+                        "DOCKER_REGISTRY_SERVER_USERNAME": "[variables('dockerRegUsername')]",
+                        "DOCKER_ENABLE_CI": true,
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false"
                     }
                 },
@@ -476,6 +483,10 @@
                         "CosmosStorageUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2018-07-01').primaryEndpoints.web]",
                         "CosmosBlobContainer": "$web",
                         "CosmosSecretKey": "[concat('CSK-', uniqueString(resourceGroup().id))]",
+                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[variables('dockerRegPassword')]",
+                        "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",
+                        "DOCKER_REGISTRY_SERVER_USERNAME": "[variables('dockerRegUsername')]",
+                        "DOCKER_ENABLE_CI": true,
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false"
                     }
                 },

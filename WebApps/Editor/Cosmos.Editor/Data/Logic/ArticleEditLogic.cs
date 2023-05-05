@@ -706,9 +706,8 @@ namespace Cosmos.Cms.Data.Logic
         /// </summary>
         /// <param name="model"></param>
         /// <param name="userId"></param>
-        /// <param name="updateExisting"></param>
         /// <returns></returns>
-        public async Task<ArticleUpdateResult> Save(HtmlEditorViewModel model, string userId, bool updateExisting)
+        public async Task<ArticleUpdateResult> Save(HtmlEditorViewModel model, string userId)
         {
             ArticleViewModel entity;
             if (model.ArticleNumber == 0)
@@ -737,7 +736,7 @@ namespace Cosmos.Cms.Data.Logic
                 entity.Content = model.Content;
             }
 
-            return await Save(entity, userId, updateExisting);
+            return await Save(entity, userId);
         }
 
         /// <summary>
@@ -745,7 +744,6 @@ namespace Cosmos.Cms.Data.Logic
         /// </summary>
         /// <param name="model"></param>
         /// <param name="userId"></param>
-        /// <param name="updateExisting"></param>
         /// <remarks>
         ///     <para>
         ///         If the article number is '0', a new article is inserted.  If a version number is '0', then
@@ -773,7 +771,7 @@ namespace Cosmos.Cms.Data.Logic
         ///     </list>
         /// </remarks>
         /// <returns></returns>
-        public async Task<ArticleUpdateResult> Save(ArticleViewModel model, string userId, bool updateExisting)
+        public async Task<ArticleUpdateResult> Save(ArticleViewModel model, string userId)
         {
             //
             // Retrieve the article that we will be using.
@@ -782,18 +780,7 @@ namespace Cosmos.Cms.Data.Logic
             //
             var lastVersion = await DbContext.Articles.OrderByDescending(o => o.VersionNumber).FirstOrDefaultAsync(a => a.ArticleNumber == model.ArticleNumber);
 
-            if (model.Id != lastVersion.Id && updateExisting)
-            {
-                throw new Exception("You are no longer editing the current version of this article.");
-            }
-
             var article = await DbContext.Articles.FirstOrDefaultAsync(a => a.Id == model.Id);
-
-
-            if (!CompareUtcDateTime.Compare(model.Updated, article.Updated) && updateExisting)
-            {
-                throw new Exception("Someone else has edited this article.");
-            }
 
             if (article == null)
             {
@@ -857,28 +844,10 @@ namespace Cosmos.Cms.Data.Logic
             UpdateHeadBaseTag(article);
 
 
-            //
-            // We are adding a new version.
-            //
-            if (updateExisting)
-            {
-                DbContext.Entry(article).State = EntityState.Modified;
-                // Make sure this saves now
-                await DbContext.SaveChangesAsync();
-                await HandleLogEntry(article, "Updated existing version", userId);
-            }
-            else
-            {
-                article.Id = Guid.NewGuid();
-                article.VersionNumber = (await DbContext.Articles.Where(w => w.ArticleNumber == article.ArticleNumber).MaxAsync(m => m.VersionNumber)) + 1;
-
-                DbContext.Articles.Add(article); // Put this entry in an add state
-                                                 // Make sure this saves now
-                await DbContext.SaveChangesAsync();
-                await HandleLogEntry(article, "New version", userId);
-            }
-
-
+            DbContext.Entry(article).State = EntityState.Modified;
+            // Make sure this saves now
+            await DbContext.SaveChangesAsync();
+            await HandleLogEntry(article, "Updated existing version", userId);
 
             // IMPORTANT!
             // Handle title (and URL) changes for existing 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Cosmos.Cms.Models
 {
     /// <summary>
-    ///     <see cref="ArticleEditLogic.Save(HtmlEditorViewModel, string, bool)" /> result.
+    ///     <see cref="ArticleEditLogic.Save(HtmlEditorViewModel, string)" /> result.
     /// </summary>
     public class ArticleUpdateResult
     {

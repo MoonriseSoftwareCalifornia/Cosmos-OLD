@@ -36,13 +36,16 @@
     *@
     @Html.Raw(Model.FooterJavaScript)
 
-    <script src="/lib/ckeditor/build_20230328.01/ckeditor.js"></script>
+    <script src="/lib/ckeditor/build_20230505.01/ckeditor.js"></script>
     <script>
 
         // Create editors
         var ccms_editors = [];
         var ccms_editorIds = [];
         var unmoutCkBox;
+        const { BalloonEditor: Editor, EditorWatchdog } = BalloonEditor;
+        const watchdog = new EditorWatchdog(Editor); // Utility that restores crashed editors
+        let autosaveTimeout = null;
 
         function ccms_toolTip(el, message) {
             //tippy(el, {
@@ -65,91 +68,92 @@
 
         function ccms_createEditors() {
 
+            // Editor instances
             const inlineInjectElements = document.querySelectorAll('[data-ccms-ceid]');
 
-            Array.from(inlineInjectElements).forEach(inlineElement => {
-
-                const config = {
-                    toolbar: {},
-                    licenseKey: '',
-                    autosave: {
-                        save(editor) {
-                            setTimeout(function () {
-                                return parent.ccms_saveEditorChanges(editor);
-                            }, 4000);
+            // Editor configuration
+            const config = {
+                toolbar: {},
+                licenseKey: '',
+                autosave: {
+                    save(editor) {
+                        if (autosaveTimeout != null) {
+                            clearTimeout(autosaveTimeout); // Start the timer over if a save is in progress.
                         }
-                    },
-                    simpleUpload: {
-                        // The URL that the images are uploaded to.
-                        uploadUrl: '/FileManager/SimpleUpload/@Model.ArticleNumber',
-                        // Enable the XMLHttpRequest.withCredentials property.
-                        withCredentials: true
-                    },
-                    heading: {
-                        options: [
-                            { model: 'paragraph', title: 'Paragraph' },
-                            { model: 'heading1', view: 'h1', title: 'Page Title' },
-                            { model: 'heading2', view: 'h2', title: 'Heading 1' },
-                            { model: 'heading3', view: 'h3', title: 'Heading 2' },
-                            { model: 'heading4', view: 'h4', title: 'Heading 3' },
-                            { model: 'heading5', view: 'h5', title: 'Heading 4' },
-                            { model: 'heading6', view: 'h6', title: 'Heading 5' }
-                        ]
-                    },
-                    link: {
-                        decorators: {
-                            toggleDownloadable: {
-                                mode: 'manual',
-                                label: 'Downloadable',
-                                attributes: {
-                                    download: 'file'
-                                }
-                            },
-                            openInNewTab: {
-                                mode: 'manual',
-                                label: 'Open in a new tab',
-                                defaultValue: '_self',
-                                attributes: {
-                                    target: '_self'
-                                }
-                            },
-                            btnClass: {
-                                model: 'manual',
-                                label: 'CSS class',
-                                attributes: {
-                                    class: ''
-                                }
+                        autosaveTimeout = setTimeout(function () {
+                            return parent.cosmosSignalOthers(editor, "save");
+                        }, 2000);
+                    }
+                },
+                simpleUpload: {
+                    // The URL that the images are uploaded to.
+                    uploadUrl: '/FileManager/SimpleUpload/@Model.ArticleNumber',
+                    // Enable the XMLHttpRequest.withCredentials property.
+                    withCredentials: true
+                },
+                heading: {
+                    options: [
+                        { model: 'paragraph', title: 'Paragraph' },
+                        { model: 'heading1', view: 'h1', title: 'Page Title' },
+                        { model: 'heading2', view: 'h2', title: 'Heading 1' },
+                        { model: 'heading3', view: 'h3', title: 'Heading 2' },
+                        { model: 'heading4', view: 'h4', title: 'Heading 3' },
+                        { model: 'heading5', view: 'h5', title: 'Heading 4' },
+                        { model: 'heading6', view: 'h6', title: 'Heading 5' }
+                    ]
+                },
+                link: {
+                    decorators: {
+                        toggleDownloadable: {
+                            mode: 'manual',
+                            label: 'Downloadable',
+                            attributes: {
+                                download: 'file'
+                            }
+                        },
+                        openInNewTab: {
+                            mode: 'manual',
+                            label: 'Open in a new tab',
+                            defaultValue: '_self',
+                            attributes: {
+                                target: '_self'
+                            }
+                        },
+                        btnClass: {
+                            model: 'manual',
+                            label: 'CSS class',
+                            attributes: {
+                                class: ''
                             }
                         }
                     }
-                };
+                }
+            };
 
-                BalloonEditor
-                    .create(inlineElement, config)
-                    .then(editor => {
-                        editor.editing.view.document.on('change:isFocused', (evt, name, value) => {
-                            if (editor.editing.view.document.isFocused) {
-                                parent.ccms_signal_focus_others(editor, "focus");
-                            } else {
-                                parent.ccms_signal_focus_others(editor, "blur");
-                            }
-                        });
-                        const imageUploadEditing = editor.plugins.get('ImageUploadEditing');
+            Array.from(inlineInjectElements).forEach(inlineElement => {
 
-                        imageUploadEditing.on('uploadComplete', (evt, { data, imageElement }) => {
+                // Define a callback that will create an editor instance and return it.
+                watchdog.setCreator((elementOrData, editorConfig) => {
+                    return Editor
+                        .create(elementOrData, editorConfig)
+                        .then(editor => {
                             
-                            parent.ccms_setBannerImage(data.url);
+                            const imageUploadEditing = editor.plugins.get('ImageUploadEditing');
 
-                        });
+                            imageUploadEditing.on('uploadComplete', (evt, { data, imageElement }) => {
+                                parent.ccms_setBannerImage(data.url);
+                            });
 
-                        parent.ccms_signal_focus_others(editor, "join");
-                        window.editor = editor;
-                        ccms_editors.push(editor);
-                    })
-                    .catch(error => {
-                        console.error(error);
-                    });
+                            return parent.cosmosSignalOthers(editor, "join");
+
+                            window.editor = editor;
+                            ccms_editors.push(editor);
+                        })
+                });
+
+                watchdog.create(inlineElement, config);
             });
+
 
         }// End createEditors
 

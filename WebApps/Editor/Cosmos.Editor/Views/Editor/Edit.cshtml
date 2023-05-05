@@ -109,7 +109,7 @@
     // CK Editor
     let ckeditor = null;
     // Indicates a save is in progress - used to deconflict simultaneous saves
-    let saveInProgress = false;
+    var saveInProgress = false;
     // Modals
     const vsCodeModal = new bootstrap.Modal(document.getElementById('modalVsCode'));
     const modalPreview = new bootstrap.Modal(document.getElementById('modalPreview'));
@@ -220,6 +220,10 @@
             const command = model.Command;
 
             switch(command) {
+                case "saved":
+                    saveInProgress = false;
+                    doneSaving();
+                    break;
                 case "focus":
                     addCkeditorSession(editorId, userId);
                 break;
@@ -227,7 +231,7 @@
                     removeCkeditorSession(editorId, userId);
                 break;
                 case "updateEditors":
-                    ckeditorsUpdate(data);
+                    cosmosSignalUpdateEditor(data);
                 break;
             }
 
@@ -253,64 +257,43 @@
         });
 
         function addCkeditorSession(id, email) {
+            let iframe = document.getElementById("ccmsContFrame");
 
-            var session = null;
+            //let areas = [];
+            // Gather up all the editable areas.
+            let editors = iframe.contentWindow.ccms_editors;
+            $(editors).each(function (index, ed) {
 
-            $(ckeditorSessions).each(function (index, item) {
-                if (item.Id === id) {
-                    session = item;
+                // Get the source element for the editor (often a DIV)
+                const sourceElement = ed.sourceElement;
+                // Get the ID
+                const editorId = sourceElement.getAttribute("data-ccms-ceid");
+
+                if (editorId === id) {
+                    ed.enableReadOnlyMode(email);
+                    $(sourceElement).css("border-color", "red");
                 }
             });
-
-            if (session === null) {
-                session = { Id: id, Emails: "" };
-                ckeditorSessions.push(session);
-            }
-
-            let emails = session.Emails.split(",");
-            let result = emails.find(function (value) {
-                return value === email;
-            });
-            
-            if (typeof result === "undefined") {
-                emails.push(email);
-            }
-
-            let updated = [];
-            $(emails).each(function (index, value) {
-                if (value !== "") {
-                    updated.push(value);
-                }
-            });
-
-            session.Emails = updated.join(",");
         }
 
         function removeCkeditorSession(id, email) {
-            
-            var session = null;
+            let iframe = document.getElementById("ccmsContFrame");
 
-            $(ckeditorSessions).each(function (index, item) {
-                if (item.Id === id) {
-                    session = item;
+            //let areas = [];
+            // Gather up all the editable areas.
+            let editors = iframe.contentWindow.ccms_editors;
+            $(editors).each(function (index, ed) {
+
+                // Get the source element for the editor (often a DIV)
+                const sourceElement = ed.sourceElement;
+                // Get the ID
+                const editorId = sourceElement.getAttribute("data-ccms-ceid");
+
+                if (editorId === id) {
+                    ed.disableReadOnlyMode(email);
+                    $(sourceElement).css("border-color", "#dadada");
                 }
             });
-
-            if (session === null) {
-                session = { Id: id, Emails: "" };
-                ckeditorSessions.push(session);
-            }
-
-            let emails = session.Emails.split(",");
-            
-            let updated = [];
-            $(emails).each(function(index, value) {
-                if (value !== "" && value !== email) {
-                    updated.push(value);
-                }
-            });
-
-            session.Emails = updated.join(",");
         }
 
         // Transport fall-back functionality is now built into start.
@@ -369,7 +352,7 @@
         //let areas = [];
         // Gather up all the editable areas.
         var editors = iframe.contentWindow.ccms_editors;
-
+        var editorIds = iframe.contentWindow_editorIds;
         var editor;
 
         $(editors).each(function (index, ed) {
@@ -387,7 +370,7 @@
         return editor;
     }
 
-    function saveChanges(myModal, next, updateExisting) {
+    function saveChanges(myModal, next) {
 
         if (saveInProgress === true) {
             return; // a save is already underway
@@ -406,10 +389,6 @@
                 // Set the URL we are going to POST back to.
                 var postUrl = "@Url.Action("PostRegions")";
 
-                if (typeof updateExisting !== "undefined" && updateExisting !== null && updateExisting !== "") {
-                    postUrl = postUrl + "?updateExisting=" + updateExisting;
-                }
-
                 const iframe = document.getElementById("ccmsContFrame");
 
                 if (typeof (ccms_editibleAreas) !== "undefined" && ccms_editibleAreas.length > 0) {
@@ -425,7 +404,7 @@
                     var published = $("#Published").val();
                     var updated = $("#Updated").val();
 
-                    var model = { Id: id, Title: $("#Title").val(), ArticleNumber: $("#ArticleNumber").val(), Published: published, Regions: ccms_editibleAreas, UpdateExisting: updateExisting, Updated: updated, BannerImage: $("#BannerImage").val() };
+                    var model = { Id: id, Title: $("#Title").val(), ArticleNumber: $("#ArticleNumber").val(), Published: published, Regions: ccms_editibleAreas, Updated: updated, BannerImage: $("#BannerImage").val() };
                     var json = JSON.stringify(model);
                     localStorage.setItem("lastSave", json);
 
@@ -435,7 +414,19 @@
                         /* jQuery will not send JSON unless you explicitly tell it to */
                         data: json,
                         /* contentType is important for MVC to be able to unpack the json */
-                        success: handle_response,
+                        success: function (response) {
+                            if (typeof response === "undefined" || response === null || response === "") {
+                                let errorMsg = "Error saving to server, please try again.";
+                                alert(errorMsg);
+                            }
+                            localStorage.removeItem("lastSave");
+                            loadModel(response);
+                            if (typeof (next) !== "undefined" && next !== null) {
+                                next();
+                            }
+                            saveInProgress = false;
+                            doneSaving();
+                        },
                         error: handle_error,
                         contentType: 'application/json',
                         accept: 'application/json'
@@ -458,39 +449,6 @@
         errorModal.show();
     }
 
-    function ckeditorsUpdate(model) {
-        saving();
-        saveInProgress = true;
-        loadModel(response);
-
-        $(model.Regions).each(function (index, item) {
-            const editor = findEditor(item.Id);
-            editor.setData(item.Html);
-        });
-
-        doneSaving();
-        saveInProgress = false;
-    }
-
-    function handle_response(response) {
-
-        if (typeof response === "undefined" || response === null || response === "") {
-            let errorMsg = "Error saving to server, please try again.";
-            alert(errorMsg);
-        }
-
-        localStorage.removeItem("lastSave");
-
-        loadModel(response);
-
-        if (typeof (next) !== "undefined" && next !== null) {
-            next();
-        }
-
-        saveInProgress = false;
-        doneSaving();
-    }
-
     function loadModel(model) {
 
             $("#Id").val(model.Id);
@@ -504,13 +462,6 @@
             $("#divTitle").html(model.Title);
             $("#Published").val(model.Published);
             $("#Updated").val(model.Updated);
-
-            //
-            // We are creating a new version of the article with this method.
-            // Update the page history, so if the user refreshes the page, the
-            // most recent version will appear.
-            let stateObj = { id: model.Id }
-            window.history.pushState(stateObj, model.Title, "/Editor/Edit/" + model.Id);
 
     }
 
@@ -610,10 +561,11 @@
             return;
         }
 
-        autoSaveOn = false;
 
         // Change the model using the model writer.
         ckeditor.model.change(writer => {
+
+            autoSaveOn = false;
 
             const url = fileBaseUrl + "/" + path;
 
@@ -697,7 +649,7 @@
         return new Promise(resolve => {
             const promise = ccms_updateArea(editor);
             promise.then((value) => {
-                doneSaving();
+                
             });
             resolve();
         });
@@ -748,6 +700,8 @@
                 const data = [];
                 data.push(item);
                 const savePromise = saveChanges(null, null, true);
+                ccms_signal_focus_others(editor, "updateEditors", editor.getData());
+                doneSaving();
                 savePromise.then(resolve);
             }
             else {
@@ -756,9 +710,12 @@
         });
     }
 
-    // Real-time editing functions
+    function cosmosSignalOthers(editor, command) {
 
-    function ccms_signal_focus_others(editor, command) {
+        if (command === "save") {
+            saving();
+            saveInProgress = true;
+        }
 
         const sourceElement = editor.sourceElement;
         const id = sourceElement.getAttribute("data-ccms-ceid");
@@ -772,14 +729,37 @@
             isFocused = true;
         }
 
-        let signal = { EditorId: id, UserId: ccms_editor_userid, Offset: offset, Command: command, IsFocused: isFocused };
+        let signal = { ArticleId: $("#Id").val(),EditorId: id, UserId: ccms_editor_userid, Offset: offset, Command: command, IsFocused: isFocused, Data: editor.getData() };
 
         signalRConnection.invoke("Notification", JSON.stringify(signal));
-
+        
+        if (command === "save") {
+            saving();
+            saveInProgress = true;
+        }
     }
 
-    function ccms_signal_start_editing(editor) {
-        const sourceElement = editor.sourceElement;
-        const id = sourceElement.getAttribute("data-ccms-ceid");
+    function cosmosSignalUpdateEditor(data) {
+        let iframe = document.getElementById("ccmsContFrame");
+
+        //let areas = [];
+        // Gather up all the editable areas.
+
+        // Get array of existing editors
+        let editors = iframe.contentWindow.ccms_editors;
+
+        // For each editor, find the one with changed data.
+        $(editors).each(function (index, ed) {
+
+            // Get the ID of the source element that the editor is bound to.
+            const editorId = ed.sourceElement.getAttribute("data-ccms-ceid");
+
+            // If the ID of the source element matches the element id of the save
+            // push the new data to the editor.
+            if (editorId === data.EditorId) {
+                ed.saveData(data.Data);
+            }
+        });
     }
+
 </script>

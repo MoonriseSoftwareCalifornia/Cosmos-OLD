@@ -107,7 +107,7 @@
     var fieldName;
     var ccmsEditorIsLocked = false;
     // Indicates a save is in progress - used to deconflict simultaneous saves
-    let saveInProgress = false;
+    var saveInProgress = false;
     const modalPreview = new bootstrap.Modal(document.getElementById('modalPreview'));
 
     $("#frmSave").submit(function (e) {
