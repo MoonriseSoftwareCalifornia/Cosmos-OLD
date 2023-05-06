@@ -219,20 +219,26 @@
             const offest = model.Offset;
             const command = model.Command;
 
+            console.log("SignalR Command: " + command);
+
             switch(command) {
                 case "saved":
                     saveInProgress = false;
                     doneSaving();
                     break;
+                case "keydown":
+                    addCkeditorSession(editorId, userId);
+                    break;
+                case "mousedown":
                 case "focus":
                     addCkeditorSession(editorId, userId);
-                break;
+                    break;
                 case "blur":
                     removeCkeditorSession(editorId, userId);
-                break;
-                case "updateEditors":
-                    cosmosSignalUpdateEditor(data);
-                break;
+                    break;
+                case "save":
+                    cosmosSignalUpdateEditor(model);
+                    break;
             }
 
             const editor = findEditor(editorId);
@@ -749,15 +755,16 @@
         let editors = iframe.contentWindow.ccms_editors;
 
         // For each editor, find the one with changed data.
-        $(editors).each(function (index, ed) {
+        $(editors).each(function (index, editor) {
 
             // Get the ID of the source element that the editor is bound to.
-            const editorId = ed.sourceElement.getAttribute("data-ccms-ceid");
+            const editorId = editor.sourceElement.getAttribute("data-ccms-ceid");
 
             // If the ID of the source element matches the element id of the save
             // push the new data to the editor.
             if (editorId === data.EditorId) {
-                ed.saveData(data.Data);
+                //editor.sourceElement.innerHTML = data.Data;
+                editor.setData(data.Data);
             }
         });
     }

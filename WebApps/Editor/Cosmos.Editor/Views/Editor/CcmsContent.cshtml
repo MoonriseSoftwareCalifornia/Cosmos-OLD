@@ -82,7 +82,7 @@
                         }
                         autosaveTimeout = setTimeout(function () {
                             return parent.cosmosSignalOthers(editor, "save");
-                        }, 2000);
+                        }, 1500);
                     }
                 },
                 simpleUpload: {
@@ -143,11 +143,9 @@
                             imageUploadEditing.on('uploadComplete', (evt, { data, imageElement }) => {
                                 parent.ccms_setBannerImage(data.url);
                             });
-
-                            return parent.cosmosSignalOthers(editor, "join");
-
                             window.editor = editor;
                             ccms_editors.push(editor);
+                            return parent.cosmosSignalOthers(editor, "join");
                         })
                 });
 
