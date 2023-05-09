@@ -47,17 +47,6 @@
         const watchdog = new EditorWatchdog(Editor); // Utility that restores crashed editors
         let autosaveTimeout = null;
 
-        function ccms_toolTip(el, message) {
-            //tippy(el, {
-            //    content: message, placement: 'right-start'
-            //});
-        }
-
-        function ccms_toolTipMessage(el, message) {
-            //el._tippy.setContent(message);
-            //el._tippy.show();
-        }
-
         document.addEventListener("DOMContentLoaded", function (event) {
             ccms_createEditors();
         });
@@ -77,13 +66,9 @@
                 licenseKey: '',
                 autosave: {
                     save(editor) {
-                        if (autosaveTimeout != null) {
-                            clearTimeout(autosaveTimeout); // Start the timer over if a save is in progress.
-                        }
-                        autosaveTimeout = setTimeout(function () {
-                            return parent.cosmosSignalOthers(editor, "save");
-                        }, 1500);
-                    }
+                        return parent.cosmosSignalOthers(editor, "save");
+                    },
+                    waitingTime: 1500
                 },
                 simpleUpload: {
                     // The URL that the images are uploaded to.
@@ -182,6 +167,21 @@
             }
         });
 
+    </script>
+
+    <script src="@Html.Raw("https://unpkg.com/@popperjs/core@2")"></script>
+    <script src="@Html.Raw("https://unpkg.com/tippy.js@6")"></script>
+    <script>
+        const elements = document.querySelectorAll('[data-ccms-ceid]');
+        elements.forEach(function (el, index) {
+            el.setAttribute("data-tippy-content", "Editable.")
+        });
+
+        // NodeList
+        var __cwps__toolTips = tippy(elements, {
+            placement: "right-start",
+            inlinePositioning: true,
+        }); //data-ccms-ceid
     </script>
 </body>
 </html>

@@ -31,6 +31,10 @@
     {
       "library": "jquery@3.6.3",
       "destination": "wwwroot/lib/jquery/"
+    },
+    {
+      "library": "tippy.js@6.3.7",
+      "destination": "wwwroot/lib/tippy/"
     }
   ]
 }

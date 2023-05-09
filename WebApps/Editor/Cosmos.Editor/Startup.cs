@@ -300,7 +300,15 @@ namespace Cosmos.Cms
             // Add the SignalR service.
             // If there is a DB connection, then use SQL backplane.
             // See: https://github.com/IntelliTect/IntelliTect.AspNetCore.SignalR.SqlServer
-            services.AddSignalR();
+            var signalRConnection = Configuration.GetConnectionString("CosmosSignalRConnection");
+            if (string.IsNullOrEmpty(signalRConnection))
+            {
+                services.AddSignalR();
+            }
+            else
+            {
+                services.AddSignalR().AddAzureSignalR(signalRConnection);
+            }
         }
 
         /// <summary>

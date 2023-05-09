@@ -5,6 +5,7 @@ using Cosmos.Cms.Models;
 using Cosmos.Common.Data;
 using Cosmos.Common.Data.Logic;
 using HtmlAgilityPack;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -18,6 +19,7 @@ namespace Cosmos.Cms.Hubs
     /// <summary>
     /// Live editor collaboration hub
     /// </summary>
+    /// [Authorize(Roles = "Reviewers, Administrators, Editors, Authors")]
     public class LiveEditorHub : Hub
     {
         private readonly ArticleEditLogic _articleLogic;

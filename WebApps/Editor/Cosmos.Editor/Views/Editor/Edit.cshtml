@@ -106,10 +106,13 @@
 
     let ckeditorSessions = [ ];
 
+    let lockedEditors = [ ];
+
     // CK Editor
     let ckeditor = null;
     // Indicates a save is in progress - used to deconflict simultaneous saves
     var saveInProgress = false;
+    var enableAutoSave = true;
     // Modals
     const vsCodeModal = new bootstrap.Modal(document.getElementById('modalVsCode'));
     const modalPreview = new bootstrap.Modal(document.getElementById('modalPreview'));
@@ -227,8 +230,6 @@
                     doneSaving();
                     break;
                 case "keydown":
-                    addCkeditorSession(editorId, userId);
-                    break;
                 case "mousedown":
                 case "focus":
                     addCkeditorSession(editorId, userId);
@@ -258,49 +259,7 @@
             }
 
             const iframe = document.getElementById("ccmsContFrame");
-            iframe.contentWindow.ccms_toolTipMessage(editor.sourceElement, msg);
-            //alert(msg);
         });
-
-        function addCkeditorSession(id, email) {
-            let iframe = document.getElementById("ccmsContFrame");
-
-            //let areas = [];
-            // Gather up all the editable areas.
-            let editors = iframe.contentWindow.ccms_editors;
-            $(editors).each(function (index, ed) {
-
-                // Get the source element for the editor (often a DIV)
-                const sourceElement = ed.sourceElement;
-                // Get the ID
-                const editorId = sourceElement.getAttribute("data-ccms-ceid");
-
-                if (editorId === id) {
-                    ed.enableReadOnlyMode(email);
-                    $(sourceElement).css("border-color", "red");
-                }
-            });
-        }
-
-        function removeCkeditorSession(id, email) {
-            let iframe = document.getElementById("ccmsContFrame");
-
-            //let areas = [];
-            // Gather up all the editable areas.
-            let editors = iframe.contentWindow.ccms_editors;
-            $(editors).each(function (index, ed) {
-
-                // Get the source element for the editor (often a DIV)
-                const sourceElement = ed.sourceElement;
-                // Get the ID
-                const editorId = sourceElement.getAttribute("data-ccms-ceid");
-
-                if (editorId === id) {
-                    ed.disableReadOnlyMode(email);
-                    $(sourceElement).css("border-color", "#dadada");
-                }
-            });
-        }
 
         // Transport fall-back functionality is now built into start.
         signalRConnection.start()
@@ -337,14 +296,13 @@
         $(editors).each(function (index, editor) {
             // Get the source element for the editor (often a DIV)
             const sourceElement = editor.sourceElement;
+            
             // Get the ID
             const id = sourceElement.getAttribute("data-ccms-ceid");
             // Get the item
             const item = { Id: id, Html: editor.getData() };
             // Add to the collection
             areas.push(item);
-
-            iframe.contentWindow.ccms_toolTip(sourceElement, "Editable");
 
         });
 
@@ -716,15 +674,89 @@
         });
     }
 
+    function addCkeditorSession(id, email) {
+
+        lockedEditors.push(id);
+
+        let iframe = document.getElementById("ccmsContFrame");
+
+        //let areas = [];
+        // Gather up all the editable areas.
+        let editors = iframe.contentWindow.ccms_editors;
+
+        // Set the editor to read only mode.
+        $(editors).each(function (index, ed) {
+
+            // Get the source element for the editor (often a DIV)
+            const sourceElement = ed.sourceElement;
+
+            // Get the ID
+            const editorId = sourceElement.getAttribute("data-ccms-ceid");
+
+            if (editorId === id) {
+                ed.enableReadOnlyMode(email);
+                $(sourceElement).css("border-color", "red");
+            }
+        });
+
+        $(iframe.contentWindow.__cwps__toolTips).each(function (index, tip) {
+            const tipId = tip.reference.getAttribute("data-ccms-ceid");
+            if (tipId === id) {
+                tip.setProps({ theme: "material" });
+                tip.setContent(email);
+                tip.show();
+            }
+        });
+    }
+
+    function removeCkeditorSession(id, email) {
+
+        lockedEditors = lockedEditors.filter(item => item !== id);
+
+        let iframe = document.getElementById("ccmsContFrame");
+
+        //let areas = [];
+        // Gather up all the editable areas.
+        let editors = iframe.contentWindow.ccms_editors;
+
+        $(editors).each(function (index, ed) {
+
+            // Get the source element for the editor (often a DIV)
+            const sourceElement = ed.sourceElement;
+            // Get the ID
+            const editorId = sourceElement.getAttribute("data-ccms-ceid");
+
+            if (editorId === id) {
+                ed.disableReadOnlyMode(email);
+                $(sourceElement).css("border-color", "#dadada");
+            }
+        });
+
+        $(iframe.contentWindow.__cwps__toolTips).each(function (index, tip) {
+            const tipId = tip.reference.getAttribute("data-ccms-ceid");
+            if (tipId === id) {
+                tip.setProps({ theme: "" });
+                tip.setContent("Editable.");
+                tip.hide();
+            }
+        });
+    }
+
     function cosmosSignalOthers(editor, command) {
+        
+        const sourceElement = editor.sourceElement;
+        const id = sourceElement.getAttribute("data-ccms-ceid");
+
+        // Make sure this editor isn't locked
+        if (lockedEditors.includes(id)) {
+            return;
+        }
 
         if (command === "save") {
             saving();
             saveInProgress = true;
         }
 
-        const sourceElement = editor.sourceElement;
-        const id = sourceElement.getAttribute("data-ccms-ceid");
 
         let offset = -1;
         let isFocused = false;
@@ -746,6 +778,7 @@
     }
 
     function cosmosSignalUpdateEditor(data) {
+
         let iframe = document.getElementById("ccmsContFrame");
 
         //let areas = [];
