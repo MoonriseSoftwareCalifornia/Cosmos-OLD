@@ -1,8 +1,7 @@
-﻿using Cosmos.Common.Models;
-using Cosmos.Cms.Data;
+﻿using Cosmos.Cms.Data;
+using Cosmos.Common.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Cosmos.Cms.Models
@@ -10,18 +9,8 @@ namespace Cosmos.Cms.Models
     /// <summary>
     /// CKEditor post model
     /// </summary>
-    public class HtmlEditorPost
+    public class HtmlEditorSignal
     {
-        /// <summary>
-        /// Article ID
-        /// </summary>
-        public Guid Id { get; set; }
-
-        /// <summary>
-        ///     Article number
-        /// </summary>
-        public int ArticleNumber { get; set; }
-
         /// <summary>
         ///     Article title
         /// </summary>
@@ -47,11 +36,6 @@ namespace Cosmos.Cms.Models
         public DateTimeOffset? Published { get; set; }
 
         /// <summary>
-        /// Update existing article (don't create a new version)
-        /// </summary>
-        public bool? UpdateExisting { get; set; }
-
-        /// <summary>
         ///     Date and time of when this was updated
         /// </summary>
         [Display(Name = "Updated on date/time (PST):")]
@@ -63,11 +47,6 @@ namespace Cosmos.Cms.Models
         /// Article banner image
         /// </summary>
         public string BannerImage { get; set; }
-
-        /// <summary>
-        /// Regions
-        /// </summary>
-        public List<HtmlEditorRegion> Regions { get; set; }
 
         #region ITEMS RETURNED AFTER SAVE (/Editor/PostRegions)
 
@@ -81,27 +60,7 @@ namespace Cosmos.Cms.Models
         /// </summary>
         public int VersionNumber { get; set; }
 
-        /// <summary>
-        /// Content returned after save
-        /// </summary>
-        public string Content { get; set; }
-
         #endregion
     }
 
-    /// <summary>
-    /// CK Editor HTML Editable Region
-    /// </summary>
-    public class HtmlEditorRegion
-    {
-        /// <summary>
-        /// Region ID
-        /// </summary>
-        public string Id { get; set; }
-
-        /// <summary>
-        /// HTML Content
-        /// </summary>
-        public string Html { get; set; }
-    }
 }

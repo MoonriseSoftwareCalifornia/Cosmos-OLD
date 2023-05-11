@@ -211,7 +211,10 @@
             saveChanges(null, null);
         });
 
-        signalRConnection = new signalR.HubConnectionBuilder().withUrl("/___cwps_hubs_live_editor").build();
+        signalRConnection = new signalR.HubConnectionBuilder()
+            .configureLogging(signalR.LogLevel.Information)
+            .withUrl("/___cwps_hubs_live_editor")
+            .withAutomaticReconnect().build();
 
         // Create a function that the hub can call to broadcast messages.
         signalRConnection.on('broadcastMessage', function (data) {
@@ -239,6 +242,14 @@
                     break;
                 case "save":
                     cosmosSignalUpdateEditor(model);
+                    break;
+                case "PropertiesSaved":
+                    savePageProperties(model);
+                    saveInProgress = false;
+                    doneSaving();
+                    break;
+                case "SavePageProperties":
+                    savePageProperties(model);
                     break;
             }
 
@@ -334,76 +345,34 @@
         return editor;
     }
 
+    // Saves changes to page title, publishing, not content.
     function saveChanges(myModal, next) {
 
-        if (saveInProgress === true) {
-            return; // a save is already underway
+        // Signal to the user that saving has started.
+        saving();
+        saveInProgress = true;
+
+        if (typeof (myModel) !== "undefined" && myModel !== null) {
+            myModal.hide();
         }
 
-        return new Promise(function (resolve, reject) {
-            saving();
-            saveInProgress = true;
+        // Get the latest date
+        savePublishDateTime();
 
-            try {
+        // Build the post payload
+        var id = $("#Id").val();
+        var published = $("#Published").val();
+        var updated = $("#Updated").val();
 
-                if (typeof (myModel) !== "undefined" && myModel !== null) {
-                    myModal.hide();
-                }
+        var model = { Title: $("#Title").val(), ArticleNumber: $("#ArticleNumber").val(), Published: published, Updated: updated, BannerImage: $("#BannerImage").val(), RoleList: "", UrlPath: "", VersionNumber: $("#VersionNumber").val() };
 
-                // Set the URL we are going to POST back to.
-                var postUrl = "@Url.Action("PostRegions")";
-
-                const iframe = document.getElementById("ccmsContFrame");
-
-                if (typeof (ccms_editibleAreas) !== "undefined" && ccms_editibleAreas.length > 0) {
-
-                    // Signal to the user that saving has started.
-                    saving();
-
-                    // Get the latest date
-                    savePublishDateTime();
-
-                    // Build the post payload
-                    var id = $("#Id").val();
-                    var published = $("#Published").val();
-                    var updated = $("#Updated").val();
-
-                    var model = { Id: id, Title: $("#Title").val(), ArticleNumber: $("#ArticleNumber").val(), Published: published, Regions: ccms_editibleAreas, Updated: updated, BannerImage: $("#BannerImage").val() };
-                    var json = JSON.stringify(model);
-                    localStorage.setItem("lastSave", json);
-
-                    $.ajax({
-                        type: "POST",
-                        url: postUrl,
-                        /* jQuery will not send JSON unless you explicitly tell it to */
-                        data: json,
-                        /* contentType is important for MVC to be able to unpack the json */
-                        success: function (response) {
-                            if (typeof response === "undefined" || response === null || response === "") {
-                                let errorMsg = "Error saving to server, please try again.";
-                                alert(errorMsg);
-                            }
-                            localStorage.removeItem("lastSave");
-                            loadModel(response);
-                            if (typeof (next) !== "undefined" && next !== null) {
-                                next();
-                            }
-                            saveInProgress = false;
-                            doneSaving();
-                        },
-                        error: handle_error,
-                        contentType: 'application/json',
-                        accept: 'application/json'
-                    });
-                } else {
-                    // ERROR
-                }
-            }
-            catch (err) {
-                saveInProgress = false;
-                alert("Error while saving: " + err.message);
-            }
-        });
+        let signal = { ArticleId: $("#Id").val(), EditorId: null, UserId: ccms_editor_userid, Offset: -1, Command: "SavePageProperties", IsFocused: false, Data: model };
+        try {
+            signalRConnection.invoke("Notification", JSON.stringify(signal));
+        } catch (err) {
+            console.error(err);
+        }
+        
     }
 
     function handle_error(xhr, status, error) {
@@ -411,22 +380,6 @@
         doneSaving();
         $("#divErrorLog").html(xhr.responseText);
         errorModal.show();
-    }
-
-    function loadModel(model) {
-
-            $("#Id").val(model.Id);
-            $("#ArticleNumber").val(model.ArticleNumber);
-            $("#UrlPath").val(model.UrlPath);
-            $("#VersionNumber").val(model.VersionNumber);
-            $("#Content").val(model.Content);
-            $("#RoleList").val(model.RoleList);
-            $("#Title").val(model.Title);
-            $("#currentTitle").html(model.Title);
-            $("#divTitle").html(model.Title);
-            $("#Published").val(model.Published);
-            $("#Updated").val(model.Updated);
-
     }
 
     $(window).bind('keydown', function (event) {
@@ -608,17 +561,6 @@
         next = null;
     }
 
-    function ccms_saveEditorChanges(editor) {
-        saving();
-        return new Promise(resolve => {
-            const promise = ccms_updateArea(editor);
-            promise.then((value) => {
-                
-            });
-            resolve();
-        });
-    }
-
     function ccms_setBannerImage(url) {
         const value = $("#BannerImage").val();
 
@@ -767,7 +709,7 @@
             isFocused = true;
         }
 
-        let signal = { ArticleId: $("#Id").val(),EditorId: id, UserId: ccms_editor_userid, Offset: offset, Command: command, IsFocused: isFocused, Data: editor.getData() };
+        let signal = { ArticleId: $("#Id").val(), EditorId: id, UserId: ccms_editor_userid, Offset: offset, Command: command, IsFocused: isFocused, Data: editor.getData() };
 
         signalRConnection.invoke("Notification", JSON.stringify(signal));
         
@@ -800,6 +742,16 @@
                 editor.setData(data.Data);
             }
         });
+    }
+
+    function savePageProperties(model) {
+        $("#UrlPath").val(model.Data.UrlPath);
+        $("#RoleList").val(model.Data.RoleList);
+        $("#Title").val(model.Data.Title);
+        $("#Published").val(model.Data.Published);
+        $("#Updated").val(model.Data.Updated);
+        $("#BannerImage").val(model.Data.BannerImage);
+        $("#VersionNumber").val(model.Data.VersionNumber);
     }
 
 </script>

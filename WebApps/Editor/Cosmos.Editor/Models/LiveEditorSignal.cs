@@ -40,6 +40,6 @@ namespace Cosmos.Cms.Models
         /// <summary>
         /// HTML data being sent back
         /// </summary>
-        public string Data { get; set; }
+        public object Data { get; set; }
     }
 }

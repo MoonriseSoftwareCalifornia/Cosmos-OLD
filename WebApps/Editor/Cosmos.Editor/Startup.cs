@@ -4,28 +4,25 @@ using AspNetCore.Identity.Services.SendGrid.Extensions;
 using Azure.Identity;
 using Azure.ResourceManager;
 using Cosmos.BlobService;
-using Cosmos.Common.Data;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Hubs;
 using Cosmos.Cms.Services;
+using Cosmos.Common.Data;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.Azure.Cosmos.Fluent;
-using Microsoft.Extensions.Caching.Cosmos;
 
 namespace Cosmos.Cms
 {
@@ -119,6 +116,8 @@ namespace Cosmos.Cms
             services.AddDataProtection().PersistKeysToDbContext<ApplicationDbContext>();
 
             // Add IDistributed cache using Cosmos DB
+            // This enables the editor to run in a web farm without needing
+            // the "sticky bit" set.
             // See: https://github.com/Azure/Microsoft.Extensions.Caching.Cosmos
             services.AddCosmosCache((CosmosCacheOptions cacheOptions) =>
             {

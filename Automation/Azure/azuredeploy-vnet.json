@@ -27,13 +27,65 @@
         "editorName": "[concat('editor-', uniquestring(resourceGroup().id))]",
         "publisherName": "[concat('publisher-', uniquestring(resourceGroup().id))]",
         "accountName": "[concat('cosmos-', uniqueString(resourceGroup().id))]",
+        "signalRName": "[concat('signalr-', uniqueString(resourceGroup().id))]",
         "databaseName": "CosmosCMS",
         "sendGridApiKey": "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",
         "dockerRegPassword": "y0SH6UcQ8JrYfrsPwf6Z1q9U+SU+iqvkfOC2yy4+6J+ACRDHZLtJ",
-        "dockerRegUrl":"https://moonrise.azurecr.io",
+        "dockerRegUrl": "https://moonrise.azurecr.io",
         "dockerRegUsername": "moonrise"
     },
     "resources": [
+        {
+            "type": "Microsoft.SignalRService/signalR",
+            "apiVersion": "2023-02-01",
+            "name": "[variables('signalRName')]",
+            "location": "[variables('location')]",
+            "sku": {
+                "name": "Free_F1",
+                "tier": "Free",
+                "size": "F1",
+                "capacity": 1
+            },
+            "kind": "SignalR",
+            "properties": {
+                "tls": {
+                    "clientCertEnabled": false
+                },
+                "features": [
+                    {
+                        "flag": "ServiceMode",
+                        "value": "Default",
+                        "properties": {}
+                    },
+                    {
+                        "flag": "EnableConnectivityLogs",
+                        "value": "True",
+                        "properties": {}
+                    }
+                ],
+                "cors": {
+                    "allowedOrigins": [
+                        "*"
+                    ]
+                },
+                "upstream": {},
+                "networkACLs": {
+                    "defaultAction": "Deny",
+                    "publicNetwork": {
+                        "allow": [
+                            "ServerConnection",
+                            "ClientConnection",
+                            "RESTAPI",
+                            "Trace"
+                        ]
+                    },
+                    "privateEndpoints": []
+                },
+                "publicNetworkAccess": "Enabled",
+                "disableLocalAuth": false,
+                "disableAadAuth": false
+            }
+        },
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2022-09-01",
@@ -126,7 +178,8 @@
                 "publicNetworkAccess": "Enabled",
                 "enableAutomaticFailover": false,
                 "enableMultipleWriteLocations": false,
-                "isVirtualNetworkFilterEnabled": true,"virtualNetworkRules": [
+                "isVirtualNetworkFilterEnabled": true,
+                "virtualNetworkRules": [
                     {
                         "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
                         "ignoreMissingVNetServiceEndpoint": false
@@ -299,7 +352,7 @@
                 "tier": "PremiumV2",
                 "size": "P1v2",
                 "family": "Pv2",
-                "capacity": 3
+                "capacity": 1
             },
             "kind": "linux",
             "properties": {
@@ -344,7 +397,7 @@
                 "isXenon": false,
                 "hyperV": false,
                 "vnetRouteAllEnabled": true,
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",   
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
                 "siteConfig": {
                     "numberOfWorkers": 1,
                     "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-publisher",
@@ -413,7 +466,8 @@
             "location": "[variables('location')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
+                "[resourceId('Microsoft.SignalRService/signalR', variables('signalRName'))]"
             ],
             "kind": "app,linux,container",
             "properties": {
@@ -435,7 +489,7 @@
                 "isXenon": false,
                 "hyperV": false,
                 "vnetRouteAllEnabled": true,
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",   
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
                 "siteConfig": {
                     "numberOfWorkers": 1,
                     "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-editor",
@@ -500,6 +554,10 @@
                     "properties": {
                         "ApplicationDbContextConnection": {
                             "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')), '2019-12-12').connectionStrings[0].connectionString]",
+                            "type": "Custom"
+                        },
+                        "CosmosSignalRConnection": {
+                            "value": "[listKeys(resourceId('Microsoft.SignalRService/signalR', variables('signalRName')), '2023-02-01').primaryConnectionString]",
                             "type": "Custom"
                         }
                     }
