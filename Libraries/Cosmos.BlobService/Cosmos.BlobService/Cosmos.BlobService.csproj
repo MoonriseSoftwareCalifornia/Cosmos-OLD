@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <AssemblyVersion>7.4.11.1</AssemblyVersion>
-    <FileVersion>7.4.11.1</FileVersion>
-    <Version>7.4.11.1</Version>
+    <AssemblyVersion>7.4.11.2</AssemblyVersion>
+    <FileVersion>7.4.11.2</FileVersion>
+    <Version>7.4.11.2</Version>
     <Title>Azure Blob and Amazon S3 Storage Provider</Title>
     <Authors>toiyabe62</Authors>
-    <Company>Cosmos Software LLC</Company>
+    <Company>Moonrise Software LLC</Company>
     <Description>Manages BLOB objects in Azure and AWS. Also includes support for Azure File Share API.</Description>
-    <Copyright>Cosmos Software LLC</Copyright>
+    <Copyright>Moonrise Software LLC</Copyright>
     <PackageProjectUrl>https://www.moonrise.net</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIcon></PackageIcon>

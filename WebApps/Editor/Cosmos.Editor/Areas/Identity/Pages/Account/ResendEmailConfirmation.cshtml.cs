@@ -1,4 +1,4 @@
-﻿using AspNetCore.Identity.Services.SendGrid;
+﻿using Cosmos.EmailServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;

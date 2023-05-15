@@ -512,20 +512,7 @@
                 $("#Published").val($('#tbPublished').val());
             });
 
-            $("#btnSave").click(function () {
-                // If the form contains a published hidden field,
-                // then toggle the save as draft and save and published
-                // buttons accordingly.
-                if (document.getElementById("Published") !== null) {
-                    if ($('#tbPublished').val() === "") {
-                        $("#btnSaveAsDraft").hide();
-                        $("#btnSaveAndPublish").show();
-                    } else {
-                        $("#btnSaveAsDraft").show();
-                        $("#btnSaveAndPublish").hide();
-                    }
-                }
-            });
+            
 
             $("#swAutoSave").click(function () {
                 if ($("#swAutoSave").is(":checked")) {

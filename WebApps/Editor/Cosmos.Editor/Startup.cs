@@ -1,6 +1,5 @@
 using AspNetCore.Identity.CosmosDb.Extensions;
-using AspNetCore.Identity.Services.SendGrid;
-using AspNetCore.Identity.Services.SendGrid.Extensions;
+using Cosmos.EmailServices;
 using Azure.Identity;
 using Azure.ResourceManager;
 using Cosmos.BlobService;

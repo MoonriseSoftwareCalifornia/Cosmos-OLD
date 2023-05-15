@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Company>Moonrise Software LLC</Company>
+		<Version>7.4.11.2</Version>
+		<AssemblyVersion>7.4.11.2</AssemblyVersion>
+		<FileVersion>7.4.11.2</FileVersion>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageIcon>nuget-icon.png</PackageIcon>
+		<RepositoryUrl>https://github.com/MoonriseSoftwareCalifornia/AspNetCore.Identity.Services.SendGrid</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>SendGrid, Email Provider, Identity</PackageTags>
+		<Description>This is a SendGrid, SMTP, and Azure Communications Email Provider for ASP.NET Core Identity.</Description>
+		<PackageProjectUrl>https://github.com/MoonriseSoftwareCalifornia/AspNetCore.Identity.Services.EmailProviders</PackageProjectUrl>
+		<PackageReleaseNotes>Documentation dependencies updated.</PackageReleaseNotes>
+	</PropertyGroup>
+
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.5" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.5" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+
+		<PackageReference Include="Azure.Communication.Email" Version="1.0.0" />
+
+		<PackageReference Include="SendGrid" Version="9.28.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="_res\icons\nuget-icon.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

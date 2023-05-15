@@ -5,20 +5,15 @@
         "description": "Installs the Cosmos CMS in Microsoft Azure."
     },
     "parameters": {
-        "adminEmail": {
-            "type": "string",
-            "metadata": {
-                "description": "Your Email address."
-            }
-        },
         "storageAccountType": {
             "type": "string",
-            "defaultValue": "Locally-redundant storage",
+            "defaultValue": "Geo-redundant storage",
             "allowedValues": [ "Locally-redundant storage", "Geo-redundant storage" ]
         }
     },
     "functions": [],
     "variables": {
+        "adminEmail": "eric@moonrise.net",
         "location": "[resourceGroup().location]",
         "storageAccountName": "[concat('files', uniquestring(resourceGroup().id))]",
         "storageAccountNameFs": "[concat('sfiles', uniquestring(resourceGroup().id))]",
@@ -27,15 +22,67 @@
         "editorName": "[concat('editor-', uniquestring(resourceGroup().id))]",
         "publisherName": "[concat('publisher-', uniquestring(resourceGroup().id))]",
         "accountName": "[concat('cosmos-', uniqueString(resourceGroup().id))]",
+        "signalRName": "[concat('signalr-', uniqueString(resourceGroup().id))]",
         "frontdoorName": "[concat('afd-', uniqueString(resourceGroup().id))]",
-        "firewallPolicyName": "[concat('afp-', uniqueString(resourceGroup().id))]",
+        "firewallPolicyName": "[concat('AllOn', uniqueString(resourceGroup().id))]",
         "databaseName": "CosmosCMS",
         "sendGridApiKey": "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",
         "dockerRegPassword": "y0SH6UcQ8JrYfrsPwf6Z1q9U+SU+iqvkfOC2yy4+6J+ACRDHZLtJ",
-        "dockerRegUrl":"https://moonrise.azurecr.io",
+        "dockerRegUrl": "https://moonrise.azurecr.io",
         "dockerRegUsername": "moonrise"
     },
     "resources": [
+        {
+            "type": "Microsoft.SignalRService/signalR",
+            "apiVersion": "2023-02-01",
+            "name": "[variables('signalRName')]",
+            "location": "[variables('location')]",
+            "sku": {
+                "name": "Free_F1",
+                "tier": "Free",
+                "size": "F1",
+                "capacity": 1
+            },
+            "kind": "SignalR",
+            "properties": {
+                "tls": {
+                    "clientCertEnabled": false
+                },
+                "features": [
+                    {
+                        "flag": "ServiceMode",
+                        "value": "Default",
+                        "properties": {}
+                    },
+                    {
+                        "flag": "EnableConnectivityLogs",
+                        "value": "True",
+                        "properties": {}
+                    }
+                ],
+                "cors": {
+                    "allowedOrigins": [
+                        "*"
+                    ]
+                },
+                "upstream": {},
+                "networkACLs": {
+                    "defaultAction": "Deny",
+                    "publicNetwork": {
+                        "allow": [
+                            "ServerConnection",
+                            "ClientConnection",
+                            "RESTAPI",
+                            "Trace"
+                        ]
+                    },
+                    "privateEndpoints": []
+                },
+                "publicNetworkAccess": "Enabled",
+                "disableLocalAuth": false,
+                "disableAadAuth": false
+            }
+        },
         {
             "type": "Microsoft.Cdn/profiles",
             "apiVersion": "2022-11-01-preview",
@@ -48,42 +95,6 @@
             "properties": {
                 "originResponseTimeoutSeconds": 60,
                 "extendedProperties": {}
-            }
-        },
-        {
-            "type": "Microsoft.Network/frontdoorwebapplicationfirewallpolicies",
-            "apiVersion": "2022-05-01",
-            "name": "[variables('firewallPolicyName')]",
-            "location": "Global",
-            "sku": {
-                "name": "Premium_AzureFrontDoor"
-            },
-            "properties": {
-                "policySettings": {
-                    "enabledState": "Enabled",
-                    "mode": "Detection",
-                    "requestBodyCheck": "Enabled"
-                },
-                "customRules": {
-                    "rules": []
-                },
-                "managedRules": {
-                    "managedRuleSets": [
-                        {
-                            "ruleSetType": "Microsoft_DefaultRuleSet",
-                            "ruleSetVersion": "2.0",
-                            "ruleSetAction": "Block",
-                            "ruleGroupOverrides": [],
-                            "exclusions": []
-                        },
-                        {
-                            "ruleSetType": "Microsoft_BotManagerRuleSet",
-                            "ruleSetVersion": "1.0",
-                            "ruleGroupOverrides": [],
-                            "exclusions": []
-                        }
-                    ]
-                }
             }
         },
         {
@@ -178,7 +189,8 @@
                 "publicNetworkAccess": "Enabled",
                 "enableAutomaticFailover": false,
                 "enableMultipleWriteLocations": false,
-                "isVirtualNetworkFilterEnabled": true,"virtualNetworkRules": [
+                "isVirtualNetworkFilterEnabled": true,
+                "virtualNetworkRules": [
                     {
                         "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
                         "ignoreMissingVNetServiceEndpoint": false
@@ -396,7 +408,7 @@
                 "isXenon": false,
                 "hyperV": false,
                 "vnetRouteAllEnabled": true,
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",   
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
                 "siteConfig": {
                     "numberOfWorkers": 1,
                     "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-publisher",
@@ -432,7 +444,7 @@
                     },
                     "properties": {
                         "CosmosIdentityDbName": "[variables('databaseName')]",
-                        "CosmosAdminEmail": "[parameters('adminEmail')]",
+                        "CosmosAdminEmail": "[variables('adminEmail')]",
                         "CosmosSendGridApiKey": "[variables('sendGridApiKey')]",
                         "CosmosPrimaryCloud": "azure",
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
@@ -487,7 +499,7 @@
                 "isXenon": false,
                 "hyperV": false,
                 "vnetRouteAllEnabled": true,
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",   
+                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
                 "siteConfig": {
                     "numberOfWorkers": 1,
                     "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-editor",
@@ -526,7 +538,7 @@
                         "AzureBlobStorageContainerName": "$web",
                         "AzureBlobStorageConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',concat(listKeys(concat(resourceGroup().id,'/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName')),'2015-05-01-preview').key1))]",
                         "CosmosIdentityDbName": "[variables('databaseName')]",
-                        "CosmosAdminEmail": "[parameters('adminEmail')]",
+                        "CosmosAdminEmail": "[variables('adminEmail')]",
                         "CosmosSendGridApiKey": "[variables('sendGridApiKey')]",
                         "CosmosPrimaryCloud": "azure",
                         "CosmosAllowSetup": "true",
@@ -553,10 +565,45 @@
                         "ApplicationDbContextConnection": {
                             "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')), '2019-12-12').connectionStrings[0].connectionString]",
                             "type": "Custom"
+                        },
+                        "CosmosSignalRConnection": {
+                            "value": "[listKeys(resourceId('Microsoft.SignalRService/signalR', variables('signalRName')), '2023-02-01').primaryConnectionString]",
+                            "type": "Custom"
                         }
                     }
                 }
             ]
+        },
+        {
+            "type": "Microsoft.Network/frontdoorwebapplicationfirewallpolicies",
+            "apiVersion": "2022-05-01",
+            "name": "[variables('firewallPolicyName')]",
+            "location": "Global",
+            "sku": {
+                "name": "Premium_AzureFrontDoor"
+            },
+            "properties": {
+                "policySettings": {
+                    "enabledState": "Enabled",
+                    "mode": "Prevention",
+                    "customBlockResponseStatusCode": 403,
+                    "customBlockResponseBody": "NDAzIC0gV0FGIEZvcmJpZGRlbg==",
+                    "requestBodyCheck": "Enabled"
+                },
+                "customRules": {
+                    "rules": []
+                },
+                "managedRules": {
+                    "managedRuleSets": [
+                        {
+                            "ruleSetType": "Microsoft_DefaultRuleSet",
+                            "ruleSetVersion": "1.1",
+                            "ruleGroupOverrides": [],
+                            "exclusions": []
+                        }
+                    ]
+                }
+            }
         }
     ],
     "outputs": {

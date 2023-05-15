@@ -96,6 +96,8 @@
 
     // Current user
     const ccms_editor_userid = "@this.Context.User.Identity.Name";
+    const isAuthor = @User.IsInRole("Authors").ToString().ToLower();
+
     // Editable areas
     let ccms_editibleAreas = [];
     // Signal R Connection
@@ -211,6 +213,28 @@
             saveChanges(null, null);
         });
 
+        $("#btnSave").click(function () {
+            // If the form contains a published hidden field,
+            // then toggle the save as draft and save and published
+            // buttons accordingly.
+            if (isAuthor) {
+                $("#btnSaveAndPublish").hide();
+                if ($('#Published').val() === "") {
+                    $("#btnSaveChanges").show();
+                } else {
+                    $("#btnSaveAsDraft").show();
+                    $("#btnSaveAndPublish").hide();
+                    $("#btnSaveChanges").hide();
+                }
+            } else {
+                $("#btnSaveAsDraft").show();
+                $("#btnSaveChanges").show();
+                if ($('#Published').val() === "") {
+                    $("#btnSaveAndPublish").show();
+                }
+            }
+        });
+
         signalRConnection = new signalR.HubConnectionBuilder()
             .configureLogging(signalR.LogLevel.Information)
             .withUrl("/___cwps_hubs_live_editor")
@@ -276,6 +300,7 @@
         signalRConnection.start()
             .then(function () {
                 console.log('connection started');
+                signalRConnection.invoke("JoinArticleGroup", "@Model.Id.ToString()");
             })
             .catch(error => {
                 console.error(error.message);

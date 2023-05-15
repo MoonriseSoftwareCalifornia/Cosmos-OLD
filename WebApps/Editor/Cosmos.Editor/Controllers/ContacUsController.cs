@@ -1,7 +1,7 @@
-﻿using AspNetCore.Identity.Services.SendGrid;
-using Cosmos.Common.Models;
-using Cosmos.Cms.Common.Services.Configurations;
+﻿using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
+using Cosmos.Common.Models;
+using Cosmos.EmailServices;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;

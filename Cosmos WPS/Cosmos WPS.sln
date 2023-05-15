@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.Common", "..\Librari
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.BlobService", "..\Libraries\Cosmos.BlobService\Cosmos.BlobService\Cosmos.BlobService.csproj", "{482A78FB-CA5B-4CAB-B0E0-AF347EE94814}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.EmailServices", "..\Libraries\Cosmos.EmailServices\Cosmos.EmailServices.csproj", "{AD6EB319-F0FD-4C6C-9544-DE1B965424F3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{482A78FB-CA5B-4CAB-B0E0-AF347EE94814}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{482A78FB-CA5B-4CAB-B0E0-AF347EE94814}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{482A78FB-CA5B-4CAB-B0E0-AF347EE94814}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD6EB319-F0FD-4C6C-9544-DE1B965424F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD6EB319-F0FD-4C6C-9544-DE1B965424F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD6EB319-F0FD-4C6C-9544-DE1B965424F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD6EB319-F0FD-4C6C-9544-DE1B965424F3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

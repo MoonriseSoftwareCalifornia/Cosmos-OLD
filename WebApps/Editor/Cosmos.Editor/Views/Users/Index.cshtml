@@ -21,120 +21,126 @@
 </style>
 
 <div class="pt-3">
-<div class="container">
-    <div class="row">
-        <div class="col">
-            <h3 class="text-light">@ViewData["Title"]</h3>
-            <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <h3 class="text-light">@ViewData["Title"]</h3>
+                <div asp-validation-summary="All" class="text-danger"></div>
+            </div>
         </div>
-    </div>
-    <div class="row bg-dark">
-        <div class="col-md-6">
-            <div class="btn-group" role="group" aria-label="Page Actions">
-                <a class="btn btn-sm btn-primary" asp-action="Create" title="Create a user account.">New User <i class="fa-solid fa-circle-arrow-right"></i></a>
+        <div class="row bg-dark">
+            <div class="col-md-6">
+                <div class="btn-group" role="group" aria-label="Page Actions">
+                    <a class="btn btn-sm btn-primary" asp-action="Create" title="Create a user account.">New User <i class="fa-solid fa-circle-arrow-right"></i></a>
                     <a class="btn btn-sm btn-secondary" asp-action="Index" asp-controller="Roles" title="Manage roles created to limit access to specific web pages here.">Role List <i class="fa-solid fa-circle-arrow-right"></i></a>
                     <a class="btn btn-sm btn-secondary" asp-action="AuthorInfos" asp-controller="Users" title="Public information about article editors and authors.">Author Infos <i class="fa-solid fa-circle-arrow-right"></i></a>
+                </div>
+                <div class="btn-group" role="group" aria-label="Page Actions">
+                    <button id="btnAddRemoveRoles" type="button" onclick="submitUserIds('roles')" class="btn btn-sm btn-secondary" title="Add or remove users from roles." style="display:none">Roles</button>
+                    <button id="btnDeleteUsers" type="button" onclick="submitUserIds('delete')" class="btn btn-sm btn-secondary" title="Delete users." style="display:none">Delete</button>
+                    <button id="btnClearUsers" type="button" onclick="submitUserIds('clear')" class="btn btn-sm btn-secondary" title="Clear selected users." style="display:none">Clear</button>
+                </div>
             </div>
-            <div class="btn-group" role="group" aria-label="Page Actions">
-                <button id="btnAddRemoveRoles" type="button" onclick="submitUserIds('roles')" class="btn btn-sm btn-secondary" title="Add or remove users from roles." style="display:none">Roles</button>
-                <button id="btnDeleteUsers" type="button" onclick="submitUserIds('delete')" class="btn btn-sm btn-secondary" title="Delete users." style="display:none">Delete</button>
-                <button id="btnClearUsers" type="button" onclick="submitUserIds('clear')" class="btn btn-sm btn-secondary" title="Clear selected users." style="display:none">Clear</button>
+            <div class="col-md-6 d-flex justify-content-end">
+                <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
             </div>
         </div>
-        <div class="col-md-6 d-flex justify-content-end">
-            <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <div class="table-responsive custom-table-responsive">
-                <table class="table custom-table">
-                    <thead>
-                        <tr>
-                            <th scope="col">
-                                Select
-                            </th>
-                            <th scope="col">
-                                
-                            </th>
-                            <th scope="col">
-                                
-                            </th>
-                            <th scope="col">
-                                Email Address
-                            </th>
-                            <th scope="col">
-                                Role membership
-                            </th>
-                            <th scope="col">
-                                Phone Number
-                            </th>
-                            <th scope="col">
-                                2FA Status
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var row in Model)
-                        {
-                            <tr scope="row">
-                                <td scope="row" style="width:80px;">
-                                    <div class="form-check">
-                                        <input class="form-check-input gridCheckBox" data-ccms-userid='@row.UserId' type="checkbox">
-                                        <label class="form-check-label">
-                                            Select
-                                        </label>
-                                    </div>
-                                </td>
-                                <td style="width:30px;">
-                                    <button title='Role assignments.' type='button' onclick="manageRoles('@row.UserId')" class='btn btn-sm btn-secondary'><i class="fa-solid fa-users"></i></button>
-                                </td>
-                                <td style="width:30px;">
-                                    <button title='Resend verification email.' type='button' onclick="resendEmail('@row.UserId')" class='btn btn-sm'><i class='fas fa-envelope'></i></button>
-                                </td>
-                                <td>
-                                    <span class="text-light">@row.EmailAddress</span>
-                                    @if (row.EmailConfirmed)
-                                    {
-                                        <small class="d-block"><span class="badge badge-primary"> (confirmed) </span></small>
-                                    }
-                                </td>
-                                <td>
-                                    <span>@(string.Join(", ", row.RoleMembership))</span>
-                                </td>
-                                <td>
-                                    @row.PhoneNumber
-                                    @if (row.PhoneNumberConfirmed)
-                                    {
-                                        <br />
-                                        <small class="d-block"><span class="badge badge-primary"> (confirmed) </span></small>
-                                    }
-                                </td>
-                                <td style="width:142px;">
-                                    @if (row.TwoFactorEnabled)
-                                    {
-                                        <div class="btn btn-sm btn-success"> 2FA On <i class="fa-solid fa-key"></i></div>
-                                    }
-                                    else
-                                    {
-                                        <div class="btn btn-sm btn-danger">OFF</div>
-                                    }
-                                </td>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="table-responsive custom-table-responsive">
+                    <table class="table custom-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    Select
+                                </th>
+                                <th scope="col">
+
+                                </th>
+                                <th scope="col">
+
+                                </th>
+                                <th scope="col">
+                                    Email Address
+                                </th>
+                                <th scope="col">
+                                    Role membership
+                                </th>
+                                <th scope="col">
+                                    Phone Number
+                                </th>
+                                <th scope="col">
+                                    2FA Status
+                                </th>
+                                <th>
+                                    Password Reset
+                                </th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @foreach (var row in Model)
+                            {
+                                <tr scope="row">
+                                    <td scope="row" style="width:80px;">
+                                        <div class="form-check">
+                                            <input class="form-check-input gridCheckBox" data-ccms-userid='@row.UserId' type="checkbox">
+                                            <label class="form-check-label">
+                                                Select
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td style="width:30px;">
+                                        <button title='Role assignments.' type='button' onclick="manageRoles('@row.UserId')" class='btn btn-sm btn-secondary'><i class="fa-solid fa-users"></i></button>
+                                    </td>
+                                    <td style="width:30px;">
+                                        <button title='Resend verification email.' type='button' onclick="resendEmail('@row.UserId')" class='btn btn-sm'><i class='fas fa-envelope'></i></button>
+                                    </td>
+                                    <td>
+                                        <span class="text-light">@row.EmailAddress</span>
+                                        @if (row.EmailConfirmed)
+                                        {
+                                            <small class="d-block"><span class="badge badge-primary"> (confirmed) </span></small>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span>@(string.Join(", ", row.RoleMembership))</span>
+                                    </td>
+                                    <td>
+                                        @row.PhoneNumber
+                                        @if (row.PhoneNumberConfirmed)
+                                        {
+                                            <br />
+                                            <small class="d-block"><span class="badge badge-primary"> (confirmed) </span></small>
+                                        }
+                                    </td>
+                                    <td style="width:142px;">
+                                        @if (row.TwoFactorEnabled)
+                                        {
+                                            <div class="btn btn-sm btn-success"> 2FA On <i class="fa-solid fa-key"></i></div>
+                                        }
+                                        else
+                                        {
+                                            <div class="btn btn-sm btn-danger">OFF</div>
+                                        }
+                                    </td>
+                                    <td style="width:142px;">
+                                        <button title='Send password reset email.' type='button' onclick="resetPasswordRequest('@row.EmailAddress')" class='btn btn-sm btn-warning'><i class="fa-solid fa-paper-plane"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
+        </div>
 
+        <div class="row bg-dark">
+            <div class="col-md-12 d-flex justify-content-center">
+                <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
+            </div>
         </div>
     </div>
-
-    <div class="row bg-dark">
-        <div class="col-md-12 d-flex justify-content-center">
-            <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
-        </div>
-    </div>
-</div>
 </div>
 
 <form id="frmUserIds" asp-action="Index" asp-controller="Roles" method="post">
@@ -161,6 +167,12 @@
                 }
             }
         );
+    }
+
+    function resetPasswordRequest(emailAddress) {
+        $.get("@Url.Action("SendPasswordReset")?emailAddress=" + emailAddress, function (data) {
+            alert("Password reset sent to: " + emailAddress + ".");
+        });
     }
 
     function submitUserIds(action) {

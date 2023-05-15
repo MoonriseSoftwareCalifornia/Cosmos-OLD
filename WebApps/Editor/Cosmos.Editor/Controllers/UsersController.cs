@@ -1,4 +1,4 @@
-﻿using AspNetCore.Identity.Services.SendGrid;
+﻿using Cosmos.EmailServices;
 using Cosmos.Cms.Models;
 using Cosmos.Common.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -657,6 +657,39 @@ namespace Cosmos.Cms.Controllers
             var model = await GetRoleAssignmentsForUser(id);
 
             return View(model);
+        }
+
+        /// <summary>
+        /// Sends a password reset to an account holder
+        /// </summary>
+        /// <param name="emailAddress"></param>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> SendPasswordReset(string emailAddress)
+        {
+            var user = await _userManager.FindByEmailAsync(emailAddress);
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            // For more information on how to enable account confirmation and password reset please 
+            // visit https://go.microsoft.com/fwlink/?LinkID=532713
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+            var callbackUrl = Url.Page(
+                "/Account/ResetPassword",
+                null,
+                new { area = "Identity", code },
+                Request.Scheme);
+
+            await _emailSender.SendEmailAsync(
+                emailAddress,
+                "Reset Password",
+                $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+            return Ok(200);
         }
 
         /// <summary>
