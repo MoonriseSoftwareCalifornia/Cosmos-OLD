@@ -39,20 +39,6 @@
                     ]
                 }
             }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles",
-            "apiVersion": "2022-11-01-preview",
-            "name": "AllOn",
-            "location": "Global",
-            "sku": {
-                "name": "Premium_AzureFrontDoor"
-            },
-            "kind": "frontdoor",
-            "properties": {
-                "originResponseTimeoutSeconds": 60,
-                "extendedProperties": {}
-            }
         }
     ]
 }

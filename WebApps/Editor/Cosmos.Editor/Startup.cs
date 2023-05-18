@@ -305,7 +305,12 @@ namespace Cosmos.Cms
             }
             else
             {
-                services.AddSignalR().AddAzureSignalR(signalRConnection);
+                var endpoint = new Microsoft.Azure.SignalR.ServiceEndpoint(signalRConnection);
+                services.AddSignalR().AddAzureSignalR(config =>
+                {
+                    config.Endpoints = new[] { endpoint };
+                    config.ApplicationName = cosmosIdentityDbName;
+                });
             }
         }
 

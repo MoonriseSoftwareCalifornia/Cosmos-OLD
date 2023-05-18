@@ -5,31 +5,77 @@
         "description": "Installs the Cosmos CMS in Microsoft Azure."
     },
     "parameters": {
+        "customerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of customer."
+            }
+        },
+        "customerEmail": {
+            "type": "string",
+            "metadata": {
+                "description": "Customer email."
+            }
+        },
+        "customerPhone": {
+            "type": "string",
+            "metadata": {
+                "description": "Customer phone."
+            }
+        },
+        "websiteDnsName": {
+            "type": "string",
+            "metadata": {
+                "description": "Customer phone."
+            }
+        },
+        "customerCode": {
+            "type": "string",
+            "metadata": {
+                "description": "Unique customer code."
+            }
+        },
+        "adminEmail": {
+            "type": "string",
+            "metadata": {
+                "description": "Your Email address."
+            }
+        },
         "storageAccountType": {
             "type": "string",
-            "defaultValue": "Geo-redundant storage",
+            "defaultValue": "Locally-redundant storage",
             "allowedValues": [ "Locally-redundant storage", "Geo-redundant storage" ]
+        },
+        "resourceTags": {
+            "type": "object",
+            "defaultValue": {
+                "customerCode": "[parameters('customerCode')]",
+                "customerEmail": "[parameters('customerEmail')]",
+                "installDateTime": "[utcNow()]"
+            }
+        },
+        "guidValue": {
+            "type": "string",
+            "defaultValue": "[newGuid()]"
         }
     },
     "functions": [],
     "variables": {
-        "adminEmail": "eric@moonrise.net",
         "location": "[resourceGroup().location]",
-        "storageAccountName": "[concat('files', uniquestring(resourceGroup().id))]",
-        "storageAccountNameFs": "[concat('sfiles', uniquestring(resourceGroup().id))]",
+        "storageAccountName": "[concat('files', parameters('customerCode'), uniquestring(resourceGroup().id))]",
+        "storageAccountNameFs": "[concat('sfiles', parameters('customerCode'), uniquestring(resourceGroup().id))]",
         "vnetName": "[concat('vnet', uniquestring(resourceGroup().id))]",
         "appServicePlanName": "[concat('appplan', uniquestring(resourceGroup().id))]",
-        "editorName": "[concat('editor-', uniquestring(resourceGroup().id))]",
-        "publisherName": "[concat('publisher-', uniquestring(resourceGroup().id))]",
+        "editorName": "[concat('editor-', parameters('customerCode'), '-', uniquestring(resourceGroup().id))]",
+        "publisherName": "[concat('publisher-', parameters('customerCode'), '-', uniquestring(resourceGroup().id))]",
         "accountName": "[concat('cosmos-', uniqueString(resourceGroup().id))]",
         "signalRName": "[concat('signalr-', uniqueString(resourceGroup().id))]",
-        "frontdoorName": "[concat('afd-', uniqueString(resourceGroup().id))]",
-        "firewallPolicyName": "[concat('AllOn', uniqueString(resourceGroup().id))]",
-        "databaseName": "CosmosCMS",
+        "databaseName": "[concat('db', parameters('customerCode'))]",
         "sendGridApiKey": "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",
         "dockerRegPassword": "y0SH6UcQ8JrYfrsPwf6Z1q9U+SU+iqvkfOC2yy4+6J+ACRDHZLtJ",
         "dockerRegUrl": "https://moonrise.azurecr.io",
-        "dockerRegUsername": "moonrise"
+        "dockerRegUsername": "moonrise",
+        "keyVaultName": "[concat('keyvault-', uniquestring(resourceGroup().id))]"
     },
     "resources": [
         {
@@ -81,20 +127,6 @@
                 "publicNetworkAccess": "Enabled",
                 "disableLocalAuth": false,
                 "disableAadAuth": false
-            }
-        },
-        {
-            "type": "Microsoft.Cdn/profiles",
-            "apiVersion": "2022-11-01-preview",
-            "name": "[variables('frontdoorName')]",
-            "location": "Global",
-            "sku": {
-                "name": "Premium_AzureFrontDoor"
-            },
-            "kind": "frontdoor",
-            "properties": {
-                "originResponseTimeoutSeconds": 60,
-                "extendedProperties": {}
             }
         },
         {
@@ -252,6 +284,7 @@
             "dependsOn": [
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
             ],
+            "tags": "[parameters('resourceTags')]",
             "properties": {
                 "resource": {
                     "id": "CosmosCMS"
@@ -313,9 +346,7 @@
             "name": "[variables('storageAccountName')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2021-04-01",
-            "tags": {
-                "displayName": "storage20201023"
-            },
+            "tags": "[parameters('resourceTags')]",
             "location": "[variables('location')]",
             "kind": "StorageV2",
             "sku": {
@@ -327,9 +358,7 @@
             "name": "[variables('storageAccountNameFs')]",
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2021-04-01",
-            "tags": {
-                "displayName": "storage20201023"
-            },
+            "tags": "[parameters('resourceTags')]",
             "location": "[variables('location')]",
             "kind": "StorageV2",
             "sku": {
@@ -363,7 +392,7 @@
                 "tier": "PremiumV2",
                 "size": "P1v2",
                 "family": "Pv2",
-                "capacity": 3
+                "capacity": 1
             },
             "kind": "linux",
             "properties": {
@@ -384,6 +413,7 @@
             "apiVersion": "2020-12-01",
             "name": "[variables('publisherName')]",
             "location": "[variables('location')]",
+            "tags": "[parameters('resourceTags')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
                 "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]"
@@ -420,13 +450,13 @@
                     "healthCheckPath": "/"
                 },
                 "scmSiteAlsoStopped": false,
-                "clientAffinityEnabled": true,
+                "clientAffinityEnabled": false,
                 "clientCertEnabled": false,
                 "clientCertMode": "Required",
                 "hostNamesDisabled": false,
                 "containerSize": 0,
                 "dailyMemoryTimeQuota": 0,
-                "httpsOnly": false,
+                "httpsOnly": true,
                 "redundancyMode": "None",
                 "storageAccountRequired": false,
                 "keyVaultReferenceIdentity": "SystemAssigned"
@@ -444,14 +474,15 @@
                     },
                     "properties": {
                         "CosmosIdentityDbName": "[variables('databaseName')]",
-                        "CosmosAdminEmail": "[variables('adminEmail')]",
+                        "CosmosAdminEmail": "[parameters('adminEmail')]",
                         "CosmosSendGridApiKey": "[variables('sendGridApiKey')]",
                         "CosmosPrimaryCloud": "azure",
-                        "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
+                        "CosmosEditorName": "[variables('editorName')]",
                         "DOCKER_REGISTRY_SERVER_PASSWORD": "[variables('dockerRegPassword')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",
                         "DOCKER_REGISTRY_SERVER_USERNAME": "[variables('dockerRegUsername')]",
-                        "DOCKER_ENABLE_CI": true
+                        "DOCKER_ENABLE_CI": true,
+                        "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false"
                     }
                 },
                 {
@@ -475,9 +506,11 @@
             "apiVersion": "2020-12-01",
             "name": "[variables('editorName')]",
             "location": "[variables('location')]",
+            "tags": "[parameters('resourceTags')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]"
+                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
+                "[resourceId('Microsoft.SignalRService/signalR', variables('signalRName'))]"
             ],
             "kind": "app,linux,container",
             "properties": {
@@ -511,13 +544,13 @@
                     "healthCheckPath": "/Identity/Account/Login"
                 },
                 "scmSiteAlsoStopped": false,
-                "clientAffinityEnabled": true,
+                "clientAffinityEnabled": false,
                 "clientCertEnabled": false,
                 "clientCertMode": "Required",
                 "hostNamesDisabled": false,
                 "containerSize": 0,
                 "dailyMemoryTimeQuota": 0,
-                "httpsOnly": false,
+                "httpsOnly": true,
                 "redundancyMode": "None",
                 "storageAccountRequired": false,
                 "keyVaultReferenceIdentity": "SystemAssigned"
@@ -538,7 +571,7 @@
                         "AzureBlobStorageContainerName": "$web",
                         "AzureBlobStorageConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',concat(listKeys(concat(resourceGroup().id,'/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName')),'2015-05-01-preview').key1))]",
                         "CosmosIdentityDbName": "[variables('databaseName')]",
-                        "CosmosAdminEmail": "[variables('adminEmail')]",
+                        "CosmosAdminEmail": "[parameters('adminEmail')]",
                         "CosmosSendGridApiKey": "[variables('sendGridApiKey')]",
                         "CosmosPrimaryCloud": "azure",
                         "CosmosAllowSetup": "true",
@@ -546,12 +579,12 @@
                         "CosmosEditorUrl": "[concat('https://', variables('editorName'), '.azurewebsites.net')]",
                         "CosmosStorageUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2018-07-01').primaryEndpoints.web]",
                         "CosmosBlobContainer": "$web",
-                        "CosmosSecretKey": "[concat('CSK-', uniqueString(resourceGroup().id))]",
-                        "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
+                        "CosmosSecretKey": "[concat('c', uniqueString(parameters('guidValue')))]",
                         "DOCKER_REGISTRY_SERVER_PASSWORD": "[variables('dockerRegPassword')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",
                         "DOCKER_REGISTRY_SERVER_USERNAME": "[variables('dockerRegUsername')]",
-                        "DOCKER_ENABLE_CI": true
+                        "DOCKER_ENABLE_CI": true,
+                        "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false"
                     }
                 },
                 {
@@ -575,34 +608,11 @@
             ]
         },
         {
-            "type": "Microsoft.Network/frontdoorwebapplicationfirewallpolicies",
-            "apiVersion": "2022-05-01",
-            "name": "[variables('firewallPolicyName')]",
-            "location": "Global",
-            "sku": {
-                "name": "Premium_AzureFrontDoor"
-            },
+            "type": "Microsoft.KeyVault/vaults/secrets",
+            "apiVersion": "2021-11-01-preview",
+            "name": "[format('{0}/{1}', variables('keyVaultName'), concat('customer-', parameters('customerCode')))]",
             "properties": {
-                "policySettings": {
-                    "enabledState": "Enabled",
-                    "mode": "Prevention",
-                    "customBlockResponseStatusCode": 403,
-                    "customBlockResponseBody": "NDAzIC0gV0FGIEZvcmJpZGRlbg==",
-                    "requestBodyCheck": "Enabled"
-                },
-                "customRules": {
-                    "rules": []
-                },
-                "managedRules": {
-                    "managedRuleSets": [
-                        {
-                            "ruleSetType": "Microsoft_DefaultRuleSet",
-                            "ruleSetVersion": "1.1",
-                            "ruleGroupOverrides": [],
-                            "exclusions": []
-                        }
-                    ]
-                }
+                "value": "[concat(parameters('customerEmail'), '|', parameters('customerName'), '|', parameters('customerPhone'), '|', parameters('websiteDnsName'))]"
             }
         }
     ],

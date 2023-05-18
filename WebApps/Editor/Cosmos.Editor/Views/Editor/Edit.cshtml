@@ -391,7 +391,7 @@
 
         var model = { Title: $("#Title").val(), ArticleNumber: $("#ArticleNumber").val(), Published: published, Updated: updated, BannerImage: $("#BannerImage").val(), RoleList: "", UrlPath: "", VersionNumber: $("#VersionNumber").val() };
 
-        let signal = { ArticleId: $("#Id").val(), EditorId: null, UserId: ccms_editor_userid, Offset: -1, Command: "SavePageProperties", IsFocused: false, Data: model };
+        let signal = { ArticleId: $("#Id").val(), EditorId: null, UserId: ccms_editor_userid, Offset: -1, Command: "SavePageProperties", IsFocused: false, Data: model, VersionNumber: $("#VersionNumber").val() };
         try {
             signalRConnection.invoke("Notification", JSON.stringify(signal));
         } catch (err) {
@@ -770,13 +770,17 @@
     }
 
     function savePageProperties(model) {
-        $("#UrlPath").val(model.Data.UrlPath);
-        $("#RoleList").val(model.Data.RoleList);
-        $("#Title").val(model.Data.Title);
-        $("#Published").val(model.Data.Published);
-        $("#Updated").val(model.Data.Updated);
-        $("#BannerImage").val(model.Data.BannerImage);
-        $("#VersionNumber").val(model.Data.VersionNumber);
+
+        var data = JSON.parse(model.Data);
+
+        $("#UrlPath").val(data.UrlPath);
+        $("#RoleList").val(data.RoleList);
+        $("#Title").val(data.Title);
+        $("#Published").val(data.Published);
+        $("#Updated").val(data.Updated);
+        $("#BannerImage").val(data.BannerImage);
+        $("#VersionNumber").val(data.VersionNumber);
+        $("#VersionNumber").val(data.VersionNumber);
     }
 
 </script>
