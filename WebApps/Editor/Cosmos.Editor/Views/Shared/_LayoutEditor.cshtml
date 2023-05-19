@@ -446,7 +446,8 @@
         }
 
         function saveFirst() {
-            saveChanges(checkFirstModal, next, true);
+            saveChanges(checkFirstModal);
+            next();
         }
 
         function doNotSave() {
