@@ -122,7 +122,7 @@ namespace Cosmos.Cms.Controllers
                     Published = s.Published,
                     VersionNumber = s.VersionNumber,
                     UsesHtmlEditor = s.Content.ToLower().Contains(" editable=") || s.Content.ToLower().Contains(" data-ccms-ceid=")
-                }).OrderByDescending(o => o.VersionNumber).Take(10).ToListAsync();
+                }).OrderByDescending(o => o.VersionNumber).Take(1).ToListAsync();
 
             return Json(data);
         }

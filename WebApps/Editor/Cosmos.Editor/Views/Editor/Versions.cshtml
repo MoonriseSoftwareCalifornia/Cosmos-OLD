@@ -12,6 +12,7 @@
     var pageNumber = (int)ViewData["pageNo"];
     var pageSize = (int)ViewData["pageSize"];
     var articleNumber = (int)ViewData["articleNumber"];
+    var lastVersion = (int)ViewData["LastVersion"];
 
     var pagerModel = new GridPagerPartialViewModel(pageNumber, rowCount, pageSize, sortOrder, currentSort, "/Editor/Versions/" + articleNumber);
 
@@ -54,6 +55,7 @@
                             <th scope="col">Updated</th>
                             <th scope="col">Published</th>
                             <th scope="col">Expires</th>
+                            <th scope="col">Edited by</th>
                             <th scope="col">Promote</th>
                         </tr>
                     </thead>
@@ -81,21 +83,24 @@
                                 <td scope="row" style="width:260px">
                                     <div class="btn-group" role="group" aria-label="Version actions">
                                         <a class='btn btn-sm btn-secondary' target='_blank' title='Preview' href='/Home/Preview/@row.Id'><i class='fas fa-search'></i> Preview</a>
-                                        @if ((isAuthor && row.Published != null) || (isReviewer))
+                                        @if (lastVersion == row.VersionNumber)
                                         {
-                                            <span></span>
-                                        }
-                                        else
-                                        {
-                                            <a class='btn btn-sm btn-secondary' title='Edit with the code editor' href='/Editor/EditCode/@row.Id'><img src="/images/monaco-vscode-logo.png" height="14" /> Code</a>
-                                        }
-                                        @if ((isAuthor && row.Published != null) || (isReviewer) || row.UsesHtmlEditor == false)
-                                        {
-                                            <span></span>
-                                        }
-                                        else
-                                        {
-                                            <a class='btn btn-sm btn-secondary' title="Edit with the live (WYSIWYG) editor" href='/Editor/Edit/@row.Id'><img src="/images/ckeditor-5-proj-logo.svg" height="18" /> Live</a>
+                                                @if ((isAuthor && row.Published != null) || (isReviewer))
+                                                {
+                                                    <span></span>
+                                                }
+                                                else
+                                                {
+                                                    <a class='btn btn-sm btn-secondary' title='Edit with the code editor' href='/Editor/EditCode/@row.Id'><img src="/images/monaco-vscode-logo.png" height="14" /> Code</a>
+                                                }
+                                                @if ((isAuthor && row.Published != null) || (isReviewer) || row.UsesHtmlEditor == false)
+                                                {
+                                                    <span></span>
+                                                }
+                                                else
+                                                {
+                                                    <a class='btn btn-sm btn-secondary' title="Edit with the live (WYSIWYG) editor" href='/Editor/Edit/@row.Id'><img src="/images/ckeditor-5-proj-logo.svg" height="18" /> Live</a>
+                                                }
                                         }
                                         @if (isReviewer)
                                         {
@@ -111,6 +116,9 @@
                                 </td>
                                 <td scope="row">
                                     <div class='toLocalTimeZone'>@row.Expires</div>
+                                </td>
+                                <td scope="row">
+                                    <div class='toLocalTimeZone'>@row.UserId</div>
                                 </td>
                                 <td scope="row" style="width:30px">
                                     @if ((isAuthor && row.Published != null) || (isReviewer))

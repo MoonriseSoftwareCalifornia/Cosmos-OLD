@@ -778,23 +778,18 @@ namespace Cosmos.Cms.Data.Logic
             // This will either be used to create a new version (detached then added as new),
             // or updated in place.
             //
-            var lastVersion = await DbContext.Articles.OrderByDescending(o => o.VersionNumber).FirstOrDefaultAsync(a => a.ArticleNumber == model.ArticleNumber);
-
-            var article = await DbContext.Articles.FirstOrDefaultAsync(a => a.Id == model.Id);
+            var article = await DbContext.Articles.OrderByDescending(o => o.VersionNumber).FirstOrDefaultAsync(a => a.ArticleNumber == model.ArticleNumber);
 
             if (article == null)
             {
                 throw new NotFoundException($"Article ID: {model.Id} not found.");
             }
 
+            // Keep track of the old title--used below if title has changed.
+            string oldTitle = article.Title;
+
             // Don't track this for now
             DbContext.Entry(article).State = EntityState.Detached;
-
-            // Ensure a user ID is set for creator
-            if (string.IsNullOrEmpty(article.UserId))
-            {
-                article.UserId = userId;
-            }
 
             // =======================================================
             // BEGIN: MAKE CONTENT CHANGES HERE
@@ -809,27 +804,15 @@ namespace Cosmos.Cms.Data.Logic
             UpdateHeadBaseTag(model);
 
             //Article article = new Article()
-            //{
-            //    ArticleNumber = existing.ArticleNumber,
-            //    // Content = model.Content, // Set content below.
-            //    Expires = model.Expires,
-            //    //FooterJavaScript = model.FooterJavaScript, // Set content below.
-            //    // HeaderJavaScript = model.HeadJavaScript, // Set content below.
-            //    Id = Guid.NewGuid(),
-            //    VersionNumber = existing.VersionNumber,
-            //    Published = model.Published,
-            //    RoleList = existing.RoleList,
-            //    StatusCode = existing.StatusCode,
-            //    Title = model.Title,
-            //    Updated = DateTimeOffset.UtcNow,
-            //    UrlPath = model.UrlPath
-            //}; ;
 
+
+            // Ensure a user ID is set for creator
+            article.UserId = userId;
+            // New version, gets a new ID.
+            article.Id = Guid.NewGuid();
+            article.VersionNumber = article.VersionNumber + 1;
             article.Content = model.Content;
             article.Published = model.Published;
-
-            string oldTitle = article.Title;
-
             article.Title = model.Title;
             article.Updated = DateTimeOffset.UtcNow;
             article.HeaderJavaScript = model.HeadJavaScript;
@@ -843,11 +826,10 @@ namespace Cosmos.Cms.Data.Logic
             // =======================================================
             UpdateHeadBaseTag(article);
 
-
-            DbContext.Entry(article).State = EntityState.Modified;
+            DbContext.Articles.Add(article);
             // Make sure this saves now
             await DbContext.SaveChangesAsync();
-            await HandleLogEntry(article, "Updated existing version", userId);
+            await HandleLogEntry(article, "Saved new version", userId);
 
             // IMPORTANT!
             // Handle title (and URL) changes for existing 
@@ -1544,13 +1526,27 @@ namespace Cosmos.Cms.Data.Logic
         ///     </para>
         ///     <para>NOTE: Cannot access articles that have been deleted.</para>
         /// </remarks>
-        public async Task<ArticleViewModel> Get(int articleNumber, int versionNumber)
+        public async Task<ArticleViewModel> Get(int articleNumber, int? versionNumber)
         {
-            var article = await DbContext.Articles
+            Article article;
+
+            if (versionNumber.HasValue)
+            {
+                // Get a specific version
+                article = await DbContext.Articles
                 .FirstOrDefaultAsync(
                     a => a.ArticleNumber == articleNumber &&
                          a.VersionNumber == versionNumber &&
                          a.StatusCode != 2);
+            }
+            else
+            {
+                // Get the latest version
+                article = await DbContext.Articles.OrderByDescending(v => v.VersionNumber)
+                .FirstOrDefaultAsync(
+                    a => a.ArticleNumber == articleNumber &&
+                         a.StatusCode != 2);
+            }
 
             if (article == null)
                 throw new Exception($"Article number:{articleNumber}, Version:{versionNumber}, not found.");

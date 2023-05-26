@@ -10,7 +10,7 @@ namespace Cosmos.Cms.Models
         /// <summary>
         /// Id of the Article entity being worked on.
         /// </summary>
-        public Guid ArticleId { get; set; }
+        public int ArticleNumber { get; set; }
 
         /// <summary>
         /// Edit ID as defined by the data-ccms-ceid attribute.
@@ -36,6 +36,11 @@ namespace Cosmos.Cms.Models
         /// Is Focused
         /// </summary>
         public bool IsFocused { get; set; }
+
+        /// <summary>
+        /// Page version number
+        /// </summary>
+        public int VersionNumber { get; set; }
 
         /// <summary>
         /// HTML data being sent back

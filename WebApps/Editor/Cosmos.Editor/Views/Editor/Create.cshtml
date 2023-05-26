@@ -40,18 +40,13 @@
                 </div>
             </form>
             <br />
-            <h5>Create page using a page template (optionally select one):</h5>
+            <h5>Create new page using a template selected from below:</h5>
         </div>
     </div>
     <div class="row bg-dark">
-        <div class="col-md-6">
-            <div class="btn-group" role="group" aria-label="Actions">
-                <a target="_blank" title="Return to page list" class="btn btn-sm btn-primary" href="@Url.Action("Create", "Templates")">Create new template <i class="fa-solid fa-circle-arrow-right"></i></a>
+            <div class="col-md-12 d-flex justify-content-center">
+                <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
             </div>
-        </div>
-        <div class="col-md-6 d-flex justify-content-end">
-            <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
-        </div>
     </div>
     <div class="row">
         <div class="col-md-12">

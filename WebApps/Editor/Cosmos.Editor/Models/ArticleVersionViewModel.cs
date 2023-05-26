@@ -43,5 +43,11 @@ namespace Cosmos.Cms.Models
         /// </summary>
         [Display(Name = "Uses Live editor")]
         public bool UsesHtmlEditor { get; set; }
+
+        /// <summary>
+        /// Last person to edit this page
+        /// </summary>
+        [Display(Name = "Edited by")]
+        public string UserId {  get; set; }
     }
 }

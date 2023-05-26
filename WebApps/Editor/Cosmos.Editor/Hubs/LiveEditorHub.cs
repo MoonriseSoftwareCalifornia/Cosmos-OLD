@@ -3,6 +3,7 @@ using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Models;
 using Cosmos.Common.Data;
 using HtmlAgilityPack;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -63,10 +64,14 @@ namespace Cosmos.Cms.Hubs
                     case "save":
                         try
                         {
-                            await SaveEditorContent(model);
+                            var saveResult = await SaveEditorContent(model);
                             model.Command = "saved"; // Let caller know item is saved.
-                            await Clients.Caller.SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
-                            await Clients.OthersInGroup(model.EditorId).SendCoreAsync("broadcastMessage", new[] { data });
+                            model.Data = JsonConvert.SerializeObject(saveResult);
+                            model.VersionNumber = saveResult.VersionNumber;
+                            var stringData = JsonConvert.SerializeObject(model);
+
+                            await Clients.Caller.SendCoreAsync("broadcastMessage", new[] { stringData });
+                            await Clients.OthersInGroup(model.EditorId).SendCoreAsync("broadcastMessage", new[] { stringData });
                         }
                         catch (Exception e)
                         {
@@ -82,9 +87,10 @@ namespace Cosmos.Cms.Hubs
                         }
                         else
                         {
+                            model.VersionNumber = result.VersionNumber;
                             model.Data = JsonConvert.SerializeObject(result);
                             // Alert others
-                            await Clients.OthersInGroup($"Article:{model.ArticleId}").SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
+                            await Clients.OthersInGroup($"Article:{model.ArticleNumber}").SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
                             // Notify caller of job done.
                             model.Command = "PropertiesSaved";
                             await Clients.Caller.SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
@@ -123,10 +129,10 @@ namespace Cosmos.Cms.Hubs
             }
 
             // Next pull the original. This is a view model, not tracked by DbContext.
-            var article = await _articleLogic.Get(model.ArticleId, EnumControllerName.Edit, model.UserId);
+            var article = await _articleLogic.Get(model.ArticleNumber, null);
             if (article == null)
             {
-                _logger.LogError($"SIGNALR: SavePageProperties method, could not find artile with ID: {model.ArticleId}.");
+                _logger.LogError($"SIGNALR: SavePageProperties method, could not find artile with ID: {model.ArticleNumber}.");
                 return null;
             }
 
@@ -162,25 +168,25 @@ namespace Cosmos.Cms.Hubs
             }
             catch (Exception e)
             {
-                _logger.LogError($"SIGNALR: SavePageProperties failed for article ID: {model.ArticleId} with the following error: " + e.Message, e);
+                _logger.LogError($"SIGNALR: SavePageProperties failed for article #: {model.ArticleNumber} with the following error: " + e.Message, e);
                 return null;
             }
         }
 
-        private async Task SaveEditorContent(LiveEditorSignal model)
+        private async Task<HtmlEditorSignal> SaveEditorContent(LiveEditorSignal model)
         {
             if (model == null)
             {
                 _logger.LogError("SIGNALR: SaveEditorContent method, model was null.");
-                return;
+                return null;
             }
 
             // Next pull the original. This is a view model, not tracked by DbContext.
-            var article = await _articleLogic.Get(model.ArticleId, EnumControllerName.Edit, model.UserId);
+            var article = await _articleLogic.Get(model.ArticleNumber, null);
             if (article == null)
             {
-                _logger.LogError($"SIGNALR: SaveEditorContent method, could not find artile with ID: {model.ArticleId}.");
-                return;
+                _logger.LogError($"SIGNALR: SaveEditorContent method, could not find artile with #: {model.ArticleNumber}.");
+                return null;
             }
 
             // Get the editable regions from the original document.
@@ -207,7 +213,16 @@ namespace Cosmos.Cms.Hubs
             // Save changes back to the database
             var result = await _articleLogic.Save(article, model.UserId);
 
-
+            return new HtmlEditorSignal()
+            {
+                BannerImage = result.Model.BannerImage,
+                RoleList = result.Model.RoleList,
+                Published = result.Model.Published,
+                Updated = result.Model.Updated,
+                Title = result.Model.Title,
+                UrlPath = result.Model.UrlPath,
+                VersionNumber = result.Model.VersionNumber
+            };
         }
 
         /// <summary>

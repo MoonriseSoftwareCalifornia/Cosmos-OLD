@@ -234,10 +234,12 @@ namespace Cosmos.Cms.Controllers
                     Updated = s.Updated,
                     VersionNumber = s.VersionNumber,
                     Expires = s.Expires,
+                    UserId = s.UserId,
                     UsesHtmlEditor = s.Content.ToLower().Contains(" contenteditable=") || s.Content.ToLower().Contains(" data-ccms-ceid=")
                 }).AsQueryable();
 
-            ViewData["RowCount"] = await query.CountAsync();
+            ViewData["RowCount"] = await _dbContext.Articles.Where(w => w.ArticleNumber == id).CountAsync();
+            ViewData["LastVersion"] = await _dbContext.Articles.Where(w => w.ArticleNumber == id).MaxAsync(m => m.VersionNumber);
 
 
             if (sortOrder == "desc")
@@ -543,7 +545,7 @@ namespace Cosmos.Cms.Controllers
                     return View(model);
                 }
 
-                var article = await _articleLogic.Create(model.Title, await GetUserId(), model.TemplateId);
+                var article = await _articleLogic.Create(model.Title, await GetUserEmail(), model.TemplateId);
 
                 return RedirectToAction("Versions", "Editor", new { Id = article.ArticleNumber });
             }
@@ -639,9 +641,9 @@ namespace Cosmos.Cms.Controllers
                 CacheDuration = 0
             };
 
-            var userId = _userManager.GetUserId(User);
+            var user = await _userManager.GetUserAsync(User);
 
-            var result = await _articleLogic.Save(model, userId);
+            var result = await _articleLogic.Save(model, user.Email);
 
             return RedirectToAction("EditCode", "Editor", new { result.Model.Id });
         }
@@ -731,7 +733,7 @@ namespace Cosmos.Cms.Controllers
                     clone.HeadJavaScript = articleViewModel.HeadJavaScript;
                     clone.LanguageCode = articleViewModel.LanguageCode;
 
-                    var result = await _articleLogic.Save(clone, userId);
+                    var result = await _articleLogic.Save(clone, await GetUserEmail());
 
 
                     // Open the live editor if there are editable regions on the page.
@@ -783,7 +785,8 @@ namespace Cosmos.Cms.Controllers
         public async Task<IActionResult> NewHome(NewHomeViewModel model)
         {
             if (model == null) return NotFound();
-            await _articleLogic.NewHomePage(model, _userManager.GetUserId(User));
+            var user = await _userManager.GetUserAsync(User);
+            await _articleLogic.NewHomePage(model, user.Email);
 
             return RedirectToAction("Index");
         }
@@ -1029,11 +1032,11 @@ namespace Cosmos.Cms.Controllers
         /// <summary>
         /// Editor page
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="Id">Article number (int)</param>
         /// <returns></returns>
-        public async Task<IActionResult> CcmsContent(Guid Id)
+        public async Task<IActionResult> CcmsContent(int Id)
         {
-            var article = await _articleLogic.Get(Id, EnumControllerName.Edit, await GetUserId());
+            var article = await _articleLogic.Get(Id, null);
 
             return View(article);
         }
@@ -1312,7 +1315,7 @@ namespace Cosmos.Cms.Controllers
             if (model == null) return NotFound();
 
             // Get the user's ID for logging.
-            var userId = await GetUserId();
+            //var userId = await GetUserEmail();
 
             var article = await _dbContext.Articles.FirstOrDefaultAsync(f => f.Id == model.Id);
 
@@ -1345,7 +1348,7 @@ namespace Cosmos.Cms.Controllers
                         UrlPath = article.UrlPath,
                         VersionNumber = article.VersionNumber,
                         Updated = model.Updated.Value,
-                    }, userId);
+                    }, await GetUserEmail());
 
                     jsonModel.Model = new EditCodePostModel()
                     {

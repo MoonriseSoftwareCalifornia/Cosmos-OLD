@@ -22,7 +22,7 @@
 <script src="/lib/monaco-editor/min/vs/loader.js"></script>
 <script src="/lib/emmet-monaco-es/dist/emmet-monaco.min.js"></script>
 
-<iframe id="ccmsContFrame" src="/Editor/CcmsContent/@Model.Id" style="position: absolute; top: 52px; width: 100%; margin:0px; padding:0px;z-index:1;" onload="setupFrame()" frameBorder="0" scrolling="yes"></iframe>
+<iframe id="ccmsContFrame" src="/Editor/CcmsContent/@Model.ArticleNumber" style="position: absolute; top: 52px; width: 100%; margin:0px; padding:0px;z-index:1;" onload="setupFrame()" frameBorder="0" scrolling="yes"></iframe>
 
 <div class="toast-container position-fixed top-0 end-0 p-3">
     <div id="linksToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
@@ -253,6 +253,7 @@
 
             switch(command) {
                 case "saved":
+                    $("#VersionNumber").val(model.VersionNumber);
                     saveInProgress = false;
                     doneSaving();
                     break;
@@ -268,6 +269,7 @@
                     cosmosSignalUpdateEditor(model);
                     break;
                 case "PropertiesSaved":
+                    $("#VersionNumber").val(model.VersionNumber);
                     savePageProperties(model);
                     saveInProgress = false;
                     doneSaving();
@@ -300,7 +302,7 @@
         signalRConnection.start()
             .then(function () {
                 console.log('connection started');
-                signalRConnection.invoke("JoinArticleGroup", "@Model.Id.ToString()");
+                signalRConnection.invoke("JoinArticleGroup", "@Model.ArticleNumber.ToString()");
             })
             .catch(error => {
                 console.error(error.message);
@@ -388,10 +390,11 @@
         var id = $("#Id").val();
         var published = $("#Published").val();
         var updated = $("#Updated").val();
+        var articleNumber = $("#ArticleNumber").val();
 
-        var model = { Title: $("#Title").val(), ArticleNumber: $("#ArticleNumber").val(), Published: published, Updated: updated, BannerImage: $("#BannerImage").val(), RoleList: "", UrlPath: "", VersionNumber: $("#VersionNumber").val() };
+        var model = { Title: $("#Title").val(), ArticleNumber: articleNumber, Published: published, Updated: updated, BannerImage: $("#BannerImage").val(), RoleList: "", UrlPath: "", VersionNumber: $("#VersionNumber").val() };
 
-        let signal = { ArticleId: $("#Id").val(), EditorId: null, UserId: ccms_editor_userid, Offset: -1, Command: "SavePageProperties", IsFocused: false, Data: model, VersionNumber: $("#VersionNumber").val() };
+        let signal = { ArticleNumber: $("#ArticleNumber").val(), EditorId: null, UserId: ccms_editor_userid, Offset: -1, Command: "SavePageProperties", IsFocused: false, Data: model, VersionNumber: $("#VersionNumber").val() };
         try {
             signalRConnection.invoke("Notification", JSON.stringify(signal));
         } catch (err) {
@@ -734,7 +737,7 @@
             isFocused = true;
         }
 
-        let signal = { ArticleId: $("#Id").val(), EditorId: id, UserId: ccms_editor_userid, Offset: offset, Command: command, IsFocused: isFocused, Data: editor.getData() };
+        let signal = { ArticleNumber: $("#ArticleNumber").val(), EditorId: id, UserId: ccms_editor_userid, Offset: offset, Command: command, IsFocused: isFocused, Data: editor.getData() };
 
         signalRConnection.invoke("Notification", JSON.stringify(signal));
         
@@ -779,8 +782,6 @@
         $("#Published").val(data.Published);
         $("#Updated").val(data.Updated);
         $("#BannerImage").val(data.BannerImage);
-        $("#VersionNumber").val(data.VersionNumber);
-        $("#VersionNumber").val(data.VersionNumber);
     }
 
 </script>
