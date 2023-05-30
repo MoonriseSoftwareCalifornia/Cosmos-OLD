@@ -68,12 +68,23 @@ namespace Cosmos.Cms.Publisher.Controllers
                 Response.Headers.ETag = article.Id.ToString();
                 Response.Headers.LastModified = article.Updated.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
 
+                if (HttpContext.Request.Query["mode"] == "json")
+                {
+                    article.Layout = null;
+                    return Json(article);
+                }
+
                 return View(article);
             }
             catch (Microsoft.Azure.Cosmos.CosmosException e)
             {
                 string? message = e.Message;
                 _logger.LogError(e, message);
+
+                if (HttpContext.Request.Query["mode"] == "json")
+                {
+                    return NotFound();
+                }
                 return View("UnderConstruction");
             }
             catch (Exception e)
@@ -91,6 +102,10 @@ namespace Cosmos.Cms.Publisher.Controllers
                 //    // This can fail because the error can't be emailed
                 //}
 
+                if (HttpContext.Request.Query["mode"] == "json")
+                {
+                    return NotFound();
+                }
                 return View("UnderConstruction");
             }
         }
