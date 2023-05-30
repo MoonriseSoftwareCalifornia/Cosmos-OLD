@@ -89,7 +89,7 @@
             "name": "[variables('frontdoorName')]",
             "location": "Global",
             "sku": {
-                "name": "Standard_AzureFrontDoor"
+                "name": "Premium_AzureFrontDoor"
             },
             "kind": "frontdoor",
             "properties": {
@@ -580,7 +580,7 @@
             "name": "[variables('firewallPolicyName')]",
             "location": "Global",
             "sku": {
-                "name": "Standard_AzureFrontDoor"
+                "name": "Premium_AzureFrontDoor"
             },
             "properties": {
                 "policySettings": {

@@ -203,7 +203,7 @@ namespace Cosmos.Cms.Controllers
                 article.EditModeOn = false;
                 article.ReadWriteMode = true;
 
-                return Json(article);
+                return View(article);
             }
             catch (Exception e)
             {
