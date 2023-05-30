@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
+    "handler": "Microsoft.Azure.CreateUIDef",
+    "version": "0.1.2-preview",
+    "parameters": {
+        "basics": [ ],
+        "steps": [ ],
+        "outputs": { },
+        "resourceTypes": [ 
+            "Microsoft.SignalRService/signalR",
+            "Microsoft.Cdn/profiles",
+            "Microsoft.Network/virtualNetworks",
+            "Microsoft.DocumentDB/databaseAccounts",
+            "Microsoft.Storage/storageAccounts",
+            "Microsoft.Web/serverfarms",
+            "Microsoft.Network/frontdoorwebapplicationfirewallpolicies",
+            "Microsoft.Web/sites",
+            ""
+         ]
+    }
+}

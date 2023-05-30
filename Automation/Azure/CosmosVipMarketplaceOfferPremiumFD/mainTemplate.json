@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "metadata": {
-        "description": "Installs the Cosmos CMS in Microsoft Azure."
+        "description": "Installs the Cosmos VIP Platform in Microsoft Azure."
     },
     "parameters": {
         "storageAccountType": {
@@ -89,7 +89,7 @@
             "name": "[variables('frontdoorName')]",
             "location": "Global",
             "sku": {
-                "name": "Premium_AzureFrontDoor"
+                "name": "Standard_AzureFrontDoor"
             },
             "kind": "frontdoor",
             "properties": {
@@ -363,7 +363,7 @@
                 "tier": "PremiumV2",
                 "size": "P1v2",
                 "family": "Pv2",
-                "capacity": 3
+                "capacity": 2
             },
             "kind": "linux",
             "properties": {
@@ -580,7 +580,7 @@
             "name": "[variables('firewallPolicyName')]",
             "location": "Global",
             "sku": {
-                "name": "Premium_AzureFrontDoor"
+                "name": "Standard_AzureFrontDoor"
             },
             "properties": {
                 "policySettings": {
