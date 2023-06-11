@@ -12,6 +12,11 @@ namespace Cosmos.Cms.Models
     public class HtmlEditorSignal
     {
         /// <summary>
+        /// Article ID
+        /// </summary>
+        public Guid Id { get; set; }
+
+        /// <summary>
         ///     Article title
         /// </summary>
         [MaxLength(80)]

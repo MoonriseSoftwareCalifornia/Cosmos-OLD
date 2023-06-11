@@ -29,6 +29,11 @@ namespace Cosmos.Cms.Models
         public int ArticleNumber { get; set; }
 
         /// <summary>
+        /// Version number
+        /// </summary>
+        public int VersionNumber { get; set; }
+
+        /// <summary>
         /// Article 
         /// </summary>
         [MaxLength(80)]

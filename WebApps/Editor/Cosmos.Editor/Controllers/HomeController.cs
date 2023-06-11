@@ -97,10 +97,22 @@ namespace Cosmos.Cms.Controllers
         /// <summary>
         /// Editor home index method
         /// </summary>
+        /// <param name="target"></param>
+        /// <param name="articleNumber"></param>
+        /// <param name="versionNumber"></param>
         /// <returns></returns>
-        public async Task<IActionResult> CcmsContentIndex(string target)
+        public async Task<IActionResult> CcmsContentIndex(string target, int? articleNumber = null, int? versionNumber = null)
         {
-            var article = await _articleLogic.GetByUrl(target);
+            ArticleViewModel article;
+
+            if (articleNumber == null)
+            {
+                article = await _articleLogic.GetByUrl(target);
+            }
+            else
+            {
+                article = await _articleLogic.Get(articleNumber.Value, versionNumber.Value);
+            }
 
             return View(article);
         }
@@ -215,30 +227,28 @@ namespace Cosmos.Cms.Controllers
         /// <summary>
         ///     Gets an article by its ID (or row key).
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="articleNumber"></param>
+        /// <param name="versionNumber"></param>
         /// <returns></returns>
-        public async Task<IActionResult> Preview(string id)
+        public async Task<IActionResult> Preview(int articleNumber, int versionNumber)
         {
             try
             {
-                if (Guid.TryParse(id, out var pageId))
+                ViewData["EditModeOn"] = false;
+                var article = await _articleLogic.Get(articleNumber, versionNumber);
+
+                // Check base header
+                //article.UrlPath = $"/home/preview/{id}";
+                //_articleLogic.UpdateHeadBaseTag(article);
+
+                // Home/Preview/154
+
+                if (article != null)
                 {
-                    ViewData["EditModeOn"] = false;
-                    var article = await _articleLogic.Get(pageId, EnumControllerName.Home, User.Identity.Name);
+                    article.ReadWriteMode = false;
+                    article.EditModeOn = false;
 
-                    // Check base header
-                    //article.UrlPath = $"/home/preview/{id}";
-                    //_articleLogic.UpdateHeadBaseTag(article);
-
-                    // Home/Preview/154
-
-                    if (article != null)
-                    {
-                        article.ReadWriteMode = false;
-                        article.EditModeOn = false;
-
-                        return View("Preview", article);
-                    }
+                    return View("Preview", article);
                 }
 
                 return NotFound();

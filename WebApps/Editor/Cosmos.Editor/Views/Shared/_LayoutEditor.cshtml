@@ -121,6 +121,7 @@
                         </div>
                     </li>
                     <li class="nav-item"><span title="Cosmos WPS Version" class="nav-link text-mute">@assemblyVersion.ToString()</span></li>
+                    <li class="nav-item"><span id="spanWorkingVersionNo" title="Working version number" class="nav-link text-mute"></span></li>
                     <li class="nav-item" id="msgSaving">
                         &nbsp; <div id="btnSavingStatus" class="btn btn-sm btn-secondary mt-1 ms-3 me-3" style="display:none">
                             <div id="spSaving" class="spinner-border spinner-border-sm text-light" role="status" style="display:none"></div>
@@ -447,7 +448,6 @@
 
         function saveFirst() {
             saveChanges(checkFirstModal);
-            next();
         }
 
         function doNotSave() {
@@ -512,8 +512,6 @@
                 $('#tbPublished').val(picker.startDate.format('MM/DD/YYYY hh:mm A'));
                 $("#Published").val($('#tbPublished').val());
             });
-
-            
 
             $("#swAutoSave").click(function () {
                 if ($("#swAutoSave").is(":checked")) {
@@ -765,6 +763,9 @@
             }
         }
 
+        function setWorkingVersion(versionNumber) {
+            $("#spanWorkingVersionNo").html("Working Version: " + versionNumber);
+        }
     </script>
 
     @await RenderSectionAsync("Scripts", false)

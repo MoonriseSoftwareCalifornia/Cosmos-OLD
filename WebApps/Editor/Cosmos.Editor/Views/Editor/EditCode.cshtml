@@ -34,6 +34,7 @@
 <form id="frmSave" asp-action="EditCode">
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="SaveAsNewVersion" />
+    <input type="hidden" asp-for="VersionNumber" />
     <input type="hidden" asp-for="ArticleNumber" />
     <input type="hidden" asp-for="EditingField" />
     <input type="hidden" asp-for="Content" />
@@ -246,6 +247,9 @@
                     //$("#EditingField").val(response.Model.EditingField); // Don't update
                     $("#UrlPath").val(response.Model.UrlPath);
                     $("#VersionNumber").val(response.Model.VersionNumber);
+
+                    setWorkingVersion(response.Model.VersionNumber);
+
                     $("#Content").val(response.Model.Content);
                     $("#RoleList").val(response.Model.RoleList);
                     $("#Title").val(response.Model.Title);
@@ -265,6 +269,10 @@
                     checkDisplayLiveEditorButton();
 
                     toastMsg("Successfully saved.");
+
+                    if (next) {
+                        next();
+                    }
                 } else {
                     var errorMsg = "Error(s):";
 
@@ -313,7 +321,7 @@
                 checkFirstModal.show();
                 break;
             case "Preview":
-                $("#iframePreview").prop("src", "@Url.Action("Preview", "Home")/" + modelId);
+                $("#iframePreview").prop("src", "@Url.Action("Preview", "Home")?articleNumber=" + @Model.ArticleNumber + "&versionNumber=" + $("#VersionNumber").val());
                 modalPreview.show();
                 modalPreview.handleUpdate();
                 break;
@@ -426,6 +434,8 @@
         if ($("#UrlPath").val() != "root") {
             $("#divUrlTitleExamples").show();
         }
+
+        setWorkingVersion(@Model.VersionNumber);
 
         var fieldId = "@Model.EditingField";
         if (fieldId !== "") {

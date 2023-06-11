@@ -82,7 +82,7 @@
                                 </td>
                                 <td scope="row" style="width:260px">
                                     <div class="btn-group" role="group" aria-label="Version actions">
-                                        <a class='btn btn-sm btn-secondary' target='_blank' title='Preview' href='/Home/Preview/@row.Id'><i class='fas fa-search'></i> Preview</a>
+                                            <a class='btn btn-sm btn-secondary' target='_blank' title='Preview' onclick='openPreview(@articleNumber, @row.VersionNumber)'><i class='fas fa-search'></i> Preview</a>
                                         @if (lastVersion == row.VersionNumber)
                                         {
                                                 @if ((isAuthor && row.Published != null) || (isReviewer))
@@ -157,6 +157,10 @@
 
     function getId(checkbox) {
         return $(checkbox).attr('data-ccms-id');
+    }
+
+    function openPreview(articleNumber, versionNumber) {
+        window.open("/Home/Preview?standalone=true&articleNumber=" + articleNumber + "&versionNumber=" + versionNumber);
     }
 
     function saveId(id) {

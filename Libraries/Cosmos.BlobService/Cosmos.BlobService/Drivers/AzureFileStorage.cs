@@ -159,7 +159,7 @@ namespace Cosmos.BlobService.Drivers
                 await destFile.StartCopyAsync(sourceFile.Uri);
             }
 
-            
+
 
         }
 
@@ -251,16 +251,19 @@ namespace Cosmos.BlobService.Drivers
         /// <inheritdoc/>
         public async Task DeleteIfExistsAsync(string target)
         {
-            // Name of the directory and file we'll create
-            var dirName = Path.GetDirectoryName(target);
-            var fileName = Path.GetFileName(target);
-            if (string.IsNullOrEmpty(fileName))
+            if (target == "/" || string.IsNullOrEmpty(target))
             {
-                return;  // This is a directory, do nothing.
+                return;
             }
+
+            target = target.TrimStart('/');
+
             // Get a reference to a directory and create it
-            var directory = _shareClient.GetDirectoryClient(dirName);
-            var file = directory.GetFileClient(fileName);
+            var directory = _shareClient.GetRootDirectoryClient();
+
+            var file = directory.GetFileClient($"/{target}");
+
+            // Get a reference to a directory and create it
             await file.DeleteIfExistsAsync();
         }
 

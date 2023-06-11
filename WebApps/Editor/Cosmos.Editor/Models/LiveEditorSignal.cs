@@ -8,6 +8,10 @@ namespace Cosmos.Cms.Models
     public class LiveEditorSignal
     {
         /// <summary>
+        /// Article record ID
+        /// </summary>
+        public Guid Id { get; set; }
+        /// <summary>
         /// Id of the Article entity being worked on.
         /// </summary>
         public int ArticleNumber { get; set; }

@@ -1,13 +1,9 @@
-﻿using System;
+﻿using Cosmos.BlobService.Drivers;
+using Cosmos.BlobService.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using Cosmos.BlobService.Config;
-using Cosmos.BlobService.Drivers;
-using Cosmos.BlobService.Models;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 
 namespace Cosmos.BlobService
 {

@@ -31,5 +31,13 @@
 @await RenderSectionAsync("Scripts", false)
 @Html.Raw(PageImportConstants.COSMOS_BODY_END_SCRIPTS_END)
 @await RenderSectionAsync("Scripts", false)
+<script>
+window.addEventListener("load", () => {
+    if (window.location === window.parent.location) {
+        var query = "@Html.Raw(Context.Request.QueryString)";
+        location.href = "/Home/CcmsContentIndex" + query;
+    }
+});
+</script>
 </body>
 </html>

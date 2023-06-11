@@ -22,6 +22,7 @@ using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Cosmos.Cms
 {
@@ -252,7 +253,12 @@ namespace Cosmos.Cms
                 // and the DNS of the App Service is something like myappservice.azurewebsites.net.
                 options.Events.OnRedirectToLogin = x =>
                 {
-                    x.Response.Redirect("/Identity/Account/Login");
+                    var queryString = HttpUtility.UrlEncode(x.Request.QueryString.Value);
+                    if (x.Request.Path.Equals("/Preview", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        x.Response.Redirect($"/Identity/Account/Login?returnUrl=/Home/Preview{queryString}");
+                    }
+                    x.Response.Redirect($"/Identity/Account/Login?returnUrl={x.Request.Path}{queryString}");
                     return Task.CompletedTask;
                 };
                 options.Events.OnRedirectToLogout = x =>

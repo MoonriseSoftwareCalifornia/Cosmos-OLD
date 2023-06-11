@@ -2,6 +2,14 @@
 @{
     Layout = null;
     var article = (ArticleViewModel)ViewData["Article"];
+
+    var frameUrl = "/" + Model.UrlPath;
+
+    if (!string.IsNullOrEmpty(Context.Request.Query["articleNumber"]))
+    {
+        frameUrl = "/Home/Preview" + Context.Request.QueryString;
+    }
+
 }
 <!DOCTYPE HTML>
 <html>
@@ -17,8 +25,7 @@
 </head>
 <body class="cwps-body" style="margin:0px;padding:0px;">
     <partial name="_CosmosMainMenuPartial" model="Model" />
-    <iframe id="iFrameWebPage" src="/@Model.UrlPath" style="position: absolute; top: 52px; width: 100%; margin:0px; padding:0px;z-index:1;"></iframe>
-
+    <iframe id="iFrameWebPage" src="@frameUrl" style="position: absolute; top: 52px; width: 100%; margin:0px; padding:0px;z-index:1;"></iframe>
     <script>
         // The following is used to wireup the menu links to this page.
         function setupIframe() {

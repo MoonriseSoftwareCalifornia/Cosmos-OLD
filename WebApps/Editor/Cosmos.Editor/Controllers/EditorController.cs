@@ -1250,6 +1250,7 @@ namespace Cosmos.Cms.Controllers
             {
                 Id = article.Id,
                 ArticleNumber = article.ArticleNumber,
+                VersionNumber = article.VersionNumber,
                 Title = article.Title,
                 Published = article.Published,
                 RoleList = article.RoleList,
@@ -1352,7 +1353,9 @@ namespace Cosmos.Cms.Controllers
 
                     jsonModel.Model = new EditCodePostModel()
                     {
+                        Id = result.Model.Id,
                         ArticleNumber = result.Model.ArticleNumber,
+                        VersionNumber = result.Model.VersionNumber,
                         BannerImage = result.Model.BannerImage,
                         Content = result.Model.Content,
                         EditingField = model.EditingField,
@@ -1364,7 +1367,6 @@ namespace Cosmos.Cms.Controllers
                         FooterJavaScript = result.Model.FooterJavaScript,
                         HeadJavaScript = result.Model.HeadJavaScript,
                         UrlPath = result.Model.UrlPath,
-                        Id = result.Model.Id,
                         Published = result.Model.Published,
                         RoleList = result.Model.RoleList,
                         Title = result.Model.Title,

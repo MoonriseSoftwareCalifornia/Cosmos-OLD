@@ -140,13 +140,13 @@
                 break;
             case "Code":
                 next = function () {
-                    window.location.href = "@Url.Action("EditCode", "Editor")/" + modelId;
+                    window.location.href = "@Url.Action("EditCode", "Editor")/" + $("#Id").val();
                 }
                 $("#divSaveFirstDialog").html("Save before opening code editor?");
                 checkFirstModal.show();
                 break;
             case "Preview":
-                $("#iframePreview").prop("src", "@Url.Action("Preview", "Home")/" + modelId);
+                $("#iframePreview").prop("src", "@Url.Action("Preview", "Home")?articleNumber=" + @Model.ArticleNumber + "&versionNumber=" + $("#VersionNumber").val());
                 modalPreview.show();
                 modalPreview.handleUpdate();
                 break;
@@ -206,6 +206,8 @@
         $("#liBtnVersions").show();
 
         $("#btnVersions").attr("href", "/Editor/Versions/" + $("#ArticleNumber").val() + "?versionNumber=" + $("#VersionNumber").val());
+        
+        setWorkingVersion($("#VersionNumber").val());
 
         $("#btnApply").click(function (e) {
             var data = editor.getValue();
@@ -253,7 +255,9 @@
 
             switch(command) {
                 case "saved":
+                    $("#Id").val(model.Id);
                     $("#VersionNumber").val(model.VersionNumber);
+                    setWorkingVersion(model.VersionNumber);
                     saveInProgress = false;
                     doneSaving();
                     break;
@@ -269,10 +273,15 @@
                     cosmosSignalUpdateEditor(model);
                     break;
                 case "PropertiesSaved":
+                    $("#Id").val(model.Id);
                     $("#VersionNumber").val(model.VersionNumber);
+                    setWorkingVersion(model.VersionNumber);
                     savePageProperties(model);
                     saveInProgress = false;
                     doneSaving();
+                    if (next) {
+                        next();
+                    }
                     break;
                 case "SavePageProperties":
                     savePageProperties(model);

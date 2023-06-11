@@ -74,11 +74,11 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         /// <returns></returns>
         public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
+            returnUrl = returnUrl ?? Url.Content("~/");
+
             if (!string.IsNullOrEmpty(ErrorMessage)) ModelState.AddModelError(string.Empty, ErrorMessage);
 
-            if (User.Identity.IsAuthenticated) return RedirectToAction(Url.Content("~/Home/CcmsContentIndex?target=root"));
-
-            returnUrl = returnUrl ?? Url.Content("~/");
+            if (User.Identity.IsAuthenticated) return RedirectToAction(returnUrl);
 
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);

@@ -65,6 +65,7 @@ namespace Cosmos.Cms.Hubs
                         try
                         {
                             var saveResult = await SaveEditorContent(model);
+                            model.Id = saveResult.Id;
                             model.Command = "saved"; // Let caller know item is saved.
                             model.Data = JsonConvert.SerializeObject(saveResult);
                             model.VersionNumber = saveResult.VersionNumber;
@@ -87,6 +88,7 @@ namespace Cosmos.Cms.Hubs
                         }
                         else
                         {
+                            model.Id = result.Id;
                             model.VersionNumber = result.VersionNumber;
                             model.Data = JsonConvert.SerializeObject(result);
                             // Alert others
@@ -156,6 +158,7 @@ namespace Cosmos.Cms.Hubs
 
                 return new HtmlEditorSignal()
                 {
+                    Id = result.Model.Id,
                     BannerImage = result.Model.BannerImage,
                     RoleList = result.Model.RoleList,
                     Published = result.Model.Published,
@@ -215,6 +218,7 @@ namespace Cosmos.Cms.Hubs
 
             return new HtmlEditorSignal()
             {
+                Id = result.Model.Id,
                 BannerImage = result.Model.BannerImage,
                 RoleList = result.Model.RoleList,
                 Published = result.Model.Published,
@@ -236,20 +240,5 @@ namespace Cosmos.Cms.Hubs
             await Clients.OthersInGroup(editorId).SendCoreAsync("updateEditors", new[] { data });
         }
 
-        private string BaseValidateHtml(string inputHtml)
-        {
-            if (!string.IsNullOrEmpty(inputHtml))
-            {
-                var contentHtmlDocument = new HtmlDocument();
-                contentHtmlDocument.LoadHtml(HttpUtility.HtmlDecode(inputHtml));
-                //if (contentHtmlDocument.ParseErrors.Any())
-                //    foreach (var error in contentHtmlDocument.ParseErrors)
-                //        modelState.AddModelError(fieldName, error.Reason);
-
-                return contentHtmlDocument.ParsedText.Trim();
-            }
-
-            return string.Empty;
-        }
     }
 }

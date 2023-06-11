@@ -84,6 +84,10 @@
                     </ul>
                 </li>
                 <li class="nav-item"><span title="Cosmos WPS Version" class="nav-link text-mute">@assemblyVersion.ToString()</span></li>
+                @if (Context.Request.Path.Equals("/home/preview", StringComparison.InvariantCultureIgnoreCase))
+                {
+                <li class="nav-item"><a class="btn btn-sm btn-primary mt-2" title="Close preview" href="javascript:closePreview()">Close Preview</a></li>
+                }
             </ul>
             
             <div class="d-flex">
@@ -93,6 +97,14 @@
     </div>
 </nav>
 <script>
+
+    function closePreview() {
+        if (window.opener) {
+            window.close();
+        } else {
+            location.href = "/Editor/Versions/@Context.Request.Query["ArticleNumber"]";
+        }
+    }
 
     function loadDdEditMenu() {
         const ddMenu = $("#ddEditMenu");
