@@ -113,7 +113,7 @@
 
     $("#frmSave").submit(function (e) {
         e.preventDefault();
-        saveChanges(null, null, false);
+        saveChanges();
     });
 
     // Example: var editFields = '[{"FieldId":"HeaderJavaScript","FieldName":"Header JavaScript","EditorMode":0},{"FieldId":"Content","FieldName":"Html Content","EditorMode":1},{"FieldId":"FooterJavaScript","FieldName":"Footer JavaScript","EditorMode":0}]';
@@ -205,7 +205,7 @@
     }
 
     // Save the changes for this editor
-    function saveChanges(myModal, next, updateExisting) {
+    function saveChanges() {
 
         if (saveInProgress === true) {
             return; // A save is already in progress
@@ -215,9 +215,6 @@
 
         saving();
 
-        if (typeof (myModel) !== "undefined" && myModel !== null) {
-            myModal.hide();
-        }
         // Saving publish date with time zone information
         savePublishDateTime();
 
@@ -226,8 +223,6 @@
         if (editor) {
             $("#" + fieldId).val(editor.getValue());
         }
-
-        $("#UpdateExisting").val(new Boolean(updateExisting));
 
         const data = form.serialize();
         $.post("@Url.Action("EditCode")",
@@ -238,10 +233,7 @@
                 doneSaving();
 
                 if (response.IsValid) {
-                    if (typeof (next) !== "undefined" && next !== null) {
-                        next();
-                    }
-
+                   
                     $("#Id").val(response.Model.Id);
                     $("#ArticleNumber").val(response.Model.ArticleNumber);
                     //$("#EditingField").val(response.Model.EditingField); // Don't update
@@ -267,8 +259,6 @@
                     window.history.pushState(stateObj, response.Model.Title, "/Editor/EditCode/" + response.Model.Id);
 
                     checkDisplayLiveEditorButton();
-
-                    toastMsg("Successfully saved.");
 
                     if (next) {
                         next();
@@ -327,7 +317,7 @@
                 break;
             case "Html":
                 next = function () {
-                    window.location.href = "@Url.Action("Edit", "Editor")/" + modelId;
+                    window.location.href = "@Url.Action("Edit", "Editor")/" + $("#Id").val();
                 }
                 $("#divSaveFirstDialog").html("Save page before opening Live editor?");
                 checkFirstModal.show();
@@ -504,7 +494,7 @@
             switch (String.fromCharCode(event.which).toLowerCase()) {
                 case 's':
                     event.preventDefault();
-                    saveChanges(null, null, true);
+                    saveChanges();
                     break;
             }
         }
@@ -521,7 +511,7 @@
         // Make a new timeout set to go off in 1000ms (1 second)
         timeout = setTimeout(function () {
             if (getAutoSave()) {
-                saveChanges(null, null, true);
+                saveChanges();
             }
         }, 1200);
     });

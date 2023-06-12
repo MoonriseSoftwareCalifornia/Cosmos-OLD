@@ -447,7 +447,7 @@
         }
 
         function saveFirst() {
-            saveChanges(checkFirstModal);
+            saveChanges();
         }
 
         function doNotSave() {
@@ -561,7 +561,7 @@
                 $("#divTitle").html(title);
                 $("#Title").val(title);
                 modalChangeTitle.hide();
-                saveChanges(null, null, false);
+                saveChanges();
                 autoSaveOn = true;
             });
 
@@ -691,7 +691,7 @@
                     $("#BannerImage").val(imgRoot + "/" + p[0]);
                 }
 
-                saveChanges(null, null, true);
+                saveChanges();
                 checkBannerImage();
                 return true;
             });
@@ -702,13 +702,12 @@
 
             $("#btnClearBannerImage").click(function () {
                 $("#BannerImage").val("");
-                saveChanges(null, null, false);
+                saveChanges();
                 checkBannerImage();
             });
 
             checkBannerImage();
         });
-
 
         function closeDropDowns() {
             $("#btnSave").removeClass("show");
@@ -716,7 +715,6 @@
             $("#btnInsert").removeClass("show");
             $("#ddInsert").removeClass("show");
         }
-
 
         // Displays a 3 second message in a bootstrap toast.
         function toastMsg(message) {

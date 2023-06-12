@@ -6,9 +6,9 @@
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Company>Moonrise Software LLC</Company>
-		<Version>7.4.11.11</Version>
-		<AssemblyVersion>7.4.11.11</AssemblyVersion>
-		<FileVersion>7.4.11.11</FileVersion>
+		<Version>7.4.11.12</Version>
+		<AssemblyVersion>7.4.11.12</AssemblyVersion>
+		<FileVersion>7.4.11.12</FileVersion>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageIcon>nuget-icon.png</PackageIcon>
