@@ -152,8 +152,7 @@ namespace Cosmos.Cms.Hubs
 
             try
             {
-                var json = JsonConvert.SerializeObject(model.Data);
-                var properties = JsonConvert.DeserializeObject<HtmlEditorSignal>(json);
+                var properties = JsonConvert.DeserializeObject<HtmlEditorSignal>(model.Data);
 
                 // Make sure we are setting to the orignal updated date/time
                 // This is validated to make sure that someone else hasn't already edited this

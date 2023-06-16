@@ -712,6 +712,17 @@
         var updated = $("#Updated").val();
         var articleNumber = $("#ArticleNumber").val();
 
+        var data = {
+            Id: $("#Id").val(),
+            Title: $("#Title").val(),
+            Published: published,
+            Updated: updated,
+            BannerImage: $("#BannerImage").val(),
+            RoleList: $("#RoleList").val(),
+            UrlPath: "",
+            VersionNumber: $("#VersionNumber").val()
+        };
+
         let model = {
             Id: $("#Id").val(),
             ArticleNumber: $("#ArticleNumber").val(),
@@ -721,7 +732,7 @@
             Command: "SavePageProperties",
             IsFocused: false,
             VersionNumber: $("#VersionNumber").val(),
-            Data: model
+            Data: JSON.stringify(data)
         };
 
         try {
