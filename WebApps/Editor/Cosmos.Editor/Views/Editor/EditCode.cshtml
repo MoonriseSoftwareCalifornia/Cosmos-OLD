@@ -161,47 +161,48 @@
 
         //require.config({ paths: { vs: '/lib/node_modules/monaco-editor/dist' } }); // Emmet Abbr.
 
-        require(['vs/editor/editor.main'],
-            function () {
-                fieldName = id;
+        require(['vs/editor/editor.main'], function () {
+            fieldName = id;
 
-                var fieldInfo = editFields.find(o => o.FieldName === id);
-                fieldId = fieldInfo.FieldId;
+            var fieldInfo = editFields.find(o => o.FieldName === id);
+            fieldId = fieldInfo.FieldId;
 
-                var mode = null;
+            var mode = null;
 
-                switch (fieldInfo.EditorMode) {
-                    case 0:
-                        mode = "javascript"
-                        break;
-                    case 1:
-                        mode = "html"
-                        break;
-                    case 2:
-                        mode = "css";
-                        break;
-                    default:
-                        mode = "html"
-                        break;
-                }
+            switch (fieldInfo.EditorMode) {
+                case 0:
+                    mode = "javascript"
+                    break;
+                case 1:
+                    mode = "html"
+                    break;
+                case 2:
+                    mode = "css";
+                    break;
+                default:
+                    mode = "html"
+                    break;
+            }
 
-                $("#EditingField").val(fieldId);
-                var hiddenInput = $("#" + fieldId);
-                var code = hiddenInput.val();
-                emmetMonaco.emmetHTML(monaco);
-                editor = monaco.editor.create(document.getElementById('editspace'),
-                    {
-                        language: mode,
-                        theme: "vs-dark",
-                        value: code
-                    });
+            $("#EditingField").val(fieldId);
+            var hiddenInput = $("#" + fieldId);
+            var code = hiddenInput.val();
 
-                $("#msgBox").html("");
+            emmetMonaco.emmetHTML(monaco);
 
-                // Close loading spiner and display saved status
-                $("#spinLoading").hide();
-                $("#btnSavingStatus").show();
-            });
+            editor = monaco.editor.create(document.getElementById('editspace'),
+                {
+                    language: mode,
+                    theme: "vs-dark",
+                    value: code
+                });
+
+            $("#msgBox").html("");
+
+            // Close loading spiner and display saved status
+            $("#spinLoading").hide();
+            $("#btnSavingStatus").show();
+        });
     }
 
     // Save the changes for this editor
@@ -219,7 +220,7 @@
         savePublishDateTime();
 
         let form = $('#frmSave');
-        
+
         if (editor) {
             $("#" + fieldId).val(editor.getValue());
         }
@@ -233,7 +234,7 @@
                 doneSaving();
 
                 if (response.IsValid) {
-                   
+
                     $("#Id").val(response.Model.Id);
                     $("#ArticleNumber").val(response.Model.ArticleNumber);
                     //$("#EditingField").val(response.Model.EditingField); // Don't update
@@ -299,7 +300,7 @@
     }
 
     function bgEditClickCustom(command) {
-        
+
         var modelId = $("#Id").val();
 
         switch (command) {
