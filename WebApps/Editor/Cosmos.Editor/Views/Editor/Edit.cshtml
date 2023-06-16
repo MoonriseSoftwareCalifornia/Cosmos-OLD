@@ -307,6 +307,8 @@
             const iframe = document.getElementById("ccmsContFrame");
         });
 
+        signalRConnection.logging = true;
+
         // Transport fall-back functionality is now built into start.
         signalRConnection.start()
             .then(function () {
@@ -379,37 +381,6 @@
         });
 
         return editor;
-    }
-
-    // Saves changes to page title, publishing, not content.
-    function saveChanges(myModal, next) {
-
-        // Signal to the user that saving has started.
-        saving();
-        saveInProgress = true;
-
-        if (typeof (myModel) !== "undefined" && myModel !== null) {
-            myModal.hide();
-        }
-
-        // Get the latest date
-        savePublishDateTime();
-
-        // Build the post payload
-        var id = $("#Id").val();
-        var published = $("#Published").val();
-        var updated = $("#Updated").val();
-        var articleNumber = $("#ArticleNumber").val();
-
-        var model = { Title: $("#Title").val(), ArticleNumber: articleNumber, Published: published, Updated: updated, BannerImage: $("#BannerImage").val(), RoleList: "", UrlPath: "", VersionNumber: $("#VersionNumber").val() };
-
-        let signal = { ArticleNumber: $("#ArticleNumber").val(), EditorId: null, UserId: ccms_editor_userid, Offset: -1, Command: "SavePageProperties", IsFocused: false, Data: model, VersionNumber: $("#VersionNumber").val() };
-        try {
-            signalRConnection.invoke("Notification", JSON.stringify(signal));
-        } catch (err) {
-            console.error(err);
-        }
-        
     }
 
     function handle_error(xhr, status, error) {
@@ -721,6 +692,46 @@
         });
     }
 
+    // Saves changes to page title, publishing, not content.
+    function saveChanges(myModal, next) {
+
+        // Signal to the user that saving has started.
+        saving();
+        saveInProgress = true;
+
+        if (typeof (myModel) !== "undefined" && myModel !== null) {
+            myModal.hide();
+        }
+
+        // Get the latest date
+        savePublishDateTime();
+
+        // Build the post payload
+        var id = $("#Id").val();
+        var published = $("#Published").val();
+        var updated = $("#Updated").val();
+        var articleNumber = $("#ArticleNumber").val();
+
+        let model = {
+            Id: $("#Id").val(),
+            ArticleNumber: $("#ArticleNumber").val(),
+            EditorId: null,
+            UserId: ccms_editor_userid,
+            Offset: -1,
+            Command: "SavePageProperties",
+            IsFocused: false,
+            VersionNumber: $("#VersionNumber").val(),
+            Data: model
+        };
+
+        try {
+            signalRConnection.invoke("Notification", JSON.stringify(model));
+        } catch (err) {
+            console.error(err);
+        }
+
+    }
+
     function cosmosSignalOthers(editor, command) {
         
         const sourceElement = editor.sourceElement;
@@ -736,7 +747,6 @@
             saveInProgress = true;
         }
 
-
         let offset = -1;
         let isFocused = false;
 
@@ -746,13 +756,59 @@
             isFocused = true;
         }
 
-        let signal = { ArticleNumber: $("#ArticleNumber").val(), EditorId: id, UserId: ccms_editor_userid, Offset: offset, Command: command, IsFocused: isFocused, Data: editor.getData() };
-
-        signalRConnection.invoke("Notification", JSON.stringify(signal));
-        
         if (command === "save") {
+
+            var html = editor.getData();
+
+            let model = {
+                Id: $("#Id").val(),
+                ArticleNumber: $("#ArticleNumber").val(),
+                EditorId: id,
+                UserId: ccms_editor_userid,
+                Offset: offset,
+                Command: command,
+                IsFocused: isFocused,
+                VersionNumber: $("#VersionNumber").val(),
+                Data: html
+            };
+
             saving();
             saveInProgress = true;
+
+            $.post("@Url.Action("SaveLiveEditorData")", model)
+                .done(function (data) {
+
+                    $("#UrlPath").val(data.UrlPath);
+                    $("#RoleList").val(data.RoleList);
+                    $("#Title").val(data.Title);
+                    $("#Published").val(data.Published);
+                    $("#Updated").val(data.Updated);
+                    $("#BannerImage").val(data.BannerImage);
+
+                    // Now, we don't need the data anymore
+                    model.Data = "";
+
+                    signalRConnection.invoke("Notification", JSON.stringify(model));
+                })
+                .fail(function () {
+                    alert("error");
+                });
+        }
+        else {
+            let model = {
+                Id: $("#Id").val(),
+                ArticleNumber: $("#ArticleNumber").val(),
+                EditorId: id,
+                UserId: ccms_editor_userid,
+                Offset: offset,
+                Command: command,
+                IsFocused: isFocused,
+                VersionNumber: $("#VersionNumber").val(),
+                Data: editor.getData()
+            };
+        }
+        
+        if (command === "save") {
         }
     }
 

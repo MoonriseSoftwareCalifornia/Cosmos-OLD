@@ -53,7 +53,6 @@ namespace Cosmos.Cms.Hubs
         {
             try
             {
-
                 var model = JsonConvert.DeserializeObject<LiveEditorSignal>(data);
 
                 switch (model.Command)
@@ -64,8 +63,21 @@ namespace Cosmos.Cms.Hubs
                     case "save":
                         try
                         {
-                            var saveResult = await SaveEditorContent(model);
-                            model.Id = saveResult.Id;
+                            // Next send the new article backed to others.
+                            var article = await _articleLogic.Get(model.ArticleNumber, null);
+
+                            var saveResult = new HtmlEditorSignal()
+                            {
+                                Id = article.Id,
+                                BannerImage = article.BannerImage,
+                                RoleList = article.RoleList,
+                                Published = article.Published,
+                                Updated = article.Updated,
+                                Title = article.Title,
+                                UrlPath = article.UrlPath,
+                                VersionNumber = article.VersionNumber
+                            };
+                            model.Id = article.Id;
                             model.Command = "saved"; // Let caller know item is saved.
                             model.Data = JsonConvert.SerializeObject(saveResult);
                             model.VersionNumber = saveResult.VersionNumber;
@@ -174,59 +186,6 @@ namespace Cosmos.Cms.Hubs
                 _logger.LogError($"SIGNALR: SavePageProperties failed for article #: {model.ArticleNumber} with the following error: " + e.Message, e);
                 return null;
             }
-        }
-
-        private async Task<HtmlEditorSignal> SaveEditorContent(LiveEditorSignal model)
-        {
-            if (model == null)
-            {
-                _logger.LogError("SIGNALR: SaveEditorContent method, model was null.");
-                return null;
-            }
-
-            // Next pull the original. This is a view model, not tracked by DbContext.
-            var article = await _articleLogic.Get(model.ArticleNumber, null);
-            if (article == null)
-            {
-                _logger.LogError($"SIGNALR: SaveEditorContent method, could not find artile with #: {model.ArticleNumber}.");
-                return null;
-            }
-
-            // Get the editable regions from the original document.
-            var originalHtmlDoc = new HtmlDocument();
-            originalHtmlDoc.LoadHtml(article.Content);
-            var originalEditableDivs = originalHtmlDoc.DocumentNode.SelectNodes("//*[@data-ccms-ceid]");
-
-            // Find the region we are updating
-            var target = originalEditableDivs.FirstOrDefault(w => w.Attributes["data-ccms-ceid"].Value == model.EditorId);
-            if (target != null)
-            {
-                // Update the region now
-                target.InnerHtml = model.Data as string;
-            }
-
-            // Now carry over what's being updated to the original.
-            article.Content = originalHtmlDoc.DocumentNode.OuterHtml;
-
-            // Make sure we are setting to the orignal updated date/time
-            // This is validated to make sure that someone else hasn't already edited this
-            // entity
-            article.Updated = DateTimeOffset.UtcNow;
-
-            // Save changes back to the database
-            var result = await _articleLogic.Save(article, model.UserId);
-
-            return new HtmlEditorSignal()
-            {
-                Id = result.Model.Id,
-                BannerImage = result.Model.BannerImage,
-                RoleList = result.Model.RoleList,
-                Published = result.Model.Published,
-                Updated = result.Model.Updated,
-                Title = result.Model.Title,
-                UrlPath = result.Model.UrlPath,
-                VersionNumber = result.Model.VersionNumber
-            };
         }
 
         /// <summary>

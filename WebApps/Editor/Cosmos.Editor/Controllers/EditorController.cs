@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -294,6 +295,64 @@ namespace Cosmos.Cms.Controllers
             return View(await query.Skip(pageNo * pageSize).Take(pageSize).ToListAsync());
         }
 
+        /// <summary>
+        /// Saves live editor data
+        /// </summary>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        /// <exception cref="Exception"></exception>
+        [HttpPost]
+        public async Task<IActionResult> SaveLiveEditorData(LiveEditorSignal model)
+        {
+            var t = model;
+            if (model == null)
+            {
+                throw new Exception("SaveEditorContent method, model was null.");
+            }
+
+            // Next pull the original. This is a view model, not tracked by DbContext.
+            var article = await _articleLogic.Get(model.ArticleNumber, null);
+            if (article == null)
+            {
+                throw new Exception($"SIGNALR: SaveEditorContent method, could not find artile with #: {model.ArticleNumber}.");
+            }
+
+            // Get the editable regions from the original document.
+            var originalHtmlDoc = new HtmlDocument();
+            originalHtmlDoc.LoadHtml(article.Content);
+            var originalEditableDivs = originalHtmlDoc.DocumentNode.SelectNodes("//*[@data-ccms-ceid]");
+
+            // Find the region we are updating
+            var target = originalEditableDivs.FirstOrDefault(w => w.Attributes["data-ccms-ceid"].Value == model.EditorId);
+            if (target != null)
+            {
+                // Update the region now
+                target.InnerHtml = model.Data as string;
+            }
+
+            // Now carry over what's being updated to the original.
+            article.Content = originalHtmlDoc.DocumentNode.OuterHtml;
+
+            // Make sure we are setting to the orignal updated date/time
+            // This is validated to make sure that someone else hasn't already edited this
+            // entity
+            article.Updated = DateTimeOffset.UtcNow;
+
+            // Save changes back to the database
+            var result = await _articleLogic.Save(article, model.UserId);
+
+            return Json(new HtmlEditorSignal()
+            {
+                Id = result.Model.Id,
+                BannerImage = result.Model.BannerImage,
+                RoleList = result.Model.RoleList,
+                Published = result.Model.Published,
+                Updated = result.Model.Updated,
+                Title = result.Model.Title,
+                UrlPath = result.Model.UrlPath,
+                VersionNumber = result.Model.VersionNumber
+            });
+        }
         /// <summary>
         /// Open trash
         /// </summary>
@@ -1125,105 +1184,6 @@ namespace Cosmos.Cms.Controllers
                 throw;
             }
         }
-
-        /// <summary>
-        /// Updates editable regions
-        /// </summary>
-        /// <param name="model"></param>
-        /// <remarks>FromBody is used because the jQuery call puts the JSON in the body, not the "Form" as this is a JSON content type.</remarks>
-        /// <returns></returns>
-        //[HttpPost]
-        //[Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
-        //public async Task<IActionResult> PostRegions([FromBody] HtmlEditorPost model)
-        //{
-        //    var saveError = new StringBuilder();
-
-        //    try
-        //    {
-        //        // Next pull the original. This is a view model, not tracked by DbContext.
-        //        var article = await _articleLogic.Get(model.Id, EnumControllerName.Edit, await GetUserId());
-
-        //        if (article == null)
-        //        {
-        //            return NotFound();
-        //        }
-
-        //        // The Live editor edits the title and Content fields.
-        //        // Next two lines detect any HTML errors with each.
-        //        // Errors are saved in ModelState.
-        //        model.Title = BaseValidateHtml("Title", model.Title);
-
-        //        if (ModelState.IsValid)
-        //        {
-        //            // Get the editable regions from the original document.
-        //            var originalHtmlDoc = new HtmlDocument();
-        //            originalHtmlDoc.LoadHtml(article.Content);
-        //            var originalEditableDivs = originalHtmlDoc.DocumentNode.SelectNodes("//*[@data-ccms-ceid]");
-
-        //            foreach (var region in model.Regions)
-        //            {
-        //                var target = originalEditableDivs.FirstOrDefault(w => w.Attributes["data-ccms-ceid"].Value == region.Id);
-        //                if (target != null)
-        //                {
-        //                    target.InnerHtml = region.Html;
-        //                }
-        //            }
-
-        //            // Now carry over what's being updated to the original.
-        //            article.Content = originalHtmlDoc.DocumentNode.OuterHtml;
-        //            article.Title = model.Title;
-        //            article.Published = model.Published;
-        //            article.BannerImage = model.BannerImage;
-
-        //            // Make sure we are setting to the orignal updated date/time
-        //            // This is validated to make sure that someone else hasn't already edited this
-        //            // entity
-        //            article.Updated = model.Updated.Value;
-
-        //            var result = await _articleLogic.Save(article, await GetUserId());
-
-        //            var data = new HtmlEditorPost()
-        //            {
-        //                Title = result.Model.Title,
-        //                Published = result.Model.Published,
-        //                Updated = result.Model.Updated,
-        //                ArticleNumber = result.Model.ArticleNumber,
-        //                Content = result.Model.Content,
-        //                Id = result.Model.Id,
-        //                Regions = model.Regions,
-        //                RoleList = result.Model.RoleList,
-        //                UpdateExisting = model.UpdateExisting,
-        //                UrlPath = result.Model.UrlPath,
-        //                VersionNumber = result.Model.VersionNumber,
-        //                BannerImage = result.Model.BannerImage
-        //            };
-
-        //            return Json(data);
-        //        }
-
-        //        saveError.AppendLine("Error(s):");
-        //        saveError.AppendLine("<ul>");
-
-        //        var errors = ModelState.Values.Where(w => w.ValidationState == ModelValidationState.Invalid).ToList();
-
-        //        foreach (var error in errors)
-        //        {
-        //            foreach (var e in error.Errors)
-        //            {
-        //                saveError.AppendLine("<li>" + e.ErrorMessage + "</li>");
-        //            }
-        //        }
-
-        //        saveError.AppendLine("</ul>");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _logger.LogError(e.Message, e);
-        //        saveError.AppendLine("<ul><li>An error occurred while saving.</li></ul>");
-        //    }
-
-        //    return StatusCode(StatusCodes.Status500InternalServerError, saveError.ToString());
-        //}
 
         /// <summary>
         /// Edit web page code with Monaco editor.

@@ -168,15 +168,20 @@ namespace Cosmos.Cms
             //
             // Add services
             //
+            var azureCommunicationConnection = Configuration.GetConnectionString("AzureCommunicationConnection");
+            services.AddAzureCommunicationEmailSenderProvider(new AzureCommunicationEmailProviderOptions()
+            {
+                 ConnectionString = azureCommunicationConnection
+            });
 
             //
             // Must have an Email sender when using Identity Framework.
             // You will need an IEmailProvider. Below uses a SendGrid EmailProvider. You can use another.
             // Below users NuGet package: AspNetCore.Identity.Services.SendGrid
-            var sendGridApiKey = Configuration.GetValue<string>("CosmosSendGridApiKey");
-            var adminEmail = Configuration.GetValue<string>("CosmosAdminEmail");
-            var sendGridOptions = new SendGridEmailProviderOptions(sendGridApiKey, adminEmail);
-            services.AddSendGridEmailProvider(sendGridOptions);
+            //var sendGridApiKey = Configuration.GetValue<string>("CosmosSendGridApiKey");
+            //var adminEmail = Configuration.GetValue<string>("CosmosAdminEmail");
+            //var sendGridOptions = new SendGridEmailProviderOptions(sendGridApiKey, adminEmail);
+            //services.AddSendGridEmailProvider(sendGridOptions);
 
             // End add SendGrid
 

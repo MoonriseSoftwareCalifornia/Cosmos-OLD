@@ -3,22 +3,13 @@
   "defaultProvider": "cdnjs",
   "libraries": [
     {
-      "library": "monaco-editor@0.37.1",
+      "library": "monaco-editor@0.39.0",
       "destination": "wwwroot/lib/monaco-editor/"
     },
     {
       "provider": "unpkg",
-      "library": "emmet-monaco-es@5.2.2",
-      "destination": "wwwroot/lib/emmet-monaco-es"
-    },
-    {
-      "provider": "unpkg",
-      "library": "microsoft/signalr@6.0.9",
+      "library": "@microsoft/signalr@7.0.7",
       "destination": "wwwroot/lib/signalr/"
-    },
-    {
-      "library": "signalr.js@2.4.3",
-      "destination": "wwwroot/lib/signalr.js/"
     },
     {
       "library": "jquery-validate@1.19.5",
@@ -29,7 +20,7 @@
       "destination": "wwwroot/lib/jquery-validation-unobtrusive"
     },
     {
-      "library": "jquery@3.6.3",
+      "library": "jquery@3.7.0",
       "destination": "wwwroot/lib/jquery/"
     },
     {
