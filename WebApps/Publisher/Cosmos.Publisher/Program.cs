@@ -1,13 +1,12 @@
 using AspNetCore.Identity.CosmosDb.Extensions;
 using AspNetCore.Identity.Services.SendGrid;
 using AspNetCore.Identity.Services.SendGrid.Extensions;
+using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Common.Data;
 using Cosmos.Common.Data.Logic;
-using Cosmos.Cms.Common.Services.Configurations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Serialization;
-using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

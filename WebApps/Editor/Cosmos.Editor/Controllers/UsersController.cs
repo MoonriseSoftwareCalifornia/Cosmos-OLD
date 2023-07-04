@@ -29,7 +29,7 @@ namespace Cosmos.Cms.Controllers
         private readonly ILogger<UsersController> _logger;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly SendGridEmailSender _emailSender;
+        private readonly AzureCommunicationEmailSender _emailSender;
         private readonly ApplicationDbContext _dbContext;
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace Cosmos.Cms.Controllers
             _logger = logger;
             _userManager = userManager;
             _roleManager = roleManager;
-            _emailSender = (SendGridEmailSender)emailSender;
+            _emailSender = (AzureCommunicationEmailSender)emailSender;
             _dbContext = dbContext;
         }
 
@@ -292,7 +292,7 @@ namespace Cosmos.Cms.Controllers
                     }
                     else
                     {
-                        return View("UserCreated", new UserCreatedViewModel(result.UserCreateViewModel, _emailSender.Response));
+                        return View("UserCreated", new UserCreatedViewModel(result.UserCreateViewModel, _emailSender.SendResult));
                     }
                 }
 
@@ -381,12 +381,12 @@ namespace Cosmos.Cms.Controllers
                         "Create Password",
                         $"A new user account was created for you by {identityUser.Email}. Now we need you to create a password for your account by  <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    result.SendGridResponse = _emailSender.Response;
+                    result.SendResult = _emailSender.SendResult;
                     result.UserCreateViewModel = model;
 
-                    if (!result.SendGridResponse.IsSuccessStatusCode)
+                    if (!result.SendResult.IsSuccessStatusCode)
                     {
-                        ModelState.AddModelError("", $"Could not send reset password email to: '{model.EmailAddress}'. Error: {result.SendGridResponse.Headers}");
+                        ModelState.AddModelError("", $"Could not send reset password email to: '{model.EmailAddress}'. Error: {result.SendResult.Message}");
                     }
                 }
                 else
@@ -403,12 +403,12 @@ namespace Cosmos.Cms.Controllers
                     await _emailSender.SendEmailAsync(user.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                    result.SendGridResponse = _emailSender.Response;
+                    result.SendResult = _emailSender.SendResult;
                     result.UserCreateViewModel = model;
 
-                    if (!result.SendGridResponse.IsSuccessStatusCode)
+                    if (!result.SendResult.IsSuccessStatusCode)
                     {
-                        ModelState.AddModelError("", $"Could not send email to: '{model.EmailAddress}'. Error: {result.SendGridResponse.Headers}");
+                        ModelState.AddModelError("", $"Could not send email to: '{model.EmailAddress}'. Error: {result.SendResult.Message}");
                     }
                 }
 
@@ -624,15 +624,15 @@ namespace Cosmos.Cms.Controllers
                     "Confirm your email",
                     $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                if (_emailSender.Response != null)
+                if (_emailSender.SendResult != null)
                 {
-                    if (_emailSender.Response.IsSuccessStatusCode)
+                    if (_emailSender.SendResult.IsSuccessStatusCode)
                     {
                         result.Success = true;
                     }
                     else
                     {
-                        result.Error = _emailSender.Response.Headers.ToString();
+                        result.Error = _emailSender.SendResult.Message.ToString();
                     }
                 }
 

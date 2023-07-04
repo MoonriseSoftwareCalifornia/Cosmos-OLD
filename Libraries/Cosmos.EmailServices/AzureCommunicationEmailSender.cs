@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net;
+using System.Net.Mail;
 
 namespace Cosmos.EmailServices
 {
@@ -9,6 +11,11 @@ namespace Cosmos.EmailServices
     {
         private readonly IOptions<AzureCommunicationEmailProviderOptions> _options;
         private readonly ILogger<AzureCommunicationEmailSender> _logger;
+
+        /// <summary>
+        /// Result of the last email send
+        /// </summary>
+        public SendResult? SendResult { get; private set; }
 
         /// <summary>
         /// Constructor
@@ -26,22 +33,31 @@ namespace Cosmos.EmailServices
 
             try
             {
+
                 var result = await emailClient.SendAsync(Azure.WaitUntil.Completed, _options.Value.DefaultFromEmailAddress, email, subject, htmlMessage);
+
+                var response = result.GetRawResponse();
+
+                SendResult = new SendResult();
+                SendResult.StatusCode = (HttpStatusCode) response.Status;
+                
 
                 if (result.Value.Status == EmailSendStatus.Succeeded)
                 {
-                    _logger.LogInformation($"Email successfully sent to: {email}; Subject: {subject};");
+                    SendResult.Message = $"Email successfully sent to: {email}; Subject: {subject};";
+
                 }
                 else if (result.Value.Status == EmailSendStatus.Failed)
                 {
-                    var response = result.GetRawResponse();
-                    _logger.LogError($"Email FAILED attempting to send to: {email}, with subject: {subject}, with error: {response.ReasonPhrase}");
+                    SendResult.Message = $"Email FAILED attempting to send to: {email}, with subject: {subject}, with error: {response.ReasonPhrase}";
                 }
                 else if (result.Value.Status == EmailSendStatus.Canceled)
                 {
-                    var response = result.GetRawResponse();
-                    _logger.LogInformation($"Email was CANCELED to: {email}, with subject: {subject}, with reason: {response.ReasonPhrase}");
+                    SendResult.Message = $"Email was CANCELED to: {email}, with subject: {subject}, with reason: {response.ReasonPhrase}";
                 }
+
+                _logger.LogInformation(SendResult.Message);
+
             }
             catch (Exception e)
             {

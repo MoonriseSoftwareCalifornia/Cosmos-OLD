@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Cosmos.EmailServices
 {
@@ -39,17 +40,10 @@ namespace Cosmos.EmailServices
         /// <param name="options"></param>
         public static void AddAzureCommunicationEmailSenderProvider(this IServiceCollection services, AzureCommunicationEmailProviderOptions options)
         {
+            services.AddSingleton(Options.Create(options));
+
             services.AddTransient<IEmailSender, AzureCommunicationEmailSender>();
 
-            services.Configure<AzureCommunicationEmailProviderOptions>(
-                configureOptions: options =>
-                {
-                    options.ConnectionString = options.ConnectionString;
-                    if (!string.IsNullOrEmpty(options.DefaultFromEmailAddress))
-                    {
-                        options.DefaultFromEmailAddress = options.DefaultFromEmailAddress;
-                    }
-                });
         }
 
     }

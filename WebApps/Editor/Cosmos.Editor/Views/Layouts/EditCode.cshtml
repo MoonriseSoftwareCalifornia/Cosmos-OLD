@@ -231,6 +231,33 @@
         });
 
         $("#btnSaveAsDraft").hide();
+
+        $("#btnOpenLink").click(function (e) {
+            if (openPickPageModal) {
+                openPickPageModal();
+            }
+            else {
+                alert("Could not find openPickPageModal().");
+            }
+        });
+
+        $("#btnOpenInsertFileLink").click(function (e) {
+            if (openInsertFileLinkModel) {
+                openInsertFileLinkModel();
+            }
+            else {
+                alert("Could not find openInsertFileLinkModel().");
+            }
+        });
+
+        $("#btnOpenInsertImage").click(function (e) {
+            if (openInsertImageModel) {
+                openInsertImageModel();
+            }
+            else {
+                alert("Could not find openInsertImageModel().");
+            }
+        });
     });
 
     $(window).bind('keydown', function (event) {
@@ -259,6 +286,88 @@
             }
         }, 1500);
     });
+
+
+    function openInsertFileLinkModel() {
+
+        if (typeof editor === "undefined" || editor === null) {
+            alert("Error: Could not open code editor.");
+            return;
+        }
+
+        openSelectFileModal("file");
+
+    }
+
+    function openInsertImageModel() {
+
+        if (typeof editor === "undefined" || editor === null) {
+            alert("Error: Could not open code editor.");
+            return;
+        }
+
+        openSelectFileModal("image");
+    }
+
+    function openPickPageModal() {
+
+        if (typeof editor === "undefined" || editor === null) {
+            alert("Error: Could not open code editor.");
+            return;
+        }
+
+        $("#combobox").val("");
+        const inputLinkText = $("#inputLinkText").val("");
+        const switchNewWindow = $("#switchNewWindow").prop('checked', false);
+        const inputLinkCss = $("#inputLinkCss").val("");
+        const inputLinkStyle = $("#inputLinkStyle").val("");
+
+        pickPageModal.show();
+    }
+
+    function insertPageLink() {
+
+        const inputLinkText = $("#inputLinkText").val();
+        const switchNewWindow = $("#switchNewWindow").prop('checked');
+        const inputLinkCss = $("#inputLinkCss").val();
+        const inputLinkStyle = $("#inputLinkStyle").val();
+
+        if (typeof (inputLinkText) === "undefined" || inputLinkText === null || inputLinkText === "") {
+            $("#inputLinkTextError").show();
+            return false;
+        }
+
+        pickPageModal.hide();
+
+        const link = "<a target='_blank' href='/" + selectedAnchorData.url + "'>" + inputLinkText + "</a>";
+
+        // insert text here
+        editor.trigger('keyboard', 'type', { text: link });
+    }
+
+    function insertFileLink(path) {
+
+        clearFileMgrPaths();
+
+        const url = fileBaseUrl + "/" + path;
+
+        const link = "<a href='" + url + "'>" + path + "</a>";
+
+        // insert text here
+        editor.trigger('keyboard', 'type', { text: link });
+    }
+
+    function insertImage(path) {
+
+        clearFileMgrPaths();
+
+        const url = fileBaseUrl + "/" + path;
+
+        const image = "<img src='" + url + "' />";
+
+        // insert text here
+        editor.trigger('keyboard', 'type', { text: image });
+    }
 </script>
 
 <script src="/lib/monaco-editor/min/vs/loader.js"></script>

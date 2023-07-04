@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Cosmos.EmailServices;
+using Microsoft.AspNetCore.Identity;
 
 namespace Cosmos.Cms.Models
 {
@@ -11,7 +12,7 @@ namespace Cosmos.Cms.Models
         public IdentityResult IdentityResult { get; set; }
 
         /// <inheritdoc/>
-        public SendGrid.Response SendGridResponse { get; set; }
+        public SendResult SendResult { get; set; }
 
         /// <inheritdoc/>
         public UserCreateViewModel UserCreateViewModel { get; internal set; }

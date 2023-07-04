@@ -1,4 +1,4 @@
-﻿using SendGrid;
+﻿using Cosmos.EmailServices;
 using System.ComponentModel.DataAnnotations;
 
 namespace Cosmos.Cms.Models
@@ -12,8 +12,8 @@ namespace Cosmos.Cms.Models
         /// Constructor
         /// </summary>
         /// <param name="model"></param>
-        /// <param name="sendGridResponse"></param>
-        public UserCreatedViewModel(UserCreateViewModel model, Response sendGridResponse)
+        /// <param name="sendResult"></param>
+        public UserCreatedViewModel(UserCreateViewModel model, SendResult sendResult)
         {
             EmailAddress = model.EmailAddress;
             EmailConfirmed = model.EmailConfirmed;
@@ -21,7 +21,7 @@ namespace Cosmos.Cms.Models
             PhoneNumberConfirmed = model.PhoneNumberConfirmed;
             GenerateRandomPassword = model.GenerateRandomPassword;
             RevealPassword = model.Password;
-            SendGridResponse = sendGridResponse;
+            SendResult = sendResult;
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace Cosmos.Cms.Models
         /// <summary>
         /// SendGrid response
         /// </summary>
-        [Display(Name = "SendGrid Response")]
-        public Response SendGridResponse { get; set; }
+        [Display(Name = "Email send result")]
+        public SendResult SendResult { get; set; }
     }
 }

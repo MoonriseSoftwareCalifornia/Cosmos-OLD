@@ -56,10 +56,10 @@
                         <span asp-validation-for="RevealPassword" class="text-danger"></span>
                     </div>
 
-                    @if (Model.SendGridResponse != null)
+                    @if (Model.SendResult != null)
                     {
                         <div class="mb-3">
-                            @if (Model.SendGridResponse.IsSuccessStatusCode)
+                            @if (Model.SendResult.IsSuccessStatusCode)
                             {
                                 <i class="fa-solid fa-circle-check alert-success"></i> <p>Confirmation Email Sent.</p>
                             }
@@ -67,7 +67,7 @@
                             {
                                 <i class="fa-solid fa-circle-exclamation alert-danger"></i> <p>Confirmation Email failed:</p>
 
-                                <p>@Model.SendGridResponse.Headers</p>
+                                <p>@Model.SendResult.Message</p>
                             }
                         </div>
                     }
