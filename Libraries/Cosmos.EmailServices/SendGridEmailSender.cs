@@ -36,13 +36,26 @@ namespace Cosmos.EmailServices
         /// <summary>
         ///     Send email method
         /// </summary>
-        /// <param name="email"></param>
+        /// <param name="emailTo"></param>
         /// <param name="subject"></param>
         /// <param name="message"></param>
+        /// <param name="emailFrom"></param>
         /// <returns></returns>
-        public Task SendEmailAsync(string email, string subject, string message)
+        public Task SendEmailAsync(string emailTo, string subject, string message, string? emailFrom = null)
         {
-            return Execute(subject, message, email);
+            return Execute(subject, message, emailTo, emailFrom);
+        }
+
+        /// <summary>
+        /// IEmailSender send email method
+        /// </summary>
+        /// <param name="emailTo"></param>
+        /// <param name="subject"></param>
+        /// <param name="htmlMessage"></param>
+        /// <returns></returns>
+        public Task SendEmailAsync(string emailTo, string subject, string htmlMessage)
+        {
+            return Execute(subject, htmlMessage, emailTo, null);
         }
 
         /// <summary>
@@ -50,10 +63,10 @@ namespace Cosmos.EmailServices
         /// </summary>
         /// <param name="subject"></param>
         /// <param name="message"></param>
-        /// <param name="email"></param>
+        /// <param name="emailTo"></param>
         /// <param name="emailFrom"></param>
         /// <returns></returns>
-        private Task Execute(string subject, string message, string email, string? emailFrom = null)
+        private Task Execute(string subject, string message, string emailTo, string? emailFrom = null)
         {
             var client = new SendGridClient(_options.Value);
 
@@ -64,7 +77,7 @@ namespace Cosmos.EmailServices
                 PlainTextContent = message,
                 HtmlContent = message
             };
-            msg.AddTo(new EmailAddress(email));
+            msg.AddTo(new EmailAddress(emailTo));
 
             // Disable click tracking.
             // See https://sendgrid.com/docs/User_Guide/Settings/tracking.html
@@ -82,7 +95,7 @@ namespace Cosmos.EmailServices
 
                 if (Response.IsSuccessStatusCode && _options.Value.LogSuccesses)
                 {
-                    _logger.LogInformation($"Email successfully sent to: {email}; Subject: {subject};");
+                    _logger.LogInformation($"Email successfully sent to: {emailTo}; Subject: {subject};");
                 }
 
                 if (!Response.IsSuccessStatusCode && _options.Value.LogErrors)

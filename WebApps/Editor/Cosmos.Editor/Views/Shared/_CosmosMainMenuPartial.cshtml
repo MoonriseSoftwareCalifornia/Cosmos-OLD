@@ -86,10 +86,10 @@
                 <li class="nav-item"><span title="Cosmos WPS Version" class="nav-link text-mute">@assemblyVersion.ToString()</span></li>
                 @if (Context.Request.Path.Equals("/home/preview", StringComparison.InvariantCultureIgnoreCase))
                 {
-                <li class="nav-item"><a class="btn btn-sm btn-primary mt-2" title="Close preview" href="javascript:closePreview()">Close Preview</a></li>
+                    <li class="nav-item"><a class="btn btn-sm btn-primary mt-2" title="Close preview" href="javascript:closePreview()">Close Preview</a></li>
                 }
             </ul>
-            
+
             <div class="d-flex">
                 <partial name="_LoginPartial" />
             </div>
@@ -198,4 +198,28 @@
 
         $("#btnPublicWebsite").attr("href", publicBaseUrl);
     }
+</script>
+
+<!-- Modal -->
+<div class="mt-5 modal fade" id="modalContactUs" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-secondary" style="height:700px;">
+            <div class="modal-body">
+                <iframe id="iframeContactSupport" style="position: absolute; height: 100%; width:90%; border: none"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#btnGetHelp").click(function () {
+        $("#iframeContactSupport").attr("src", "/Ccms__ContactUs/Index");
+    });
+    $('#iframeContactSupport').on("load", function () {
+        $(this).height($(this).contents().find("html").height());
+        let myModal = bootstrap.Modal.getInstance(document.getElementById("modalContactUs"));
+        myModal.handleUpdate();
+    });
 </script>

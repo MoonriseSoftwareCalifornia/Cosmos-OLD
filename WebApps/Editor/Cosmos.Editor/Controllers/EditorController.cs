@@ -317,6 +317,12 @@ namespace Cosmos.Cms.Controllers
                 throw new Exception($"SIGNALR: SaveEditorContent method, could not find artile with #: {model.ArticleNumber}.");
             }
 
+            // Handle empty areas
+            if (model.Data == null)
+            {
+                model.Data = string.Empty;
+            }
+
             // Get the editable regions from the original document.
             var originalHtmlDoc = new HtmlDocument();
             originalHtmlDoc.LoadHtml(article.Content);
