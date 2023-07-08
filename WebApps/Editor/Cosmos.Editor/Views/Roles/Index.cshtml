@@ -24,12 +24,22 @@
         @if (Model != null && Model.Any())
         {
             <div class="row bg-dark">
+                <div class="col-md-12 d-flex flex-row">
+                    <form id="frmNewRole">
+                        <input type="hidden" id="Id" value="">
+                        <input type="hidden" id="RoleNormalizedName" value="">
+                        <button id="btnCreate" type="submit" title="Create a new role." class="btn btn-sm btn-primary" style="min-width:100px;">Create <i class="fa-solid fa-circle-arrow-right"></i></button>
+                        <input id="RoleName" autocomplete="off" placeholder="New role name" type="text" class="form-control bg-dark text-light" style="height:32px">
+                    </form>
+                </div>
+            </div>
+            <div class="row bg-dark">
                 <div class="col-md-6">
-                    <div class="btn-group" role="group" aria-label="Page Actions">
-                        <p>@Model.Count() users selected.</p>
-                        <button type="button" id="btnAddToRoles" class="btn btn-sm btn-primary" style="display:none;color: #e6ccff">Add Selected Users to Roles</button>
-                        <button type="button" id="btnRemoveFromRoles" class="btn btn-sm btn-primary" style="display:none">Remove Selected Users from Roles</button>
-                    </div>
+                    @* <div class="btn-group" role="group" aria-label="Page Actions">
+                <p>@Model.Count() users selected.</p>
+                <button type="button" id="btnAddToRoles" class="btn btn-sm btn-primary" style="display:none;color: #e6ccff">Add Selected Users to Roles</button>
+                <button type="button" id="btnRemoveFromRoles" class="btn btn-sm btn-primary" style="display:none">Remove Selected Users from Roles</button>
+                </div>*@
                 </div>
                 <div class="col-md-6 d-flex justify-content-end">
                     <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
@@ -120,8 +130,6 @@
     }
 
     $(document).ready(function () {
-
         $("body").addClass("cwps-editor-container");
-
     });
 </script>

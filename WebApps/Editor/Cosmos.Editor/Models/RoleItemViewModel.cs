@@ -19,6 +19,7 @@ namespace Cosmos.Cms.Models
         /// <summary>
         ///     Friendly role name
         /// </summary>
+        [Required(AllowEmptyStrings = false)]
         [Display(Name = "Role Name")]
         public string RoleName { get; set; }
 

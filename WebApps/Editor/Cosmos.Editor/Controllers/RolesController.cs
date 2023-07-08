@@ -1,4 +1,5 @@
 ﻿using Cosmos.Cms.Models;
+using Cosmos.Common.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,30 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         {
             _userManager = userManager;
             _roleManager = roleManager;
+        }
+
+        /// <summary>
+        /// Adds a new role
+        /// </summary>
+        /// <param name="roleItem"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Create(RoleItemViewModel roleItem)
+        {
+            if (ModelState.IsValid)
+            {
+                if (!await _roleManager.RoleExistsAsync(roleItem.RoleName))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = roleItem.RoleName
+                    });
+                }
+
+                return Ok("Role created");
+            }
+            return BadRequest("Domain name already exists.");
         }
 
         /// <summary>
@@ -91,62 +116,6 @@ namespace Cosmos.IdentityManagement.Website.Controllers
 
             return View(await model.ToListAsync());
         }
-
-        //public async Task<IActionResult> Create_Roles([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<IdentityRole> models)
-        //{
-        //    var results = new List<IdentityRole>();
-
-        //    if (models != null && ModelState.IsValid)
-        //    {
-        //        foreach (var role in models)
-        //        {
-        //            role.Id = Guid.NewGuid().ToString();
-        //            var result = await _roleManager.CreateAsync(role);
-
-        //            if (result.Succeeded)
-        //            {
-        //                var identityRole = await _roleManager.FindByIdAsync(role.Id);
-
-        //                await _roleManager.SetRoleNameAsync(identityRole, role.Name);
-        //                await _roleManager.UpdateNormalizedRoleNameAsync(identityRole);
-        //            }
-        //            else
-        //            {
-        //                foreach (var error in result.Errors)
-        //                {
-        //                    ModelState.AddModelError("", $"Error code: {error.Code}. Message: {error.Description}");
-        //                }
-        //            }
-        //        }
-        //    }
-
-        //    return Json(results.ToDataSourceResult(request, ModelState));
-        //}
-
-
-        ///// <summary>
-        ///// Updates role names
-        ///// </summary>
-        ///// <param name="request"></param>
-        ///// <param name="users"></param>
-        ///// <returns></returns>
-        //[HttpPost]
-        //public async Task<ActionResult> Update_Roles([DataSourceRequest] DataSourceRequest request,
-        //    [Bind(Prefix = "models")] IEnumerable<IdentityRole> roles)
-        //{
-        //    if (roles != null && ModelState.IsValid)
-        //    {
-        //        foreach (var role in roles)
-        //        {
-        //            var identityRole = await _roleManager.FindByIdAsync(role.Id);
-
-        //            await _roleManager.SetRoleNameAsync(identityRole, role.Name);
-        //            await _roleManager.UpdateNormalizedRoleNameAsync(identityRole);
-        //        }
-        //    }
-
-        //    return Json(await roles.ToDataSourceResultAsync(request, ModelState));
-        //}
 
         /// <summary>
         /// Deletes roles
