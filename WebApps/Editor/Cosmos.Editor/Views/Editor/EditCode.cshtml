@@ -318,7 +318,7 @@
                 break;
             case "Html":
                 next = function () {
-                    window.location.href = "@Url.Action("Edit", "Editor")/" + $("#Id").val();
+                    window.location.href = "@Url.Action("Edit", "Editor")/" + $("#ArticleNumber").val();
                 }
                 $("#divSaveFirstDialog").html("Save page before opening Live editor?");
                 checkFirstModal.show();

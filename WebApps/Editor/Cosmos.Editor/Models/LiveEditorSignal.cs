@@ -50,5 +50,23 @@ namespace Cosmos.Cms.Models
         /// HTML data being sent back
         /// </summary>
         public string Data { get; set; }
+        /// <summary>
+        /// Date/time published
+        /// </summary>
+        public DateTimeOffset? Published { get; set; }
+        /// <summary>
+        /// Date/time updated
+        /// </summary>
+        public DateTimeOffset? Updated { get; set; }
+        /// <summary>
+        /// Article title
+        /// </summary>
+        public string Title { get; set; } = "";
+        /// <summary>
+        /// URL path
+        /// </summary>
+        public string UrlPath { get; set; } = "";
+        public string BannerImage { get; internal set; }
+        public string RoleList { get; internal set; }
     }
 }

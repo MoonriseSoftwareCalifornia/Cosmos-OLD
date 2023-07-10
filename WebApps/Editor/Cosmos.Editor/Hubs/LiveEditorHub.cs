@@ -2,6 +2,7 @@
 using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Models;
 using Cosmos.Common.Data;
+using Cosmos.Common.Models;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.SignalR;
@@ -88,24 +89,24 @@ namespace Cosmos.Cms.Hubs
                                 throw new Exception($"Could not find editor '{model.EditorId}.'");
                             }
 
-                            var saveResult = new HtmlEditorSignal()
-                            {
-                                Id = article.Id,
-                                BannerImage = article.BannerImage,
-                                RoleList = article.RoleList,
-                                Published = article.Published,
-                                Updated = article.Updated,
-                                Title = article.Title,
-                                UrlPath = article.UrlPath,
-                                VersionNumber = article.VersionNumber
-                            };
                             model.Id = article.Id;
                             model.Command = "saved"; // Let caller know item is saved.
                             model.Data = target.InnerHtml;
                             model.VersionNumber = article.VersionNumber;
+                            model.Published = article.Published;
+                            model.Updated = article.Updated;
+                            model.Title = article.Title;
+                            model.UrlPath = article.UrlPath;
+                            model.BannerImage = article.BannerImage;
+                            model.RoleList = article.RoleList;
+
                             var stringData = JsonConvert.SerializeObject(model);
 
                             await Clients.OthersInGroup(GetArticleGroupName(model.ArticleNumber)).SendCoreAsync("broadcastMessage", new[] { stringData });
+
+                            model.Command = "PropertiesSaved";
+                            model.Data = "";
+                            await Clients.Caller.SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
                         }
                         catch (Exception e)
                         {
@@ -123,7 +124,13 @@ namespace Cosmos.Cms.Hubs
                         {
                             model.Id = result.Id;
                             model.VersionNumber = result.VersionNumber;
-                            model.Data = JsonConvert.SerializeObject(result);
+                            model.Published = result.Published;
+                            model.Updated = result.Updated;
+                            model.Title = result.Title;
+                            model.UrlPath = result.UrlPath;
+                            model.BannerImage = result.BannerImage;
+                            model.RoleList = result.RoleList;
+
                             // Alert others
                             await Clients.OthersInGroup(GetArticleGroupName(model.ArticleNumber)).SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
                             // Notify caller of job done.
@@ -155,7 +162,7 @@ namespace Cosmos.Cms.Hubs
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        private async Task<HtmlEditorSignal> SavePageProperties(LiveEditorSignal model)
+        private async Task<ArticleViewModel> SavePageProperties(LiveEditorSignal model)
         {
             if (model == null)
             {
@@ -173,7 +180,7 @@ namespace Cosmos.Cms.Hubs
 
             try
             {
-                var properties = JsonConvert.DeserializeObject<HtmlEditorSignal>(model.Data);
+                var properties = JsonConvert.DeserializeObject<LiveEditorSignal>(model.Data);
 
                 // Make sure we are setting to the orignal updated date/time
                 // This is validated to make sure that someone else hasn't already edited this
@@ -188,17 +195,7 @@ namespace Cosmos.Cms.Hubs
                 // Save changes back to the database
                 var result = await _articleLogic.Save(article, model.UserId);
 
-                return new HtmlEditorSignal()
-                {
-                    Id = result.Model.Id,
-                    BannerImage = result.Model.BannerImage,
-                    RoleList = result.Model.RoleList,
-                    Published = result.Model.Published,
-                    Updated = result.Model.Updated,
-                    Title = result.Model.Title,
-                    UrlPath = result.Model.UrlPath,
-                    VersionNumber = result.Model.VersionNumber
-                };
+                return result.Model;
 
             }
             catch (Exception e)

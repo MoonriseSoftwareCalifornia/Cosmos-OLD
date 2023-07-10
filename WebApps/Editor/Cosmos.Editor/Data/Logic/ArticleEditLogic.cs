@@ -1531,7 +1531,7 @@ namespace Cosmos.Cms.Data.Logic
         ///     Gets a copy of the article ready for edit.
         /// </summary>
         /// <param name="articleNumber">Article Number</param>
-        /// <param name="versionNumber">Version to edit</param>
+        /// <param name="versionNumber">Version to edit, or if null gets latest version</param>
         /// <returns>
         ///     <see cref="ArticleViewModel" />
         /// </returns>

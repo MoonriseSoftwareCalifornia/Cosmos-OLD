@@ -140,7 +140,7 @@
                 break;
             case "Code":
                 next = function () {
-                    window.location.href = "@Url.Action("EditCode", "Editor")/" + $("#Id").val();
+                    window.location.href = "@Url.Action("EditCode", "Editor")/" + $("#ArticleNumber").val();
                 }
                 $("#divSaveFirstDialog").html("Save before opening code editor?");
                 checkFirstModal.show();
@@ -258,6 +258,9 @@
                     $("#Id").val(model.Id);
                     $("#VersionNumber").val(model.VersionNumber);
                     setWorkingVersion(model.VersionNumber);
+
+                    savePageProperties(model);
+
                     // Prevent auto save
                     enableAutoSave = false;
                     let ckeditor = findEditor(editorId);
@@ -857,14 +860,14 @@
 
     function savePageProperties(model) {
 
-        var data = JSON.parse(model.Data);
+        $("#UrlPath").val(model.UrlPath);
+        $("#RoleList").val(model.RoleList);
+        $("#Title").val(model.Title);
+        $("#Published").val(model.Published);
+        $("#Updated").val(model.Updated);
+        $("#BannerImage").val(model.BannerImage);
+        $("#RoleList").val(model.RoleList);
 
-        $("#UrlPath").val(data.UrlPath);
-        $("#RoleList").val(data.RoleList);
-        $("#Title").val(data.Title);
-        $("#Published").val(data.Published);
-        $("#Updated").val(data.Updated);
-        $("#BannerImage").val(data.BannerImage);
     }
 
 </script>

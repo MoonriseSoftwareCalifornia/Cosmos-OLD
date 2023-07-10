@@ -348,7 +348,7 @@ namespace Cosmos.Cms.Controllers
             // Save changes back to the database
             var result = await _articleLogic.Save(article, model.UserId);
 
-            return Json(new HtmlEditorSignal()
+            return Json(new LiveEditorSignal()
             {
                 Id = result.Model.Id,
                 BannerImage = result.Model.BannerImage,
@@ -357,7 +357,11 @@ namespace Cosmos.Cms.Controllers
                 Updated = result.Model.Updated,
                 Title = result.Model.Title,
                 UrlPath = result.Model.UrlPath,
-                VersionNumber = result.Model.VersionNumber
+                VersionNumber = result.Model.VersionNumber,
+                ArticleNumber = result.Model.ArticleNumber,
+                Command = "",
+                EditorId = "",
+                UserId = ""
             });
         }
         /// <summary>
@@ -1154,34 +1158,30 @@ namespace Cosmos.Cms.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit(int id)
         {
             try
             {
                 // Web browser may ask for favicon.ico, so if the ID is not a number, just skip the response.
-                if (Guid.TryParse(id, out var pageId))
-                {
-                    ViewData["BlobEndpointUrl"] = _options.Value.SiteSettings.BlobPublicUrl;
+                ViewData["BlobEndpointUrl"] = _options.Value.SiteSettings.BlobPublicUrl;
 
-                    //
-                    // Get an article, or a template based on the controller name.
-                    //
-                    var model = await _articleLogic.Get(pageId, EnumControllerName.Edit, await GetUserId());
-                    ViewData["LastPubDateTime"] = await GetLastPublishingDate(model.ArticleNumber);
+                //
+                // Get an article, or a template based on the controller name.
+                //
+                var model = await _articleLogic.Get(id, null);
+                ViewData["LastPubDateTime"] = await GetLastPublishingDate(model.ArticleNumber);
 
-                    ViewData["PageTitle"] = model.Title;
-                    ViewData["Published"] = model.Published;
+                ViewData["PageTitle"] = model.Title;
+                ViewData["Published"] = model.Published;
 
-                    // Override defaults
-                    model.EditModeOn = true;
+                // Override defaults
+                model.EditModeOn = true;
 
-                    // Authors cannot edit published articles
-                    if (model.Published.HasValue && User.IsInRole("Authors"))
-                        return Unauthorized();
+                // Authors cannot edit published articles
+                if (model.Published.HasValue && User.IsInRole("Authors"))
+                    return Unauthorized();
 
-                    return View(new HtmlEditorViewModel(model));
-
-                }
+                return View(new HtmlEditorViewModel(model));
 
                 return NotFound();
             }
@@ -1198,9 +1198,9 @@ namespace Cosmos.Cms.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
-        public async Task<IActionResult> EditCode(Guid id)
+        public async Task<IActionResult> EditCode(int id)
         {
-            var article = await _articleLogic.Get(id, EnumControllerName.Edit, await GetUserId());
+            var article = await _articleLogic.Get(id, null);
             if (article == null) return NotFound();
 
             // Validate security for authors before going further
