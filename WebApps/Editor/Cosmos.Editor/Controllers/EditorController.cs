@@ -23,6 +23,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Cosmos.Cms.Controllers
 {
@@ -333,7 +334,7 @@ namespace Cosmos.Cms.Controllers
             if (target != null)
             {
                 // Update the region now
-                target.InnerHtml = model.Data as string;
+                target.InnerHtml = model.Data;
             }
 
             // Now carry over what's being updated to the original.
@@ -1544,7 +1545,7 @@ namespace Cosmos.Cms.Controllers
                 Title = s.Title,
                 IsDefault = s.UrlPath == "root",
                 LastPublished = s.Published,
-                UrlPath = s.UrlPath,
+                UrlPath = HttpUtility.UrlEncode(s.UrlPath).Replace("%2f", "/"),
                 Status = s.Status,
                 Updated = s.Updated
             }).OrderBy(o => o.Title);

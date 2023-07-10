@@ -66,7 +66,9 @@
                 licenseKey: '',
                 autosave: {
                     save(editor) {
-                        return parent.cosmosSignalOthers(editor, "save");
+                        if (parent.enableAutoSave === true) {
+                            return parent.cosmosSignalOthers(editor, "save");
+                        }
                     },
                     waitingTime: 1500
                 },

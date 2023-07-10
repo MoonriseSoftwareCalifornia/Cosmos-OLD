@@ -288,22 +288,6 @@ namespace Cosmos.Common.Data.Logic
         }
 
         /// <summary>
-        ///     Provides a standard method for turning a title into a URL Encoded path.
-        /// </summary>
-        /// <param name="title">Title to be converted into a URL.</param>
-        /// <returns></returns>
-        /// <remarks>
-        ///     <para>This is accomplished using <see cref="HttpUtility.UrlEncode(string)" />.</para>
-        ///     <para>Blanks are turned into underscores (i.e. "_").</para>
-        ///     <para>All strings are normalized to lower case.</para>
-        /// </remarks>
-        public static string HandleUrlEncodeTitle(string title)
-        {
-            return HttpUtility.UrlEncode(title.Trim().Replace(" ", "_").ToLower()).Replace("%2f", "/");
-        }
-
-
-        /// <summary>
         ///     Gets the default layout, including navigation menu.
         /// </summary>
         /// <param name="lang"></param>

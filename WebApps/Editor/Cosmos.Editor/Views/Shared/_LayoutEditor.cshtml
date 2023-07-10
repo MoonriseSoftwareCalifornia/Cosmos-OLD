@@ -149,7 +149,7 @@
                 </div>
                 <div id="divPublihedTitleGroup" class="input-group input-group-sm" style="display:none">
                     <div id="lblPublished" class="input-group-text" style="height:31px;">Published:</div>
-                    <input class="form-control" name="tbPublished" id="tbPublished" placeholder="DRAFT" value="@((DateTimeOffset?)ViewData["Published"])" />
+                    <input autocomplete="off" class="form-control" name="tbPublished" id="tbPublished" placeholder="DRAFT" value="@((DateTimeOffset?)ViewData["Published"])" />
                 </div>
             </div>
         </div>
@@ -400,11 +400,19 @@
 
         function showSaving() {
             $("#spSaving").show();
+            $("#btnSavingStatus").removeClass("btn-secondary");
+            $("#btnSavingStatus").addClass("btn-primary");
             $("#btnSavingText").html("Saving...");
         }
 
         function showSaved() {
             $("#spSaving").hide();
+            $("#btnSavingStatus").removeClass("btn-primary");
+            $("#btnSavingStatus").addClass("btn-success");
+            setTimeout(function () {
+                $("#btnSavingStatus").removeClass("btn-success");
+                $("#btnSavingStatus").addClass("btn-secondary");
+            }, 1500);
             $("#btnSavingText").html("Saved");
         }
 
@@ -511,6 +519,7 @@
             $('#tbPublished').on('apply.daterangepicker', function (ev, picker) {
                 $('#tbPublished').val(picker.startDate.format('MM/DD/YYYY hh:mm A'));
                 $("#Published").val($('#tbPublished').val());
+                $("#frmSave").submit();
             });
 
             $("#swAutoSave").click(function () {

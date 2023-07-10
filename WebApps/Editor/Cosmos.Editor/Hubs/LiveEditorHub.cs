@@ -23,6 +23,15 @@ namespace Cosmos.Cms.Hubs
         private readonly ArticleEditLogic _articleLogic;
         private readonly ILogger<LiveEditorHub> _logger;
 
+        private string GetArticleGroupName(int articleNumber)
+        {
+            return $"Article:{articleNumber}";
+        }
+        private string GetArticleGroupName(string articleNumber)
+        {
+            return $"Article:{articleNumber}";
+        }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -37,11 +46,11 @@ namespace Cosmos.Cms.Hubs
         /// <summary>
         /// Adds an editor to the page group.
         /// </summary>
-        /// <param name="articleId"></param>
+        /// <param name="articleNumber"></param>
         /// <returns></returns>
-        public async Task JoinArticleGroup(string articleId)
+        public async Task JoinArticleGroup(string articleNumber)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"Article:{articleId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, GetArticleGroupName(articleNumber));
         }
 
         /// <summary>
@@ -58,13 +67,26 @@ namespace Cosmos.Cms.Hubs
                 switch (model.Command)
                 {
                     case "join":
-                        await Groups.AddToGroupAsync(Context.ConnectionId, model.EditorId);
+                        await Groups.AddToGroupAsync(Context.ConnectionId, GetArticleGroupName(model.ArticleNumber));
                         break;
                     case "save":
                         try
                         {
                             // Next send the new article backed to others.
                             var article = await _articleLogic.Get(model.ArticleNumber, null);
+
+                            // Find the editor that was changed and get the new HTML
+                            // Get the editable regions from the original document.
+                            var originalHtmlDoc = new HtmlDocument();
+                            originalHtmlDoc.LoadHtml(article.Content);
+                            var originalEditableDivs = originalHtmlDoc.DocumentNode.SelectNodes("//*[@data-ccms-ceid]");
+
+                            // Find the region we are updating
+                            var target = originalEditableDivs.FirstOrDefault(w => w.Attributes["data-ccms-ceid"].Value == model.EditorId);
+                            if (target == null)
+                            {
+                                throw new Exception($"Could not find editor '{model.EditorId}.'");
+                            }
 
                             var saveResult = new HtmlEditorSignal()
                             {
@@ -79,12 +101,11 @@ namespace Cosmos.Cms.Hubs
                             };
                             model.Id = article.Id;
                             model.Command = "saved"; // Let caller know item is saved.
-                            model.Data = JsonConvert.SerializeObject(saveResult);
-                            model.VersionNumber = saveResult.VersionNumber;
+                            model.Data = target.InnerHtml;
+                            model.VersionNumber = article.VersionNumber;
                             var stringData = JsonConvert.SerializeObject(model);
 
-                            await Clients.Caller.SendCoreAsync("broadcastMessage", new[] { stringData });
-                            await Clients.OthersInGroup(model.EditorId).SendCoreAsync("broadcastMessage", new[] { stringData });
+                            await Clients.OthersInGroup(GetArticleGroupName(model.ArticleNumber)).SendCoreAsync("broadcastMessage", new[] { stringData });
                         }
                         catch (Exception e)
                         {
@@ -104,14 +125,14 @@ namespace Cosmos.Cms.Hubs
                             model.VersionNumber = result.VersionNumber;
                             model.Data = JsonConvert.SerializeObject(result);
                             // Alert others
-                            await Clients.OthersInGroup($"Article:{model.ArticleNumber}").SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
+                            await Clients.OthersInGroup(GetArticleGroupName(model.ArticleNumber)).SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
                             // Notify caller of job done.
                             model.Command = "PropertiesSaved";
                             await Clients.Caller.SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
                         }
                         break;
                     default:
-                        await Clients.OthersInGroup(model.EditorId).SendCoreAsync("broadcastMessage", new[] { data });
+                        await Clients.OthersInGroup(GetArticleGroupName(model.ArticleNumber)).SendCoreAsync("broadcastMessage", new[] { data });
                         break;
                 }
             }

@@ -489,7 +489,7 @@ namespace Cosmos.Cms.Data.Logic
                 StatusCode = 0,
                 Title = title,
                 Updated = DateTimeOffset.Now,
-                UrlPath = isFirstArticle ? "root" : HandleUrlEncodeTitle(title),
+                UrlPath = isFirstArticle ? "root" : NormailizeArticleUrl(title),
                 VersionNumber = 1,
                 Published = isFirstArticle ? DateTimeOffset.UtcNow : null,
                 UserId = userId
@@ -533,7 +533,7 @@ namespace Cosmos.Cms.Data.Logic
 
             var oldCatalogEntry = await DbContext.ArticleCatalog.Where(w => w.UrlPath.ToLower() == "root").ToListAsync();
 
-            var newUrl = HandleUrlEncodeTitle(oldHomeArticle.FirstOrDefault()?.Title);
+            var newUrl = NormailizeArticleUrl(oldHomeArticle.FirstOrDefault()?.Title);
             foreach (var article in oldHomeArticle)
             {
                 article.UrlPath = newUrl;
@@ -571,6 +571,22 @@ namespace Cosmos.Cms.Data.Logic
             await HandlePublishing(published, userId);
 
             await HandleLogEntry(published, $"Article {published.ArticleNumber} is now the new home page.", userId);
+        }
+
+        /// <summary>
+        ///     Provides a standard method for turning a title into a URL Encoded path.
+        /// </summary>
+        /// <param name="title">Title to be converted into a URL.</param>
+        /// <returns></returns>
+        /// <remarks>
+        ///     <para>This is accomplished using <see cref="HttpUtility.UrlEncode(string)" />.</para>
+        ///     <para>Blanks are turned into underscores (i.e. "_").</para>
+        ///     <para>All strings are normalized to lower case.</para>
+        /// </remarks>
+        private string NormailizeArticleUrl(string title)
+        {
+            // return HttpUtility.UrlEncode(title.Trim().Replace(" ", "_").ToLower()).Replace("%2f", "/");
+            return title.Trim().Replace(" ", "_").ToLower();
         }
 
         /// <summary>
@@ -640,7 +656,7 @@ namespace Cosmos.Cms.Data.Logic
         ///         <item><see cref="Article.Title" /> will be altered if a live article exists with the same title.</item>
         ///         <item>
         ///             If the title changed, the <see cref="Article.UrlPath" /> will be updated using
-        ///             <see cref="ArticleLogic.HandleUrlEncodeTitle" />.
+        ///             <see cref="NormailizeArticleUrl" />.
         ///         </item>
         ///         <item>The article and all its versions are set to unpublished (<see cref="Article.Published" /> set to null).</item>
         ///         <item>Article is added back to the article catalog.</item>
@@ -660,7 +676,7 @@ namespace Cosmos.Cms.Data.Logic
                 a.StatusCode == (int)StatusCodeEnum.Deleted).CosmosAnyAsync())
             {
                 var newTitle = title + " (" + await DbContext.Articles.CountAsync() + ")";
-                var url = HandleUrlEncodeTitle(newTitle);
+                var url = NormailizeArticleUrl(newTitle);
                 foreach (var article in redeemed)
                 {
                     article.Title = newTitle;
@@ -1266,8 +1282,8 @@ namespace Cosmos.Cms.Data.Logic
             if (!await ValidateTitle(newTitle, article.ArticleNumber))
                 throw new Exception($"Title '{newTitle}' already taken");
 
-            var oldUrl = HandleUrlEncodeTitle(oldTitle);
-            var newUrl = HandleUrlEncodeTitle(newTitle);
+            var oldUrl = NormailizeArticleUrl(oldTitle);
+            var newUrl = NormailizeArticleUrl(newTitle);
 
             // If NOT the root, handle any child page updates and redirects
             // that need to be created.

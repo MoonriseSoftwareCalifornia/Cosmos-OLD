@@ -90,8 +90,8 @@
                             @foreach (var row in Model)
                             {
                                 <tr scope="row">
-                                    <td scope="row">
-                                        <a asp-action="Versions" asp-route-id="@row.ArticleNumber" title="Select" class="btn btn-sm fa-solid fa-play"></a>
+                                    <td scope="row" title="Click to select article '@row.Title.'" onclick="openArticleVersions(@row.ArticleNumber)">
+                                        <span class="btn btn-sm btn-secondary fa-solid fa-play"></span>
                                     </td>
                                     <td>
                                         @if (row.UrlPath == "root")
@@ -103,11 +103,11 @@
                                             <a href='/Editor/NewHome/@row.ArticleNumber' title='Make this the new home page.' class='btn btn-sm btn-secondary'><i class="fa-solid fa-house"></i></a>
                                         }
                                     </td>
-                                    <td>
+                                    <td title="Click to select article '@row.Title.'" onclick="openArticleVersions(@row.ArticleNumber)">
                                         @row.ArticleNumber
                                     </td>
-                                    <td>
-                                        <a asp-action="Versions" asp-route-id="@row.ArticleNumber" title="Select">/@row.Title</a>
+                                    <td title="Click to select article '@row.Title.'" onclick="openArticleVersions(@row.ArticleNumber)">
+                                        /@row.Title
                                         @if (row.LastPublished.HasValue)
                                         {
                                             <small class="d-block">
@@ -121,7 +121,7 @@
                                             </small>
                                         }
                                     </td>
-                                    <td>
+                                    <td title="Click to select article '@row.Title.'" onclick="openArticleVersions(@row.ArticleNumber)">
                                         <div class='toLocalTimeZone'>@row.Updated</div>
                                     </td>
                                     <td>
@@ -130,7 +130,7 @@
                                     <td>
                                         @if (canEdit && row.UrlPath != "root")
                                         {
-                                            <button type='button' onclick='selectArticle("@row.ArticleNumber", "@row.Title")' class='btn btn-sm btn-secondary' data-bs-toggle='modal' data-bs-target='#delConfModal'><i title='Send to trash' class='fa-solid fa-trash'></i> Trash</button>
+                                            <button type='button' onclick='selectArticle("@row.ArticleNumber", "@row.Title")' class='btn btn-sm btn-secondary' data-bs-toggle='modal' data-bs-target='#delConfModal'><i title='Send article to trash' class='fa-solid fa-trash'></i> Trash</button>
                                         }
                                     </td>
                                 </tr>
@@ -199,10 +199,14 @@
         window.location.href = "@Url.Action("TrashArticle", "Editor")/" + articleNumber;
     }
 
+    function openArticleVersions(id) {
+        window.location.href = "@Url.Action("Versions")/" + id;
+    }
+
     $(document).ready(function () {
-        
+
         $("body").addClass("cwps-editor-container");
-        
+
         $(".toLocalTimeZone").each(function (index, element) {
             $(element).html(getLocalTime($(element).html()));
         });

@@ -2,16 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "metadata": {
-        "description": "Installs the Cosmos VIP Platform in Microsoft Azure."
+        "description": "Installs the Cosmos CMS Web Farm."
     },
     "parameters": {
-        "storageAccountType": {
-            "type": "string",
-            "defaultValue": "Geo-redundant storage",
-            "allowedValues": [ "Locally-redundant storage", "Geo-redundant storage" ]
-        },
         "farmNumber": {
             "type": "int",
+            "defaultValue": 1,
             "metadata": {
                 "description": "Web Farm ID no from farm catalog."
             }
@@ -40,30 +36,195 @@
             "metadata": {
                 "description": "Email of purchaser."
             }
+        },
+        "storageAccountType": {
+            "type": "string",
+            "defaultValue": "Geo-redundant storage",
+            "allowedValues": [
+                "Locally-redundant storage",
+                "Geo-redundant storage"
+            ]
         }
     },
     "functions": [],
     "variables": {
-        "adminEmail": "[parameters('purchaserEmail')]",
+        "frontdoorName": "[concat('afd-', parameters('farmNumber'), '-', uniqueString(resourceGroup().id))]",
+        "signalRName": "[concat('signalr-', parameters('farmNumber'), '-', uniqueString(resourceGroup().id))]",
+        "vnetName": "[concat('vnet-', parameters('farmNumber'), '-', uniquestring(resourceGroup().id))]",
+        "adminEmail": "DoNotReply@cosmosws.io",
         "location": "[resourceGroup().location]",
-        "storageAccountName": "[concat('files', parameters('farmNumber'), '-', parameters('websiteNumber'), '-', uniquestring(resourceGroup().id))]",
-        "editorName": "[concat('editor-', parameters('farmNumber'), '-', parameters('websiteNumber'), '-', uniquestring(resourceGroup().id))]",
-        "publisherName": "[concat('publisher-', parameters('farmNumber'), '-', parameters('websiteNumber'), '-', uniquestring(resourceGroup().id))]",
-        "firewallPolicyName": "AllOnFrontDoorStd",
-        "databaseName": "[concat('cosmosdb-', parameters('farmNumber'), '-', parameters('websiteNumber'))]",
-
-        "sendGridApiKey": "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",
+        "accountName": "[concat('cosmos-', parameters('farmNumber'), '-', uniqueString(resourceGroup().id))]",
+        "databaseName": "[concat('cosmosdbxx', parameters('farmNumber'), 'xx', parameters('websiteNumber'))]",
+        "storageAccountName": "[concat('files', parameters('farmNumber'), 'xx', parameters('websiteNumber'), 'xx', uniquestring(resourceGroup().id))]",
+        "appServicePlanName": "[concat('appplan', parameters('farmNumber'), '-', uniquestring(resourceGroup().id))]",
+        "editorName": "[concat('edi-', parameters('farmNumber'), '-', parameters('websiteNumber'), '-', uniquestring(resourceGroup().id))]",
+        "publisherName": "[concat('pub-', parameters('farmNumber'), '-', parameters('websiteNumber'), '-', uniquestring(resourceGroup().id))]",
+        "azureCommunicationConnection": "endpoint=https://cosmos.communication.azure.com/;accesskey=Suvs4q4+GyA4B/Dwh4RrwG0+JKsfplqI9QxtLSSK7aPY20zShaChHkk9zgz1F9TPkUnfnb/3+ayqrpVQqYd0dg==",
         "dockerRegPassword": "y0SH6UcQ8JrYfrsPwf6Z1q9U+SU+iqvkfOC2yy4+6J+ACRDHZLtJ",
         "dockerRegUrl": "https://moonrise.azurecr.io",
-        "dockerRegUsername": "moonrise",
-
-        "vnetName": "[concat('vnet-', parameters('farmNumber'), '-', uniquestring(resourceGroup().id))]",
-        "appServicePlanName": "[concat('appplan', parameters('farmNumber'), '-', uniquestring(resourceGroup().id))]",
-        "accountName": "[concat('cosmos-', parameters('farmNumber'), '-', uniqueString(resourceGroup().id))]",
-        "signalRName": "[concat('signalr-', parameters('farmNumber'), '-', uniqueString(resourceGroup().id))]"
+        "dockerRegUsername": "moonrise"
     },
     "resources": [
-{
+        {
+            "type": "Microsoft.SignalRService/signalR",
+            "apiVersion": "2023-02-01",
+            "name": "[variables('signalRName')]",
+            "location": "[variables('location')]",
+            "tags": {
+                "SubscriptionId": "[parameters('subscriptionId')]",
+                "FarmNumber": "[parameters('farmNumber')]",
+                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
+                "PurchaserEmail": "[parameters('purchaserEmail')]"
+            },
+            "sku": {
+                "name": "Standard_S1",
+                "tier": "Standard",
+                "size": "S1",
+                "capacity": 1
+            },
+            "kind": "SignalR",
+            "properties": {
+                "tls": {
+                    "clientCertEnabled": false
+                },
+                "features": [
+                    {
+                        "flag": "ServiceMode",
+                        "value": "Default",
+                        "properties": {}
+                    },
+                    {
+                        "flag": "EnableConnectivityLogs",
+                        "value": "True",
+                        "properties": {}
+                    }
+                ],
+                "cors": {
+                    "allowedOrigins": [
+                        "*"
+                    ]
+                },
+                "upstream": {},
+                "networkACLs": {
+                    "defaultAction": "Deny",
+                    "publicNetwork": {
+                        "allow": [
+                            "ServerConnection",
+                            "ClientConnection",
+                            "RESTAPI",
+                            "Trace"
+                        ]
+                    },
+                    "privateEndpoints": []
+                },
+                "publicNetworkAccess": "Enabled",
+                "disableLocalAuth": false,
+                "disableAadAuth": false
+            }
+        },
+        {
+            "type": "Microsoft.Cdn/profiles",
+            "apiVersion": "2022-11-01-preview",
+            "name": "[variables('frontdoorName')]",
+            "location": "Global",
+            "sku": {
+                "name": "Standard_AzureFrontDoor"
+            },
+            "tags": {
+                "SubscriptionId": "[parameters('subscriptionId')]",
+                "FarmNumber": "[parameters('farmNumber')]",
+                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
+                "PurchaserEmail": "[parameters('purchaserEmail')]"
+            },
+            "kind": "frontdoor",
+            "properties": {
+                "originResponseTimeoutSeconds": 60,
+                "extendedProperties": {}
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "apiVersion": "2022-09-01",
+            "name": "[variables('vnetName')]",
+            "location": "[variables('location')]",
+            "tags": {
+                "SubscriptionId": "[parameters('subscriptionId')]",
+                "FarmNumber": "[parameters('farmNumber')]",
+                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
+                "PurchaserEmail": "[parameters('purchaserEmail')]"
+            },
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "10.0.0.0/16"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "default",
+                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
+                        "properties": {
+                            "addressPrefix": "10.0.0.0/24",
+                            "serviceEndpoints": [
+                                {
+                                    "service": "Microsoft.AzureCosmosDB",
+                                    "locations": [
+                                        "*"
+                                    ]
+                                }
+                            ],
+                            "delegations": [
+                                {
+                                    "name": "delegation",
+                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default'), '/delegations/delegation')]",
+                                    "properties": {
+                                        "serviceName": "Microsoft.Web/serverfarms"
+                                    },
+                                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                                }
+                            ],
+                            "privateEndpointNetworkPolicies": "Disabled",
+                            "privateLinkServiceNetworkPolicies": "Enabled"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets"
+                    }
+                ],
+                "virtualNetworkPeerings": [],
+                "enableDdosProtection": false
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks/subnets",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(variables('vnetName'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+            ],
+            "properties": {
+                "addressPrefix": "10.0.0.0/24",
+                "serviceEndpoints": [
+                    {
+                        "service": "Microsoft.AzureCosmosDB",
+                        "locations": [
+                            "*"
+                        ]
+                    }
+                ],
+                "delegations": [
+                    {
+                        "name": "delegation",
+                        "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default'), '/delegations/delegation')]",
+                        "properties": {
+                            "serviceName": "Microsoft.Web/serverfarms"
+                        },
+                        "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
+                    }
+                ],
+                "privateEndpointNetworkPolicies": "Disabled",
+                "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+        },
+        {
             "type": "Microsoft.DocumentDB/databaseAccounts",
             "apiVersion": "2022-11-15-preview",
             "name": "[variables('accountName')]",
@@ -142,6 +303,57 @@
             }
         },
         {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
+            "apiVersion": "2022-11-15-preview",
+            "name": "[concat(variables('accountName'), '/00000000-0000-0000-0000-000000000001')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
+            ],
+            "properties": {
+                "roleName": "Cosmos DB Built-in Data Reader",
+                "type": "BuiltInRole",
+                "assignableScopes": [
+                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
+                ],
+                "permissions": [
+                    {
+                        "dataActions": [
+                            "Microsoft.DocumentDB/databaseAccounts/readMetadata",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/executeQuery",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/readChangeFeed",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/read"
+                        ],
+                        "notDataActions": []
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleDefinitions",
+            "apiVersion": "2022-11-15-preview",
+            "name": "[concat(variables('accountName'), '/00000000-0000-0000-0000-000000000002')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
+            ],
+            "properties": {
+                "roleName": "Cosmos DB Built-in Data Contributor",
+                "type": "BuiltInRole",
+                "assignableScopes": [
+                    "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
+                ],
+                "permissions": [
+                    {
+                        "dataActions": [
+                            "Microsoft.DocumentDB/databaseAccounts/readMetadata",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/*",
+                            "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers/items/*"
+                        ],
+                        "notDataActions": []
+                    }
+                ]
+            }
+        },
+        {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
             "apiVersion": "2023-03-01-preview",
             "name": "[concat(variables('accountName'), '/', variables('databaseName'))]",
@@ -158,6 +370,38 @@
                 "resource": {
                     "id": "[variables('databaseName')]"
                 }
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2020-12-01",
+            "name": "[variables('appServicePlanName')]",
+            "location": "[variables('location')]",
+            "tags": {
+                "SubscriptionId": "[parameters('subscriptionId')]",
+                "FarmNumber": "[parameters('farmNumber')]",
+                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
+                "PurchaserEmail": "[parameters('purchaserEmail')]"
+            },
+            "sku": {
+                "name": "P0v3",
+                "tier": "PremiumV3",
+                "size": "P0v3",
+                "family": "Pv3",
+                "capacity": 2
+            },
+            "kind": "linux",
+            "properties": {
+                "perSiteScaling": false,
+                "elasticScaleEnabled": false,
+                "maximumElasticWorkerCount": 1,
+                "isSpot": false,
+                "reserved": true,
+                "isXenon": false,
+                "hyperV": false,
+                "targetWorkerCount": 0,
+                "targetWorkerSizeId": 0,
+                "zoneRedundant": false
             }
         },
         {
@@ -199,7 +443,7 @@
             "apiVersion": "2020-12-01",
             "name": "[variables('publisherName')]",
             "location": "[variables('location')]",
-             "tags": {
+            "tags": {
                 "SubscriptionId": "[parameters('subscriptionId')]",
                 "FarmNumber": "[parameters('farmNumber')]",
                 "PurchaserTenantId": "[parameters('purchaserTenantId')]",
@@ -266,7 +510,6 @@
                     "properties": {
                         "CosmosIdentityDbName": "[variables('databaseName')]",
                         "CosmosAdminEmail": "[variables('adminEmail')]",
-                        "CosmosSendGridApiKey": "[variables('sendGridApiKey')]",
                         "CosmosPrimaryCloud": "azure",
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
                         "DOCKER_REGISTRY_SERVER_PASSWORD": "[variables('dockerRegPassword')]",
@@ -286,6 +529,10 @@
                         "ApplicationDbContextConnection": {
                             "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')), '2019-12-12').connectionStrings[0].connectionString]",
                             "type": "Custom"
+                        },
+                        "AzureCommunicationConnection": {
+                            "value": "[variables('azureCommunicationConnection')]",
+                            "type": "Custom"
                         }
                     }
                 }
@@ -296,7 +543,7 @@
             "apiVersion": "2020-12-01",
             "name": "[variables('editorName')]",
             "location": "[variables('location')]",
-             "tags": {
+            "tags": {
                 "SubscriptionId": "[parameters('subscriptionId')]",
                 "FarmNumber": "[parameters('farmNumber')]",
                 "PurchaserTenantId": "[parameters('purchaserTenantId')]",
@@ -366,7 +613,6 @@
                         "AzureBlobStorageConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',concat(listKeys(concat(resourceGroup().id,'/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName')),'2015-05-01-preview').key1))]",
                         "CosmosIdentityDbName": "[variables('databaseName')]",
                         "CosmosAdminEmail": "[variables('adminEmail')]",
-                        "CosmosSendGridApiKey": "[variables('sendGridApiKey')]",
                         "CosmosPrimaryCloud": "azure",
                         "CosmosAllowSetup": "true",
                         "CosmosPublisherUrl": "[concat('https://', variables('publisherName'), '.azurewebsites.net')]",
@@ -396,25 +642,15 @@
                         "CosmosSignalRConnection": {
                             "value": "[listKeys(resourceId('Microsoft.SignalRService/signalR', variables('signalRName')), '2023-02-01').primaryConnectionString]",
                             "type": "Custom"
+                        },
+                        "AzureCommunicationConnection": {
+                            "value": "[variables('azureCommunicationConnection')]",
+                            "type": "Custom"
                         }
                     }
                 }
             ]
         }
-        
     ],
-    "outputs": {
-        "ipAddressForSendGrid": {
-            "type": "string",
-            "value": "[reference(resourceId('Microsoft.Web/sites', variables('editorName')), '2018-02-01').possibleOutboundIpAddresses]"
-        },
-        "editorUrl": {
-            "type": "string",
-            "value": "[concat(variables('editorName'), '.azurewebsites.net')]"
-        },
-        "publisherUrl": {
-            "type": "string",
-            "value": "[concat(variables('publisherName'), '.azurewebsites.net')]"
-        }
-    }
+    "outputs": {}
 }

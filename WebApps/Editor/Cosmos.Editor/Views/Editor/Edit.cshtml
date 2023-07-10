@@ -4,7 +4,7 @@
     ViewData["Title"] = "Editing: " + Model.Title;
 }
 
-<form class="d-flex" id="frmSave">
+<form class="d-flex" id="frmSave" autocomplete="off">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
     <input type="hidden" asp-for="SaveAsNewVersion" />
@@ -258,6 +258,12 @@
                     $("#Id").val(model.Id);
                     $("#VersionNumber").val(model.VersionNumber);
                     setWorkingVersion(model.VersionNumber);
+                    // Prevent auto save
+                    enableAutoSave = false;
+                    let ckeditor = findEditor(editorId);
+                    ckeditor.data.set(model.Data);
+                    // Renable auto save
+                    enableAutoSave = true;
                     saveInProgress = false;
                     doneSaving();
                     break;
@@ -288,8 +294,6 @@
                     break;
             }
 
-            const editor = findEditor(editorId);
-            
             var session = null;
 
             $(ckeditorSessions).each(function (index, item) {
@@ -800,8 +804,12 @@
                     model.Data = "";
 
                     signalRConnection.invoke("Notification", JSON.stringify(model));
+                    saveInProgress = false;
+                    doneSaving();
                 })
                 .fail(function () {
+                    saveInProgress = false;
+                    doneSaving();
                     alert("error");
                 });
         }
@@ -817,9 +825,8 @@
                 VersionNumber: $("#VersionNumber").val(),
                 Data: editor.getData()
             };
-        }
-        
-        if (command === "save") {
+
+            signalRConnection.invoke("Notification", JSON.stringify(model));
         }
     }
 
