@@ -66,7 +66,13 @@ namespace Cosmos.Cms.Models
         /// URL path
         /// </summary>
         public string UrlPath { get; set; } = "";
-        public string BannerImage { get; internal set; }
-        public string RoleList { get; internal set; }
+        /// <summary>
+        /// Banner Image URL
+        /// </summary>
+        public string BannerImage { get; set; }
+        /// <summary>
+        /// Role access list
+        /// </summary>
+        public string RoleList { get; set; }
     }
 }

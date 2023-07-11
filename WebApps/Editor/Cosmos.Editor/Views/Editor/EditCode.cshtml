@@ -32,7 +32,7 @@
 </nav>
 <div id="editspace" class="m-editor-container"></div>
 <form id="frmSave" asp-action="EditCode">
-    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="Id" value="@Model.Id" />
     <input type="hidden" asp-for="SaveAsNewVersion" />
     <input type="hidden" asp-for="VersionNumber" />
     <input type="hidden" asp-for="ArticleNumber" />
