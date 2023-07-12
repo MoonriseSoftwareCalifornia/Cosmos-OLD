@@ -23,7 +23,7 @@
         </div>
         @if (Model != null && Model.Any())
         {
-            <div class="row bg-dark">
+            <div class="row">
                 <div class="col-md-12 d-flex flex-row">
                     <form id="frmNewRole">
                         <input type="hidden" id="Id" value="">
@@ -33,8 +33,8 @@
                     </form>
                 </div>
             </div>
-            <div class="row bg-dark">
-                <div class="col-md-6">
+            <div class="row cpws-table-pager-row-top">
+                <div class="col-md-12">
                     @* <div class="btn-group" role="group" aria-label="Page Actions">
                 <p>@Model.Count() users selected.</p>
                 <button type="button" id="btnAddToRoles" class="btn btn-sm btn-primary" style="display:none;color: #e6ccff">Add Selected Users to Roles</button>
@@ -47,7 +47,7 @@
             </div>
         }
 
-        <div class="row">
+        <div class="row bg-dark">
             <div class="col-md-12">
                 <div class="table-responsive custom-table-responsive">
                     <table class="table custom-table">
@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <div class="row bg-dark">
+        <div class="row cpws-table-pager-row-bottom">
             <div class="col-md-12 d-flex justify-content-center">
                 <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
             </div>

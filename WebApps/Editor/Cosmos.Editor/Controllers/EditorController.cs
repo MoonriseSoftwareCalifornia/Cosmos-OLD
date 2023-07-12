@@ -1182,8 +1182,6 @@ namespace Cosmos.Cms.Controllers
                     return Unauthorized();
 
                 return View(new HtmlEditorViewModel(model));
-
-                return NotFound();
             }
             catch (Exception e)
             {

@@ -217,9 +217,4 @@
     $("#btnGetHelp").click(function () {
         $("#iframeContactSupport").attr("src", "/Ccms__ContactUs/Index");
     });
-    $('#iframeContactSupport').on("load", function () {
-        $(this).height($(this).contents().find("html").height());
-        let myModal = bootstrap.Modal.getInstance(document.getElementById("modalContactUs"));
-        myModal.handleUpdate();
-    });
 </script>

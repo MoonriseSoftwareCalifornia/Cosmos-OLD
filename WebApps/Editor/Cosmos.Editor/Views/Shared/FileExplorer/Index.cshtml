@@ -161,7 +161,7 @@
         </div>
     }
 
-    <div class="row bg-dark">
+    <div class="row cpws-table-pager-row-top">
         <div class="col-md-4">
             <div class="btn-group" role="group" aria-label="File and folder actions">
                 @if (directoryOnly)
@@ -200,7 +200,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row bg-dark">
         <div class="col-md-12">
             <!-- Flexbox container for aligning the toasts -->
             <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center" style="position:relative;">
@@ -270,8 +270,8 @@
     }
     else
     {
-        <div class="row">
-            <div class="col-md-12 bg-dark">
+        <div class="row bg-dark">
+            <div class="col-md-12">
                 <div class="table-responsive custom-table-responsive">
                     <table class="table custom-table">
                         <thead>
@@ -374,8 +374,7 @@
         </div>
     }
 
-
-    <div class="row bg-dark pb-3">
+    <div class="row cpws-table-pager-row-bottom pb-3">
         <div class="col-md-12 d-flex justify-content-center">
             <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
         </div>
@@ -702,6 +701,8 @@
 
             let path = getPath(element);
 
+            cwpsSelectTableRow(element, false);
+
             if (path === "pub" || path === "pub/") {
                 $(element).prop('checked', false);
                 $(element).prop('disabled', true);
@@ -709,6 +710,7 @@
 
             if ((paths.indexOf(path) > -1)) {
                 $(element).prop('checked', true);
+                cwpsSelectTableRow(element, true);
             }
 
             $(element).on("change", function () {
@@ -716,8 +718,10 @@
                     var isChecked = $(element).prop('checked');
                     $(".gridCheckBox").each(function (i, e) {
                         $(e).prop('checked', false);
+                        cwpsSelectTableRow(e, false);
                     });
                     $(element).prop('checked', true);
+                    cwpsSelectTableRow(element, true);
                 }
 
                 resetButtons();
@@ -776,39 +780,21 @@
         var selector = '[data-ccms-blob="' + element + '"]';
         const checkbox = $(selector)[0];
         $(checkbox).click();
+        if ($(checkbox).prop('checked')) {
+            cwpsSelectTableRow(checkbox, true);
+        } else {
+            cwpsSelectTableRow(checkbox, false);
+        }
     }
 
     function clearSelection() {
         $(".gridCheckBox").each(function (index, element) {
             $(element).prop('checked', false);
+            cwpsSelectTableRow(element, false);
         });
         clearPaths();
         resetButtons();
     }
-
-    $("#frmChangeName").submit(function (e) {
-        e.preventDefault();
-
-        var form = $('#frmChangeName');
-
-        showModal("busy", "Renaming item(s)");
-
-        $.post("@Url.Action("Rename", controller)",
-            form.serialize(),
-            function (response) {
-                clearSelection();
-                hideModals();
-            })
-            .done(function () {
-                clearSelection();
-                window.location.href = "@Url.Action(action, controller)?target=@pathPrefix&container=@container";
-            })
-            .fail(function () {
-                alert("error");
-                hideModals();
-            });
-
-    });
 
     function resetButtons() {
 
@@ -817,9 +803,11 @@
             var path = getPath(element);
 
             if ($(element).is(':checked')) {
+                cwpsSelectTableRow(element, true);
                 savePath(path);
             } else {
                 removePath(path);
+                cwpsSelectTableRow(element, false);
             }
 
         });

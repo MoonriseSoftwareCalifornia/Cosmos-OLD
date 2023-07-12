@@ -23,7 +23,7 @@
                 <div asp-validation-summary="All" class="text-danger"></div>
             </div>
         </div>
-        <div class="row bg-dark">
+        <div class="row cpws-table-pager-row-top">
             <div class="col-md-6">
                 <div class="btn-group" role="group" aria-label="Page Actions">
                     <a class="btn btn-sm btn-primary" asp-action="Index" title="User account list.">User List <i class="fa-solid fa-circle-arrow-right"></i></a>
@@ -33,7 +33,7 @@
                 <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
             </div>
         </div>
-        <div class="row">
+        <div class="row bg-dark">
             <div class="col-md-12">
                 <div class="table-responsive custom-table-responsive">
                     <table class="table custom-table">
@@ -89,8 +89,7 @@
 
             </div>
         </div>
-
-        <div class="row bg-dark">
+        <div class="row cpws-table-pager-row-bottom">
             <div class="col-md-12 d-flex justify-content-center">
                 <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
             </div>

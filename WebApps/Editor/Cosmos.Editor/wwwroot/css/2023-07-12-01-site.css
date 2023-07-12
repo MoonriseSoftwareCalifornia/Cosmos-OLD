@@ -12,61 +12,76 @@
     background-color: #323236;
 }
 
-    body.cwps-body
-    h1, h2, h3, h4, h5, h6,
-    .h1, .h2, .h3, .h4, .h5, .h6 {
-        font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+.cwps-std-tbl-row-selected {
+    background-color: #2a52a2 !important;
+}
+
+body.cwps-body
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+body.cwps-body a {
+    -webkit-transition: .3s all ease;
+    -o-transition: .3s all ease;
+    transition: .3s all ease;
+}
+
+body.cwps-body a, a:hover {
+    text-decoration: none !important;
+}
+
+body.cwps-body .content {
+    padding: 7rem 0;
+}
+
+body.cwps-body h2 {
+    font-size: 20px;
+    color: #fff;
+}
+
+.cpws-table-pager-row-top {
+    background-color: #4c4b4b;
+    border-radius: 15px 15px 3px 3px;
+}
+
+.cpws-table-pager-row-bottom {
+    background-color: #4c4b4b;
+    border-radius: 3px 3px 15px 15px;
+}
+
+body.cwps-body .custom-table {
+    min-width: 900px;
+    background-color: #25252b;
+}
+
+    body.cwps-body .custom-table thead tr, .custom-table thead th {
+        border-top: none;
+        border-bottom: none !important;
+        color: #fff;
     }
 
-    body.cwps-body a {
+    body.cwps-body .custom-table tbody th, .custom-table tbody td {
+        color: white;
+        font-weight: 400;
+        padding-bottom: 20px;
+        padding-top: 20px;
+        font-weight: 300;
+    }
+
+        .custom-table tbody th small, .custom-table tbody td small {
+            color: #b3b3b3;
+            font-weight: 300;
+        }
+
+    body.cwps-body .custom-table tbody tr:not(.spacer) {
+        border-radius: 7px;
+        overflow: hidden;
         -webkit-transition: .3s all ease;
         -o-transition: .3s all ease;
         transition: .3s all ease;
     }
-
-    body.cwps-body a, a:hover {
-        text-decoration: none !important;
-    }
-
-    body.cwps-body .content {
-        padding: 7rem 0;
-    }
-
-    body.cwps-body h2 {
-        font-size: 20px;
-        color: #fff;
-    }
-
-    body.cwps-body .custom-table {
-        min-width: 900px;
-    }
-
-        body.cwps-body .custom-table thead tr, .custom-table thead th {
-            border-top: none;
-            border-bottom: none !important;
-            color: #fff;
-        }
-
-        body.cwps-body .custom-table tbody th, .custom-table tbody td {
-            color: white;
-            font-weight: 400;
-            padding-bottom: 20px;
-            padding-top: 20px;
-            font-weight: 300;
-        }
-
-            .custom-table tbody th small, .custom-table tbody td small {
-                color: #b3b3b3;
-                font-weight: 300;
-            }
-
-        body.cwps-body .custom-table tbody tr:not(.spacer) {
-            border-radius: 7px;
-            overflow: hidden;
-            -webkit-transition: .3s all ease;
-            -o-transition: .3s all ease;
-            transition: .3s all ease;
-        }
 
 .custom-table tbody tr:not(.spacer):hover {
     -webkit-box-shadow: 0 2px 10px -5px rgba(0, 0, 0, 0.1);
@@ -74,7 +89,6 @@
 }
 
 body.cwps-body .custom-table tbody tr th, .custom-table tbody tr td {
-    background: #25252b;
     border: none;
     -webkit-transition: .3s all ease;
     -o-transition: .3s all ease;
