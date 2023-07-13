@@ -1,5 +1,4 @@
 using AspNetCore.Identity.CosmosDb.Extensions;
-using Cosmos.EmailServices;
 using Azure.Identity;
 using Azure.ResourceManager;
 using Cosmos.BlobService;
@@ -8,6 +7,7 @@ using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Hubs;
 using Cosmos.Cms.Services;
 using Cosmos.Common.Data;
+using Cosmos.EmailServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -114,6 +114,30 @@ namespace Cosmos.Cms
 
             // Add shared data protection here
             services.AddDataProtection().PersistKeysToDbContext<ApplicationDbContext>();
+
+            // SUPPORTED OAuth Providers
+            // Add Google if keys are present
+            var googleClientId = Configuration["Authentication:Google:ClientId"];
+            var googleClientSecret = Configuration["Authentication:Google:ClientSecret"];
+            if (!string.IsNullOrEmpty (googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+            {
+                services.AddAuthentication().AddGoogle(options =>
+                {
+                    options.ClientId = googleClientId;
+                    options.ClientSecret = googleClientSecret;
+                });
+            }
+            // Add Microsoft if keys are present
+            var microsoftClientId = Configuration["Authentication:Microsoft:ClientId"];
+            var microsoftClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
+            if (!string.IsNullOrEmpty(microsoftClientId) && !string.IsNullOrEmpty(microsoftClientSecret))
+            {
+                services.AddAuthentication().AddMicrosoftAccount(options =>
+                {
+                    options.ClientId = microsoftClientId;
+                    options.ClientSecret = microsoftClientSecret;
+                });
+            }
 
             // Add IDistributed cache using Cosmos DB
             // This enables the editor to run in a web farm without needing
@@ -386,7 +410,7 @@ namespace Cosmos.Cms
                 endpoints.MapControllerRoute(
                     "MsValidation",
                     ".well-known/microsoft-identity-association.json",
-                    new { controller = "Home", action = "GetMicrosoftIdentityAssociation" });
+                    new { controller = "Home", action = "GetMicrosoftIdentityAssociation" }).AllowAnonymous();
 
                 endpoints.MapControllerRoute(
                     "MyArea",

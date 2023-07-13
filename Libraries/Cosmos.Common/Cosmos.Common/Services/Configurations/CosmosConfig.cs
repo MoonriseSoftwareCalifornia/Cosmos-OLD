@@ -13,7 +13,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
         /// </summary>
         public CosmosConfig()
         {
-            AuthenticationConfig = new AuthenticationConfig();
             CdnConfig = new CdnConfig();
             EditorUrls = new List<EditorUrl>();
             SiteSettings = new SiteSettings();
@@ -43,11 +42,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
         /// </remarks>
         [Display(Name = "Primary language code.")]
         public string PrimaryLanguageCode { get; set; } = "en-US";
-
-        /// <summary>
-        ///     Authentication
-        /// </summary>
-        public AuthenticationConfig AuthenticationConfig { get; set; }
 
         /// <summary>
         ///     CDN Configuration

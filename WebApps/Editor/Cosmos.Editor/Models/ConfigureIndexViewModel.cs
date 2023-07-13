@@ -1,6 +1,5 @@
 ﻿using Cosmos.Cms.Common.Services.Configurations;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 
 namespace Cosmos.Cms.Models
 {
@@ -117,7 +116,6 @@ namespace Cosmos.Cms.Models
             PrimaryCloud = config.PrimaryCloud;
             SiteSettings = config.SiteSettings;
             ImportJson = string.Empty;
-            AuthenticationConfig = config.AuthenticationConfig;
             CdnConfig = config.CdnConfig;
             SendGridConfig = config.SendGridConfig;
             StorageConfig = config.StorageConfig;
@@ -129,18 +127,6 @@ namespace Cosmos.Cms.Models
         }
 
         /// <summary>
-        ///     Generates a random string of 32 numbers and charachers.
-        /// </summary>
-        /// <returns></returns>
-        private string RandomKey()
-        {
-            var random = new Services.RNGCryptoRandomGenerator();
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz";
-            return new string(Enumerable.Repeat(chars, 32)
-                .Select(s => s[random.Next(0, s.Length)]).ToArray());
-        }
-
-        /// <summary>
         ///     Gets the Cosmos Config
         /// </summary>
         /// <returns></returns>
@@ -148,7 +134,6 @@ namespace Cosmos.Cms.Models
         {
             return new()
             {
-                AuthenticationConfig = AuthenticationConfig,
                 CdnConfig = CdnConfig,
                 GoogleCloudAuthConfig = GoogleCloudAuthConfig,
                 PrimaryCloud = PrimaryCloud,
