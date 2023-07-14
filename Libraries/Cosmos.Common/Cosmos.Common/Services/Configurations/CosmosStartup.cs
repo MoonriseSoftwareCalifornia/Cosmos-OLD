@@ -160,7 +160,7 @@ namespace Cosmos.Cms.Common.Services.Configurations
 
             // Microsoft App ID
             cosmosConfig.SecretName = GetValue<string>("CosmosSecretName");
-            cosmosConfig.MicrosoftAppId = GetValue<string>("MicrosoftAppId");
+            cosmosConfig.MicrosoftAppId = GetValue<string>("Authentication:MicroSoft:ClientId");
             cosmosConfig.PrimaryCloud = GetValue<string>("CosmosPrimaryCloud");
             cosmosConfig.SendGridConfig.EmailFrom = GetValue<string>("CosmosAdminEmail");
             cosmosConfig.SendGridConfig.SendGridKey = GetValue<string>("CosmosSendGridApiKey");

@@ -198,15 +198,6 @@ namespace Cosmos.Cms
                  ConnectionString = azureCommunicationConnection
             });
 
-            //
-            // Must have an Email sender when using Identity Framework.
-            // You will need an IEmailProvider. Below uses a SendGrid EmailProvider. You can use another.
-            // Below users NuGet package: AspNetCore.Identity.Services.SendGrid
-            //var sendGridApiKey = Configuration.GetValue<string>("CosmosSendGridApiKey");
-            //var adminEmail = Configuration.GetValue<string>("CosmosAdminEmail");
-            //var sendGridOptions = new SendGridEmailProviderOptions(sendGridApiKey, adminEmail);
-            //services.AddSendGridEmailProvider(sendGridOptions);
-
             // End add SendGrid
 
             // Add the BLOB and File Storage contexts for Cosmos WPS
@@ -381,23 +372,6 @@ namespace Cosmos.Cms
             app.UseCors();
 
             app.UseResponseCaching(); //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-3.1
-
-
-            //app.Use(async (context, next) =>
-            //{
-            //    //
-            //    //context.Response.Headers[HeaderNames.CacheControl] = "no-store";
-            //    context.Response.GetTypedHeaders().CacheControl =
-            //        new Microsoft.Net.Http.Headers.CacheControlHeaderValue()
-            //        {
-            //            NoStore = true,
-            //            NoCache = false
-            //        };
-            //    //context.Response.Headers[Microsoft.Net.Http.Headers.HeaderNames.Vary] =
-            //    //    new string[] { "Accept-Encoding" };
-
-            //    await next();
-            //});
 
             app.UseAuthentication();
             app.UseAuthorization();
