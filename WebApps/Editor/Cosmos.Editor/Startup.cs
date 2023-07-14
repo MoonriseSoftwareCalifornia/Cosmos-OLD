@@ -117,8 +117,8 @@ namespace Cosmos.Cms
 
             // SUPPORTED OAuth Providers
             // Add Google if keys are present
-            var googleClientId = Configuration["Authentication:Google:ClientId"];
-            var googleClientSecret = Configuration["Authentication:Google:ClientSecret"];
+            var googleClientId = Configuration["Authentication_Google_ClientId"];
+            var googleClientSecret = Configuration["Authentication_Google_ClientSecret"];
             if (!string.IsNullOrEmpty (googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
             {
                 services.AddAuthentication().AddGoogle(options =>
@@ -128,8 +128,8 @@ namespace Cosmos.Cms
                 });
             }
             // Add Microsoft if keys are present
-            var microsoftClientId = Configuration["Authentication:Microsoft:ClientId"];
-            var microsoftClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
+            var microsoftClientId = Configuration["Authentication_Microsoft_ClientId"];
+            var microsoftClientSecret = Configuration["Authentication_Microsoft_ClientSecret"];
             if (!string.IsNullOrEmpty(microsoftClientId) && !string.IsNullOrEmpty(microsoftClientSecret))
             {
                 services.AddAuthentication().AddMicrosoftAccount(options =>

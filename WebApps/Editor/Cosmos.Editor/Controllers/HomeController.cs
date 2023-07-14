@@ -280,12 +280,7 @@ namespace Cosmos.Cms.Controllers
         public IActionResult GetMicrosoftIdentityAssociation()
         {
             var model = new MicrosoftValidationObject();
-            var appIds = _options.Value.MicrosoftAppId.Split(',');
-
-            foreach (var id in appIds)
-            {
-                model.associatedApplications.Add(new AssociatedApplication() { applicationId = id });
-            }
+            var appIds = _options.Value.MicrosoftAppId;
 
             var data = Newtonsoft.Json.JsonConvert.SerializeObject(model);
 
@@ -302,7 +297,7 @@ namespace Cosmos.Cms.Controllers
         {
             try
             {
-                var t = await _dbContext.Users.CountAsync();
+                _ = await _dbContext.Users.Select(s => s.Id).FirstOrDefaultAsync();
                 return Ok();
             }
             catch
