@@ -280,7 +280,7 @@ namespace Cosmos.Cms.Controllers
         public IActionResult GetMicrosoftIdentityAssociation()
         {
             var model = new MicrosoftValidationObject();
-            var appIds = _options.Value.MicrosoftAppId;
+            model.associatedApplications.Add(new AssociatedApplication() { applicationId = _options.Value.MicrosoftAppId });
 
             var data = Newtonsoft.Json.JsonConvert.SerializeObject(model);
 
