@@ -1,6 +1,6 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-    "contentVersion": "1.0.0.0",
+    "contentVersion": "1.0.1.0",
     "metadata": {
         "description": "Installs the Cosmos CMS Web Farm."
     },
@@ -43,7 +43,40 @@
             "allowedValues": [
                 "Locally-redundant storage",
                 "Geo-redundant storage"
-            ]
+            ],
+            "metadata": {
+                "description": "Storage account type."
+            }
+        },
+        "azureCommConn": {
+            "type": "string",
+            "metadata": {
+                "description": "Azure Email Communications connection string."
+            }
+        },
+        "GoogleClientId":{
+            "type": "string",
+            "metadata": {
+                "description": "(OpenID): Google client ID."
+            }
+        },
+        "GoogleSecret":{
+            "type": "string",
+            "metadata": {
+                "description": "(OpenID): Google client secret."
+            }
+        },
+        "MicrosoftClientId":{
+            "type": "string",
+            "metadata": {
+                "description": "(OpenID): Microsoft client ID."
+            }
+        },
+        "MicrosoftSecret":{
+            "type": "string",
+            "metadata": {
+                "description": "(OpenID): Microsoft client secret."
+            }
         }
     },
     "functions": [],
@@ -51,7 +84,7 @@
         "frontdoorName": "[concat('afd-', parameters('farmNumber'), '-', uniqueString(resourceGroup().id))]",
         "signalRName": "[concat('signalr-', parameters('farmNumber'), '-', uniqueString(resourceGroup().id))]",
         "vnetName": "[concat('vnet-', parameters('farmNumber'), '-', uniquestring(resourceGroup().id))]",
-        "adminEmail": "DoNotReply@cosmosws.io",
+        "adminEmail": "[parameters('purchaserEmail')]",
         "location": "[resourceGroup().location]",
         "accountName": "[concat('cosmos-', parameters('farmNumber'), '-', uniqueString(resourceGroup().id))]",
         "databaseName": "[concat('cosmosdbxx', parameters('farmNumber'), 'xx', parameters('websiteNumber'))]",
@@ -59,7 +92,7 @@
         "appServicePlanName": "[concat('appplan', parameters('farmNumber'), '-', uniquestring(resourceGroup().id))]",
         "editorName": "[concat('edi-', parameters('farmNumber'), '-', parameters('websiteNumber'), '-', uniquestring(resourceGroup().id))]",
         "publisherName": "[concat('pub-', parameters('farmNumber'), '-', parameters('websiteNumber'), '-', uniquestring(resourceGroup().id))]",
-        "azureCommunicationConnection": "endpoint=https://cosmos.communication.azure.com/;accesskey=Suvs4q4+GyA4B/Dwh4RrwG0+JKsfplqI9QxtLSSK7aPY20zShaChHkk9zgz1F9TPkUnfnb/3+ayqrpVQqYd0dg==",
+        "sendGridApiKey": "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",
         "dockerRegPassword": "y0SH6UcQ8JrYfrsPwf6Z1q9U+SU+iqvkfOC2yy4+6J+ACRDHZLtJ",
         "dockerRegUrl": "https://moonrise.azurecr.io",
         "dockerRegUsername": "moonrise"
@@ -510,7 +543,12 @@
                     "properties": {
                         "CosmosIdentityDbName": "[variables('databaseName')]",
                         "CosmosAdminEmail": "[variables('adminEmail')]",
+                        "CosmosSendGridApiKey": "[variables('sendGridApiKey')]",
                         "CosmosPrimaryCloud": "azure",
+                        "Authentication_Google_ClientId": "[parameters('GoogleClientId')]",
+                        "Authentication_Google_ClientSecret": "[parameters('GoogleSecret')]",
+                        "Authentication_Microsoft_ClientId": "[parameters('MicrosoftClientId')]",
+                        "Authentication_Microsoft_ClientSecret": "[parameters('MicrosoftSecret')]",
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
                         "DOCKER_REGISTRY_SERVER_PASSWORD": "[variables('dockerRegPassword')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",
@@ -531,7 +569,7 @@
                             "type": "Custom"
                         },
                         "AzureCommunicationConnection": {
-                            "value": "[variables('azureCommunicationConnection')]",
+                            "value": "[parameters('azureCommConn')]",
                             "type": "Custom"
                         }
                     }
@@ -613,6 +651,7 @@
                         "AzureBlobStorageConnectionString": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',concat(listKeys(concat(resourceGroup().id,'/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName')),'2015-05-01-preview').key1))]",
                         "CosmosIdentityDbName": "[variables('databaseName')]",
                         "CosmosAdminEmail": "[variables('adminEmail')]",
+                        "CosmosSendGridApiKey": "[variables('sendGridApiKey')]",
                         "CosmosPrimaryCloud": "azure",
                         "CosmosAllowSetup": "true",
                         "CosmosPublisherUrl": "[concat('https://', variables('publisherName'), '.azurewebsites.net')]",
@@ -620,6 +659,10 @@
                         "CosmosStorageUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2018-07-01').primaryEndpoints.web]",
                         "CosmosBlobContainer": "$web",
                         "CosmosSecretKey": "[concat('CSK-', uniqueString(resourceGroup().id))]",
+                        "Authentication_Google_ClientId": "[parameters('GoogleClientId')]",
+                        "Authentication_Google_ClientSecret": "[parameters('GoogleSecret')]",
+                        "Authentication_Microsoft_ClientId": "[parameters('MicrosoftClientId')]",
+                        "Authentication_Microsoft_ClientSecret": "[parameters('MicrosoftSecret')]",
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
                         "DOCKER_REGISTRY_SERVER_PASSWORD": "[variables('dockerRegPassword')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",
@@ -644,7 +687,7 @@
                             "type": "Custom"
                         },
                         "AzureCommunicationConnection": {
-                            "value": "[variables('azureCommunicationConnection')]",
+                            "value": "[parameters('azureCommConn')]",
                             "type": "Custom"
                         }
                     }
