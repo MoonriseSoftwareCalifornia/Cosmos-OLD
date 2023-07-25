@@ -105,7 +105,14 @@ namespace Cosmos.Cms
             }
 
             // Add Azure Frontdoor connection here
-            var azureFrontdoorConnection = Configuration.GetSection("FrontdoorConnection").Get<FrontdoorConnection>();
+            // First try and get the connection from a configuration variable
+            var azureFrontdoorConnection = Configuration.GetValue<FrontdoorConnection>("FrontdoorConnection");
+
+            if (azureFrontdoorConnection == null)
+            {
+                azureFrontdoorConnection = Configuration.GetSection("FrontdoorConnection").Get<FrontdoorConnection>();
+            }
+
             if (azureFrontdoorConnection == null)
             {
                 azureFrontdoorConnection = new FrontdoorConnection();
