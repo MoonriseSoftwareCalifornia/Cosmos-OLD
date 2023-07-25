@@ -7,6 +7,7 @@ using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Hubs;
 using Cosmos.Cms.Services;
 using Cosmos.Common.Data;
+using Cosmos.Editor.Models;
 using Cosmos.EmailServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -102,6 +103,18 @@ namespace Cosmos.Cms
                         });
                 });
             }
+
+            // Add Azure Frontdoor connection here
+            var azureFrontdoorConnection = Configuration.GetSection("FrontdoorConnection").Get<FrontdoorConnection>();
+            if (azureFrontdoorConnection == null)
+            {
+                azureFrontdoorConnection = new FrontdoorConnection();
+            }
+            else
+            {
+                azureFrontdoorConnection.EndpointName = Configuration["FrontdoorEndpointName"];
+            }
+            services.AddSingleton(azureFrontdoorConnection);
 
             //
             // Add Cosmos Identity here

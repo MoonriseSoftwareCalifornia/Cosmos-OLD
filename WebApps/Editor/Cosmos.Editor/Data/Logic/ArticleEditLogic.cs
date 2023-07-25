@@ -1,14 +1,17 @@
-﻿using Azure.ResourceManager;
+﻿using Azure;
+using Azure.Identity;
+using Azure.ResourceManager;
 using Azure.ResourceManager.Cdn;
 using Azure.ResourceManager.Cdn.Models;
 using Azure.ResourceManager.Resources;
-using Cosmos.Common.Data;
-using Cosmos.Common.Data.Logic;
-using Cosmos.Common.Models;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Controllers;
 using Cosmos.Cms.Models;
 using Cosmos.Cms.Services;
+using Cosmos.Common.Data;
+using Cosmos.Common.Data.Logic;
+using Cosmos.Common.Models;
+using Cosmos.Editor.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -33,6 +36,7 @@ namespace Cosmos.Cms.Data.Logic
     {
         private readonly ILogger<ArticleEditLogic> _logger;
         private readonly AzureSubscription _azureSubscription;
+        private readonly FrontdoorConnection _adfConnection;
 
         /// <summary>
         ///     Constructor
@@ -42,17 +46,20 @@ namespace Cosmos.Cms.Data.Logic
         /// <param name="config"></param>
         /// <param name="logger"></param>
         /// <param name="azureSubscription"></param>
+        /// <param name="adfConnection"></param>
         public ArticleEditLogic(ApplicationDbContext dbContext,
             IMemoryCache memoryCache,
             IOptions<CosmosConfig> config,
             ILogger<ArticleEditLogic> logger,
-            AzureSubscription azureSubscription
+            AzureSubscription azureSubscription,
+            FrontdoorConnection adfConnection
             ) :
             base(dbContext,
                 config, memoryCache, true)
         {
             _logger = logger;
             _azureSubscription = azureSubscription;
+            _adfConnection = adfConnection;
         }
 
         /// <summary>
@@ -1160,15 +1167,26 @@ namespace Cosmos.Cms.Data.Logic
             }
         }
 
-        private async Task PurgeCdn(List<string> purgeUrls)
+        private async Task<ArmOperation> PurgeCdn(List<string> purgeUrls)
         {
-            if (_azureSubscription.Subscription == null)
-            {
-                _logger.LogError("Tried to purge CDN but DefaultAzureCredential did not return a subscription in Startup.cs.");
-                return; // Not authenticated
-            }
 
             purgeUrls = purgeUrls.Distinct().Select(s => s.Trim('/')).Select(s => s.Equals("root") ? "/" : "/" + s).ToList();
+
+            // Check for Azure Frontdoor, if available use that.
+            if (_adfConnection.IsConfigured())
+            {
+                var token = new ClientSecretCredential(_adfConnection.TenantId, _adfConnection.ClientId, _adfConnection.ClientSecret);
+                ArmClient client = new ArmClient(token);
+
+                var frontendEndpointResourceId = FrontDoorEndpointResource.CreateResourceIdentifier(_adfConnection.SubscriptionId, _adfConnection.ResourceGroupName, _adfConnection.FrontDoorName, _adfConnection.EndpointName);
+                var frontDoor = client.GetFrontDoorEndpointResource(frontendEndpointResourceId);
+
+
+                var purgeContent = new FrontDoorPurgeContent(purgeUrls);
+                var result = await frontDoor.PurgeContentAsync(WaitUntil.Started, purgeContent);
+
+                return result;
+            }
 
             // Check for CDN
             var cdnSetting = await DbContext.Settings.FirstOrDefaultAsync(f => f.Name == Cosmos_Admin_CdnController.CDNSERVICENAME);
@@ -1187,7 +1205,7 @@ namespace Cosmos.Cms.Data.Logic
 
                     var endPoint = await profile.Value.GetCdnEndpointAsync(azureCdnEndpoint.EndpointName);
 
-
+                    ArmOperation operation = null;
 
                     if (purgeUrls.Count > 100)
                     {
@@ -1205,7 +1223,7 @@ namespace Cosmos.Cms.Data.Logic
                                 if (count == 100)
                                 {
                                     var purgeContent = new PurgeContent(urls);
-                                    endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
+                                    operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
                                     count = 0;
                                     urls.Clear();
                                 }
@@ -1214,31 +1232,32 @@ namespace Cosmos.Cms.Data.Logic
                             if (urls.Any())
                             {
                                 var purgeContent = new PurgeContent(urls);
-                                endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
+                                operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
                             }
 
                         }
                         else
                         {
                             // Purge everything with wildcard * (Akamai does not support this)
-                            endPoint.Value.PurgeContent(Azure.WaitUntil.Started, new PurgeContent(new string[] { "/*" }));
+                            operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, new PurgeContent(new string[] { "/*" }));
                         }
                     }
                     else
                     {
                         // 100 paths or less, no need to page or use wildcard
                         var purgeContent = new PurgeContent(purgeUrls);
-                        endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
+                        operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
                     }
 
-
+                    return operation;
                 }
                 catch (Exception e)
                 {
                     _logger.LogError($"Failed to refresh CDN for {string.Join(",", purgeUrls)} the following reason:", e);
                 }
-
             }
+
+            return null;
         }
 
 

@@ -1,0 +1,9 @@
+{
+    "SubscriptionId" :"",
+    "ResourceGroupName" : "",
+    "FrontDoorName":"",
+    "EndpointName": "",
+    "TenantId":"",
+    "ClientId":"6472a1b9-429d-4b40-bde8-f8d631311326",
+    "ClientSecret": ""
+}

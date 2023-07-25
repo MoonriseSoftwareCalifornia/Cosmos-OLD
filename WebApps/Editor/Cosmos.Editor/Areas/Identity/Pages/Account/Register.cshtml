@@ -1,6 +1,7 @@
 ﻿@page
 @using Cosmos.Cms.Common.Services.Configurations
 @using Microsoft.Extensions.Options
+@inject IOptions<CosmosConfig> options
 @model RegisterModel
 @{
     ViewData["Title"] = "Create Account";
@@ -45,35 +46,37 @@
                             </div>
                         </form>
                     </section>
-                    <div>
-                        @if (Model.ExternalLogins?.Count > 0)
-                        {
-                            <hr />
-                            <h5 class="card-title text-center">Or continue below:</h5>
-                        }
-                    </div>
-                    <section>
-                        <div asp-validation-summary="All" class="text-danger"></div>
-                        <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                            <div class="form-group">
-                                <label asp-for="Input.Email"></label>
-                                <input asp-for="Input.Email" class="form-control" />
-                                <span asp-validation-for="Input.Email" class="badge badge-primary"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="Input.Password"></label>
-                                <input asp-for="Input.Password" class="form-control" />
-                                <span asp-validation-for="Input.Password" class="badge badge-primary"></span>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label asp-for="Input.ConfirmPassword"></label>
-                                <input asp-for="Input.ConfirmPassword" class="form-control" />
-                                <span asp-validation-for="Input.ConfirmPassword" class="badge badge-primary"></span>
-                            </div>
-                            <button type="submit" class="btn btn-dark">Create account</button>
-                        </form>
-                    </section>
-
+                    @if (options.Value.SiteSettings.AllowLocalAccounts)
+                    {
+                        <div>
+                            @if (Model.ExternalLogins?.Count > 0)
+                            {
+                                <hr />
+                                <h5 class="card-title text-center">Or continue below:</h5>
+                            }
+                        </div>
+                        <section>
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                            <form asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                                <div class="form-group">
+                                    <label asp-for="Input.Email"></label>
+                                    <input asp-for="Input.Email" class="form-control" />
+                                    <span asp-validation-for="Input.Email" class="badge badge-primary"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Input.Password"></label>
+                                    <input asp-for="Input.Password" class="form-control" />
+                                    <span asp-validation-for="Input.Password" class="badge badge-primary"></span>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="Input.ConfirmPassword"></label>
+                                    <input asp-for="Input.ConfirmPassword" class="form-control" />
+                                    <span asp-validation-for="Input.ConfirmPassword" class="badge badge-primary"></span>
+                                </div>
+                                <button type="submit" class="btn btn-dark">Create account</button>
+                            </form>
+                        </section>
+                    }
                 </div>
 
             </div>

@@ -1,6 +1,7 @@
 ﻿@page
 @using Cosmos.Cms.Common.Services.Configurations
 @using Microsoft.Extensions.Options
+@inject IOptions<CosmosConfig> options
 @model LoginModel
 @{
     ViewData["Title"] = "Log in";
@@ -48,41 +49,44 @@
                             </div>
                         </form>
                     </section>
-                    <div>
-                        @if (Model.ExternalLogins?.Count > 0)
-                        {
-                            <hr />
-                            <h5 class="card-title text-center">Or continue below:</h5>
-                        }
-                    </div>
-                    <section>
-                        <form id="account" method="post">
-                            <div asp-validation-summary="All" class="text-danger"></div>
-                            <div class="form-group mb-3">
-                                <label asp-for="Input.Email"></label>
-                                <input asp-for="Input.Email" class="form-control" />
-                                <span asp-validation-for="Input.Email" class="text-danger"></span>
-                                <a id="resend-confirmation" class="text-light" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label asp-for="Input.Password"></label>
-                                <input asp-for="Input.Password" class="form-control" />
-                                <span asp-validation-for="Input.Password" class="text-danger"></span>
-                                <a id="forgot-password" class="text-light" asp-page="./ForgotPassword">Forgot your password?</a>
-                            </div>
-                            <div class="form-group mb-3">
-                                <div class="checkbox" style="display:none">
-                                    <label asp-for="Input.RememberMe">
-                                        <input asp-for="Input.RememberMe" />
-                                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                                    </label>
+                    @if (options.Value.SiteSettings.AllowLocalAccounts)
+                    {
+                        <div>
+                            @if (Model.ExternalLogins?.Count > 0)
+                            {
+                                <hr />
+                                <h5 class="card-title text-center">Or continue below:</h5>
+                            }
+                        </div>
+                        <section>
+                            <form id="account" method="post">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="form-group mb-3">
+                                    <label asp-for="Input.Email"></label>
+                                    <input asp-for="Input.Email" class="form-control" />
+                                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                                    <a id="resend-confirmation" class="text-light" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
                                 </div>
-                            </div>
-                            <div class="form-group">
-                                <button type="submit" class="btn btn-dark">Log in</button>
-                            </div>
-                        </form>
-                    </section>
+                                <div class="form-group mb-3">
+                                    <label asp-for="Input.Password"></label>
+                                    <input asp-for="Input.Password" class="form-control" />
+                                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                                    <a id="forgot-password" class="text-light" asp-page="./ForgotPassword">Forgot your password?</a>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <div class="checkbox" style="display:none">
+                                        <label asp-for="Input.RememberMe">
+                                            <input asp-for="Input.RememberMe" />
+                                            @Html.DisplayNameFor(m => m.Input.RememberMe)
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-dark">Log in</button>
+                                </div>
+                            </form>
+                        </section>
+                    }
                 </div>
             </div>
         </div>

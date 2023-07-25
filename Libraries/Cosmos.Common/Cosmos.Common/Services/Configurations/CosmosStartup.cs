@@ -158,6 +158,12 @@ namespace Cosmos.Cms.Common.Services.Configurations
             cosmosConfig.SiteSettings.AllowConfigEdit = GetValue<bool>("CosmosAllowConfigEdit");
             cosmosConfig.SiteSettings.AllowReset = GetValue<bool>("CosmosAllowReset");
 
+            var localLogin = GetValue<bool?>("AllowLocalAccounts");
+            if (localLogin.HasValue)
+            {
+                cosmosConfig.SiteSettings.AllowLocalAccounts = localLogin.Value;
+            }
+
             // Microsoft App ID
             cosmosConfig.SecretName = GetValue<string>("CosmosSecretName");
             cosmosConfig.MicrosoftAppId = GetValue<string>("Authentication_Microsoft_ClientId");

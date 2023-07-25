@@ -12,7 +12,9 @@
       "commandName": "IISExpress",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "VaultUri": "https://mastervaultwestus.vault.azure.net/",
+        "AZURE_USERNAME": "eric@moonrise.net"
       }
     },
     "Docker": {
@@ -21,7 +23,11 @@
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
       "publishAllPorts": true,
       "useSSL": true,
-      "DockerfileRunArguments": ""
+      "DockerfileRunArguments": "",
+      "environmentVariables": {
+        "VaultUri": "https://mastervaultwestus.vault.azure.net/",
+        "AZURE_USERNAME": "eric@moonrise.net"
+      }
     }
   }
 }

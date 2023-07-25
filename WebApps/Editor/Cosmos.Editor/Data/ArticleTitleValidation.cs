@@ -86,9 +86,14 @@ namespace Cosmos.Cms.Data
                 a.Title.ToLower() == title &&
                 a.ArticleNumber != articleNumber &&
                 a.StatusCode != (int)StatusCodeEnum.Deleted &&
-                a.StatusCode != (int)StatusCodeEnum.Redirect).CountAsync().Result;
+                a.StatusCode != (int)StatusCodeEnum.Redirect).ToListAsync().Result;
 
-            if (result > 0)
+            foreach (var item in result)
+            {
+                item.StatusCode = (int)StatusCodeEnum.Deleted;
+            }
+
+            if (result.Count > 0)
                 return new ValidationResult($"'{value.ToString()}' is already taken.");
 
             return ValidationResult.Success;
