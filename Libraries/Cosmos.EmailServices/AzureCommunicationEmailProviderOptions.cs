@@ -9,6 +9,6 @@
         /// <summary>
         /// Default 'from' email address (if not using the default).
         /// </summary>
-        public string DefaultFromEmailAddress { get; set; } = "DoNotReply@notifications.cosmoswps.com";
+        public string DefaultFromEmailAddress { get; set; } = "DoNotReply@cosmosws.io";
     }
 }

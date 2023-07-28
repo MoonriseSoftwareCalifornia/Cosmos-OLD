@@ -1183,6 +1183,12 @@ namespace Cosmos.Cms.Data.Logic
 
 
                 var purgeContent = new FrontDoorPurgeContent(purgeUrls);
+                var domains = _adfConnection.DnsNames.Split(',');
+                foreach(var domain in domains)
+                {
+                    purgeContent.Domains.Add(domain);
+                }
+
                 var result = await frontDoor.PurgeContentAsync(WaitUntil.Started, purgeContent);
 
                 return result;

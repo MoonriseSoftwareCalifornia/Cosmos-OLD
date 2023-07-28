@@ -42,6 +42,25 @@
             "metadata": {
                 "description": "Master Keyvault for this subscription."
             }
+        },
+        "frontdoorEndpoint": {
+            "type": "string",
+            "defaultValue": "frontdoor-01",
+            "metadata": {
+                "description": "Frontdoor Endpoint used by this instance."
+            }
+        },
+        "primaryDnsName": {
+            "type": "string",
+            "metadata": {
+                "description" :"The main DNS Name of the publisher website"
+            }
+        },
+        "frontdoorDnsNames": {
+            "type": "string",
+            "metadata": {
+                "description": "Comma delimited list of DNS names for this website will respond to."
+            }
         }
     },
     "functions": [],
@@ -627,13 +646,14 @@
                         "CosmosAdminEmail": "[variables('adminEmail')]",
                         "CosmosPrimaryCloud": "azure",
                         "CosmosAllowSetup": "true",
-                        "CosmosPublisherUrl": "[concat('https://', variables('publisherName'), '.azurewebsites.net')]",
+                        "CosmosPublisherUrl": "[parameters('primaryDnsName')]",
                         "CosmosEditorUrl": "[concat('https://', variables('editorName'), '.azurewebsites.net')]",
-                        "CosmosStorageUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2018-07-01').primaryEndpoints.web]",
+                        "CosmosStorageUrl": "[parameters('primaryDnsName')]",
                         "CosmosBlobContainer": "$web",
                         "CosmosSecretKey": "[concat('CSK-', uniqueString(resourceGroup().id))]",
                         "FrontdoorConnection": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=FrontdoorStd01Connection)')]",
-                        "FrontdoorEndpointName": "",
+                        "FrontdoorEndpointName": "[parameters('frontdoorEndpoint')]",
+                        "FrontdoorDnsNames": "[parameters('frontdoorDnsNames')]",
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
                         "DOCKER_REGISTRY_SERVER_PASSWORD": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-PASSWORD)')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",

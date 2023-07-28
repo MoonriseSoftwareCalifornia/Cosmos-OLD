@@ -17,7 +17,8 @@
                 && !string.IsNullOrEmpty(EndpointName)
                 && !string.IsNullOrEmpty(TenantId)
                 && !string.IsNullOrEmpty(ClientId)
-                && !string.IsNullOrEmpty(ClientSecret);
+                && !string.IsNullOrEmpty(ClientSecret)
+                && !string.IsNullOrEmpty(DnsNames);
         }
 
         /// <summary>
@@ -48,5 +49,10 @@
         /// Client secret of the application ID (client ID) that has access to this FD
         /// </summary>
         public string ClientSecret { get; set; }
+
+        /// <summary>
+        /// Comma delimited list of DNS names to purge
+        /// </summary>
+        public string DnsNames {  get; set; }
     }
 }

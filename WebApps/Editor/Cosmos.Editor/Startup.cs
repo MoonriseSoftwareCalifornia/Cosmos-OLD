@@ -139,7 +139,7 @@ namespace Cosmos.Cms
             // Add Google if keys are present
             var googleClientId = Configuration["Authentication_Google_ClientId"];
             var googleClientSecret = Configuration["Authentication_Google_ClientSecret"];
-            if (!string.IsNullOrEmpty (googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
+            if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
             {
                 services.AddAuthentication().AddGoogle(options =>
                 {
@@ -215,7 +215,7 @@ namespace Cosmos.Cms
             var azureCommunicationConnection = Configuration.GetConnectionString("AzureCommunicationConnection");
             services.AddAzureCommunicationEmailSenderProvider(new AzureCommunicationEmailProviderOptions()
             {
-                 ConnectionString = azureCommunicationConnection
+                ConnectionString = azureCommunicationConnection
             });
 
             // End add SendGrid
