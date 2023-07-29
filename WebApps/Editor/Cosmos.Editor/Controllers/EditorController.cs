@@ -1338,6 +1338,8 @@ namespace Cosmos.Cms.Controllers
                         Updated = result.Model.Updated
                     };
 
+                    jsonModel.ArmOperation = result.ArmOperation;
+
                 }
                 catch (Exception e)
                 {

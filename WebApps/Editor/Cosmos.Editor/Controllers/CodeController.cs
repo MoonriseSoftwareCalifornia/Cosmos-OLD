@@ -175,7 +175,7 @@ namespace Cosmos.Cms.Controllers
                 var fileManagerEntry = _storageContext.CreateFolder(relativePath);
             }
 
-            return RedirectToAction("Source", new { target = model.ParentFolder, directoryOnly = model.DirectoryOnly });
+            return RedirectToAction("Index", new { target = model.ParentFolder, directoryOnly = model.DirectoryOnly });
 
         }
 

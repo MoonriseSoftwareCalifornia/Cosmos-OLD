@@ -58,6 +58,30 @@ namespace Cosmos.Cms.Publisher.Controllers
                     if (article == null) return NotFound();
                 }
 
+
+                // Check group membership
+                if (!string.IsNullOrEmpty(article.RoleList))
+                {
+                    if (User.Identity == null || User.Identity.IsAuthenticated == false)
+                    {
+                        return Unauthorized();
+                    }
+
+                    var roles = article.RoleList.Split(',');
+                    var authenticated = false;
+                    foreach (var role in roles)
+                    {
+                        if (User.IsInRole(role))
+                        {
+                            authenticated = true;
+                        }
+                    }
+                    if (!authenticated)
+                    {
+                        return Unauthorized();
+                    }
+                }
+
                 if (article.Expires.HasValue)
                 {
                     Response.Headers.Expires = article.Expires.Value.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");

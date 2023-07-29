@@ -860,7 +860,7 @@ namespace Cosmos.Cms.Data.Logic
 
             // HANDLE PUBLISHING OF AN ARTICLE
             // This can be a new or existing article.
-            await HandlePublishing(article, userId);
+            var armOperaton = await HandlePublishing(article, userId);
 
             //
             // Is the role list changing?
@@ -894,7 +894,8 @@ namespace Cosmos.Cms.Data.Logic
             var result = new ArticleUpdateResult
             {
                 ServerSideSuccess = isValid,
-                Model = echo
+                Model = echo,
+                ArmOperation = armOperaton
             };
 
             return result;
@@ -1020,7 +1021,7 @@ namespace Cosmos.Cms.Data.Logic
         /// If article is published, it adds the correct versions to the public pages collection. If not, 
         /// the article is removed from the public pages collection.
         /// </remarks>
-        private async Task HandlePublishing(Article article, string userId)
+        private async Task<ArmOperation?> HandlePublishing(Article article, string userId)
         {
             if (article.Published.HasValue)
             {
@@ -1071,7 +1072,7 @@ namespace Cosmos.Cms.Data.Logic
                     await ResetVersionExpirations(article.ArticleNumber);
 
                     // Update the published pages collection
-                    await UpdatePublishedPages(article.ArticleNumber);
+                    return await UpdatePublishedPages(article.ArticleNumber);
 
                 }
                 catch (Exception e)
@@ -1079,6 +1080,7 @@ namespace Cosmos.Cms.Data.Logic
                     var t = e;
                 }
             }
+            return null;
         }
 
         /// <summary>
@@ -1086,7 +1088,7 @@ namespace Cosmos.Cms.Data.Logic
         /// </summary>
         /// <param name="articleNumber"></param>
         /// <returns></returns>
-        private async Task UpdatePublishedPages(int articleNumber)
+        private async Task<ArmOperation?> UpdatePublishedPages(int articleNumber)
         {
             // Now we are going to update the Pages table
             var itemsToPublish = await DbContext.Articles.Where(w => w.ArticleNumber == articleNumber && w.Published != null)
@@ -1158,13 +1160,15 @@ namespace Cosmos.Cms.Data.Logic
 
                 try
                 {
-                    await PurgeCdn(purgeUrls);
+                    return await PurgeCdn(purgeUrls);
                 }
                 catch (Exception e)
                 {
                     _logger.LogError("CDN Error:", e);
                 }
             }
+
+            return null;
         }
 
         private async Task<ArmOperation> PurgeCdn(List<string> purgeUrls)
@@ -1184,7 +1188,7 @@ namespace Cosmos.Cms.Data.Logic
 
                 var purgeContent = new FrontDoorPurgeContent(purgeUrls);
                 var domains = _adfConnection.DnsNames.Split(',');
-                foreach(var domain in domains)
+                foreach (var domain in domains)
                 {
                     purgeContent.Domains.Add(domain);
                 }

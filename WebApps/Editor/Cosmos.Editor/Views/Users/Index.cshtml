@@ -82,12 +82,15 @@
                             {
                                 <tr scope="row">
                                     <td scope="row" style="width:80px;">
-                                        <div class="form-check">
-                                            <input class="form-check-input gridCheckBox" data-ccms-userid='@row.UserId' type="checkbox">
-                                            <label class="form-check-label">
-                                                Select
-                                            </label>
-                                        </div>
+                                        @if (!row.RoleMembership.Contains("Administrators"))
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input gridCheckBox" data-ccms-userid='@row.UserId' type="checkbox">
+                                                <label class="form-check-label">
+                                                    Select
+                                                </label>
+                                            </div>
+                                        }
                                     </td>
                                     <td style="width:30px;">
                                         <button title='Role assignments.' type='button' onclick="manageRoles('@row.UserId')" class='btn btn-sm btn-secondary'><i class="fa-solid fa-users"></i></button>

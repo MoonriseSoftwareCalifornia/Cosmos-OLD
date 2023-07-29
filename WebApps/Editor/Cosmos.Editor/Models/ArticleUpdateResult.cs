@@ -1,6 +1,7 @@
 ﻿using Cosmos.Common.Models;
 using Cosmos.Cms.Data.Logic;
 using System.Collections.Generic;
+using Azure.ResourceManager;
 
 namespace Cosmos.Cms.Models
 {
@@ -17,6 +18,11 @@ namespace Cosmos.Cms.Models
         ///     Updated or Inserted model
         /// </summary>
         public ArticleViewModel Model { get; set; }
+
+        /// <summary>
+        /// Will return an ARM Operation if CDN purged
+        /// </summary>
+        public ArmOperation? ArmOperation { get; set; } = null;
 
         /// <summary>
         ///     Urls that need to be flushed

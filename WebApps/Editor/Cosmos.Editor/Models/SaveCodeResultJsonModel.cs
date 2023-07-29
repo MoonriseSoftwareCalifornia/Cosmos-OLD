@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+﻿using Azure.ResourceManager;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Collections.Generic;
 
 namespace Cosmos.Cms.Models
@@ -45,5 +46,10 @@ namespace Cosmos.Cms.Models
         ///   Updated model
         /// </summary>
         public EditCodePostModel Model { get; set; } = null;
+
+        /// <summary>
+        /// ARM Operation (present if CDN purged)
+        /// </summary>
+        public ArmOperation ArmOperation { get; internal set; }
     }
 }
