@@ -37,7 +37,7 @@
                 </div>
                 <div class="btn-group" role="group" aria-label="Page Actions">
                     <button id="btnAddRemoveRoles" type="button" onclick="submitUserIds('roles')" class="btn btn-sm btn-secondary" title="Add or remove users from roles." style="display:none">Roles</button>
-                    <button id="btnDeleteUsers" type="button" onclick="submitUserIds('delete')" class="btn btn-sm btn-secondary" title="Delete users." style="display:none">Delete</button>
+                    <button id="btnDeleteUsers" type="button" data-bs-toggle="modal" data-bs-target="#modalConfDelete" class="btn btn-sm btn-secondary" title="Delete users" style="display:none">Delete</button>
                     <button id="btnClearUsers" type="button" onclick="submitUserIds('clear')" class="btn btn-sm btn-secondary" title="Clear selected users." style="display:none">Clear</button>
                 </div>
             </div>
@@ -150,6 +150,24 @@
     <input id="userIds" name="userIds" type="hidden" />
 </form>
 
+<div class="modal fade mt-5" id="modalConfDelete" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark text-light">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete User(s)</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete user(s)?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel Delete</button>
+                <button type="button" class="btn btn-primary" onclick="submitUserIds('delete')" data-bs-dismiss="modal">Confirm Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 
     let userIds = [];
@@ -192,6 +210,7 @@
                 clearUserIds();
                 $(".gridCheckBox").each(function (index, element) {
                     $(element).prop('checked', false);
+                    cwpsSelectTableRow(element, false);
                 });
                 resetButtons();
                 break;
@@ -265,6 +284,7 @@
 
             if ((userIds.indexOf(getUserId(element)) > -1)) {
                 $(element).prop('checked', true);
+                cwpsSelectTableRow(element, true);
             }
 
             $(element).on("change", function () {
@@ -302,4 +322,34 @@
         }
 
     }
+
+    $(document).ready(function () {
+
+        $(".gridCheckBox").each(function (index, element) {
+
+            if ((userIds.indexOf(getUserId(element)) > -1)) {
+                $(element).prop('checked', true);
+            }
+
+            $(element).on("change", function () {
+
+                let userId = getUserId(element);
+
+                let isChecked = $(element).prop('checked');
+
+                if (isChecked) {
+                    saveUserId(userId);
+                    cwpsSelectTableRow(element, true);
+                } else {
+                    removeUserId(userId);
+                    cwpsSelectTableRow(element, false);
+                }
+
+                resetButtons();
+
+            });
+        });
+
+    });
+
 </script>

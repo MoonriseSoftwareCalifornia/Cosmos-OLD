@@ -5,44 +5,43 @@
 
     ViewData["Title"] = "Role Inventory";
 
+    var protectedRoles = new string[] { "administrators", "editors", "authors", "reviewers" };
+
     var rowCount = (int)ViewData["RowCount"];
     var sortOrder = (string)ViewData["sortOrder"];
     var currentSort = (string)ViewData["currentSort"];
     var pageNumber = (int)ViewData["pageNo"];
     var pageSize = (int)ViewData["pageSize"];
 
-    var pagerModel = new GridPagerPartialViewModel(pageNumber, rowCount, pageSize, sortOrder, currentSort, "/Editor/Index");
+    var pagerModel = new GridPagerPartialViewModel(pageNumber, rowCount, pageSize, sortOrder, currentSort, "/Roles/Index");
 }
 <div class="pt-3">
     <div class="container">
         <div class="row">
-            <div class="col">
+            <div class="col-md-12">
                 <h3 class="text-light">@ViewData["Title"]</h3>
                 <hr />
             </div>
         </div>
         @if (Model != null && Model.Any())
         {
-            <div class="row">
-                <div class="col-md-12 d-flex flex-row">
-                    <form id="frmNewRole">
-                        <input type="hidden" id="Id" value="">
-                        <input type="hidden" id="RoleNormalizedName" value="">
-                        <button id="btnCreate" type="submit" title="Create a new role." class="btn btn-sm btn-primary" style="min-width:100px;">Create <i class="fa-solid fa-circle-arrow-right"></i></button>
-                        <input id="RoleName" autocomplete="off" placeholder="New role name" type="text" class="form-control bg-dark text-light" style="height:32px">
-                    </form>
-                </div>
-            </div>
             <div class="row cpws-table-pager-row-top">
-                <div class="col-md-12">
-                    @* <div class="btn-group" role="group" aria-label="Page Actions">
-                <p>@Model.Count() users selected.</p>
-                <button type="button" id="btnAddToRoles" class="btn btn-sm btn-primary" style="display:none;color: #e6ccff">Add Selected Users to Roles</button>
-                <button type="button" id="btnRemoveFromRoles" class="btn btn-sm btn-primary" style="display:none">Remove Selected Users from Roles</button>
-                </div>*@
+                <div class="col-md-4">
+                    <div class="btn-group" role="group" aria-label="Page Actions">
+                        <a class="btn btn-sm btn-secondary" asp-action="Index" asp-controller="Users" title="Manage users.">User List <i class="fa-solid fa-circle-arrow-right"></i></a>
+                        <button id="btnDeleteUsers" type="button" onclick="deleteRole()" class="btn btn-sm btn-secondary" title="Delete the selected role." style="display:none">Delete</button>
+                        <button id="btnClearUsers" type="button" onclick="clearSelection()" class="btn btn-sm btn-secondary" title="Clear selected users." style="display:none">Clear</button>
+                    </div>
                 </div>
-                <div class="col-md-6 d-flex justify-content-end">
+                <div class="col-md-4 justify-content-center">
                     <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
+                </div>
+                <div class="col-md-4">
+                    <form id="frmNewRole" class="d-flex" asp-action="Create">
+                        @Html.AntiForgeryToken()
+                        <input name="RoleName" autocomplete="off" placeholder="Enter new role name here." type="text" class="form-control form-control-sm me-2" minlength="2" required>
+                        <button id="btnCreate" type="submit" title="Create a new role." class="btn btn-sm btn-primary">Create</button>
+                    </form>
                 </div>
             </div>
         }
@@ -54,13 +53,11 @@
                         <thead>
                             <tr>
                                 <th scope="col">
-                                    Select
+                                </th>
+                                <th scope="col">
                                 </th>
                                 <th scope="col">
                                     Role Name
-                                </th>
-                                <th scope="col">
-
                                 </th>
                             </tr>
                         </thead>
@@ -68,14 +65,22 @@
                             @foreach (var row in Model)
                             {
                                 <tr>
-                                    <td>
-                                        <input type='checkbox' data-ccms-userid='@row.Id' class='gridCheckBox'>
+                                    <td style="width:120px;">
+                                        @if (protectedRoles.Contains(row.Name.ToLower()) == false)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input gridCheckBox" data-ccms-roleid='@row.Id' data-ccms-rolename="@row.Name" type="checkbox">
+                                                <label class="form-check-label">
+                                                    Select
+                                                </label>
+                                            </div>
+                                        }
+                                    </td>
+                                    <td style="width:120px;">
+                                        <button title='Manage membership.' type='button' onclick="manageUsers('@row.Id')" class='btn btn-sm text-light'>Members <i class='fa fa-user'></i></button>
                                     </td>
                                     <td>
                                         @row.Name
-                                    </td>
-                                    <td style="width:30px;">
-                                        <button title='Manage membership.' type='button' onclick="manageUsers('@row.Id')" class='btn btn-sm'><i class='fa fa-user'></i></button>
                                     </td>
                                 </tr>
                             }
@@ -86,14 +91,19 @@
         </div>
 
         <div class="row cpws-table-pager-row-bottom">
-            <div class="col-md-12 d-flex justify-content-center">
+            <div class="col-md-4"></div>
+            <div class="col-md-4 d-flex justify-content-center">
                 <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
             </div>
+            <div class="col-md-4"></div>
         </div>
     </div>
 </div>
 <script>
     var selectedIds;
+
+    let roleIds = [];
+
     function error_handler(e) {
         if (e.errors) {
             var message = "Errors:\n";
@@ -131,5 +141,83 @@
 
     $(document).ready(function () {
         $("body").addClass("cwps-editor-container");
+
+        $("#frmNewRole").submit(function (e) {
+            e.preventDefault();
+
+            var model = $("#frmNewRole").serialize();
+            var jqxhr = $.post("@Url.Action("Create")", model, function () {
+                window.location = "@Url.Action("Index")";
+            }).fail(function (errorMsg) {
+                alert(errorMsg.responseText);
+            });
+        });
+    });
+
+    function savePath(path) {
+        // Avoid duplicates
+        if (paths.indexOf(path) == -1) {
+            paths.push(path);
+        }
+        sessionStorage.setItem("paths", JSON.stringify(paths));
+    }
+
+    function removePath(path) {
+        var tmp = paths.filter(function (value) {
+            return value !== path;
+        });
+        paths = tmp;
+        sessionStorage.setItem("paths", JSON.stringify(paths));
+    }
+
+    // Reload selected paths from local storage
+    function reloadPaths() {
+        var data = sessionStorage.getItem("paths");
+
+        if (typeof (data) === "undefined" || data === null || data === "") {
+            paths = []
+        } else {
+            paths = JSON.parse(data);
+        }
+    }
+
+    function clearPaths() {
+        paths = [];
+        sessionStorage.removeItem("paths");
+    }
+
+    function getItemsToMove() {
+        var items = JSON.parse(sessionStorage.getItem("itemsToMove"));
+        return items;
+    }
+
+    function getPath(checkbox) {
+
+        var isDirectory = $(checkbox).attr('data-ccms-isdir');
+
+        if (isDirectory === "True") {
+            return $(checkbox).attr('data-ccms-blob') + "/";
+        }
+        else {
+            return $(checkbox).attr('data-ccms-blob');
+        }
+    }
+
+    $(".gridCheckBox").each(function (index, element) {
+
+        var isChecked = $(element).prop('checked');
+
+        cwpsSelectTableRow(element, isChecked);
+
+        $(element).on("change", function () {
+
+            var isChecked = $(element).prop('checked');
+
+            $(element).prop('checked', isChecked);
+            cwpsSelectTableRow(element, isChecked);
+
+            resetButtons();
+        });
+
     });
 </script>

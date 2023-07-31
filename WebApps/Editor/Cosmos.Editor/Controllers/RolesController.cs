@@ -37,25 +37,30 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// <summary>
         /// Adds a new role
         /// </summary>
-        /// <param name="roleItem"></param>
+        /// <param name="RoleName"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Create(RoleItemViewModel roleItem)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(string RoleName)
         {
-            if (ModelState.IsValid)
-            {
-                if (!await _roleManager.RoleExistsAsync(roleItem.RoleName))
-                {
-                    await _roleManager.CreateAsync(new IdentityRole()
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        Name = roleItem.RoleName
-                    });
-                }
+            if (string.IsNullOrEmpty(RoleName)) return BadRequest("Rule name is required.");
 
-                return Ok("Role created");
+            if (await _roleManager.RoleExistsAsync(RoleName)) return BadRequest($"Role '{RoleName}' already exists");
+
+            try
+            {
+                await _roleManager.CreateAsync(new IdentityRole()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = RoleName
+                });
             }
-            return BadRequest("Domain name already exists.");
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok();
         }
 
         /// <summary>
