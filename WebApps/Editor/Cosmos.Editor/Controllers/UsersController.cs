@@ -43,7 +43,7 @@ namespace Cosmos.Cms.Controllers
         /// <param name="roleManager"></param>
         /// <param name="emailSender"></param>
         /// <param name="dbContext"></param>
-        /// <param name="options"
+        /// <param name="options"></param>
         public UsersController(
             ILogger<UsersController> logger,
             UserManager<IdentityUser> userManager,
