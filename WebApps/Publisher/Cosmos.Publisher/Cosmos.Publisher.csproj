@@ -24,6 +24,12 @@
 		<None Include="wwwroot\ccms\js\cosmosUtils.js" />
 		<None Include="wwwroot\ccms\js\GoogleTranslations.js" />
 		<None Include="wwwroot\ccms\js\TimeUtils.js" />
+		<None Include="wwwroot\images\logos\angular.webp" />
+		<None Include="wwwroot\images\logos\bootstrap.webp" />
+		<None Include="wwwroot\images\logos\javascript.webp" />
+		<None Include="wwwroot\images\logos\jquery.webp" />
+		<None Include="wwwroot\images\logos\react.webp" />
+		<None Include="wwwroot\images\logos\vue.webp" />
 	</ItemGroup>
 
 	<ItemGroup>
