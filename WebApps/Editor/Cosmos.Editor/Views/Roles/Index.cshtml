@@ -25,23 +25,27 @@
         </div>
         @if (Model != null && Model.Any())
         {
-            <div class="row cpws-table-pager-row-top">
-                <div class="col-md-4">
-                    <div class="btn-group" role="group" aria-label="Page Actions">
-                        <a class="btn btn-sm btn-secondary" asp-action="Index" asp-controller="Users" title="Manage users.">User List <i class="fa-solid fa-circle-arrow-right"></i></a>
-                        <button id="btnDeleteUsers" type="button" onclick="deleteRole()" class="btn btn-sm btn-secondary" title="Delete the selected role." style="display:none">Delete</button>
-                        <button id="btnClearUsers" type="button" onclick="clearSelection()" class="btn btn-sm btn-secondary" title="Clear selected users." style="display:none">Clear</button>
+            <div class="row bg-dark">
+                <div class="col-md-12">
+                    <div class="row cpws-table-pager-row-top">
+                        <div class="col-md-4">
+                            <div class="btn-group" role="group" aria-label="Page Actions">
+                                <a class="btn btn-sm btn-secondary" asp-action="Index" asp-controller="Users" title="Manage users.">User List <i class="fa-solid fa-circle-arrow-right"></i></a>
+                                <button id="btnDeleteUsers" type="button" onclick="deleteRole()" class="btn btn-sm btn-secondary" title="Delete the selected role." style="display:none">Delete</button>
+                                <button id="btnClearUsers" type="button" onclick="clearSelection()" class="btn btn-sm btn-secondary" title="Clear selected users." style="display:none">Clear</button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 justify-content-center">
+                            <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
+                        </div>
+                        <div class="col-md-4">
+                            <form id="frmNewRole" class="d-flex" asp-action="Create">
+                                @Html.AntiForgeryToken()
+                                <input name="RoleName" autocomplete="off" placeholder="Enter new role name here." type="text" class="form-control form-control-sm me-2" minlength="2" required>
+                                <button id="btnCreate" type="submit" title="Create a new role." class="btn btn-sm btn-primary">Create</button>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                <div class="col-md-4 justify-content-center">
-                    <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
-                </div>
-                <div class="col-md-4">
-                    <form id="frmNewRole" class="d-flex" asp-action="Create">
-                        @Html.AntiForgeryToken()
-                        <input name="RoleName" autocomplete="off" placeholder="Enter new role name here." type="text" class="form-control form-control-sm me-2" minlength="2" required>
-                        <button id="btnCreate" type="submit" title="Create a new role." class="btn btn-sm btn-primary">Create</button>
-                    </form>
                 </div>
             </div>
         }
@@ -55,8 +59,6 @@
                                 <th scope="col">
                                 </th>
                                 <th scope="col">
-                                </th>
-                                <th scope="col">
                                     Role Name
                                 </th>
                             </tr>
@@ -64,7 +66,7 @@
                         <tbody>
                             @foreach (var row in Model)
                             {
-                                <tr>
+                                <tr class="row-click-ckbox">
                                     <td style="width:120px;">
                                         @if (protectedRoles.Contains(row.Name.ToLower()) == false)
                                         {
@@ -75,9 +77,6 @@
                                                 </label>
                                             </div>
                                         }
-                                    </td>
-                                    <td style="width:120px;">
-                                        <button title='Manage membership.' type='button' onclick="manageUsers('@row.Id')" class='btn btn-sm text-light'>Members <i class='fa fa-user'></i></button>
                                     </td>
                                     <td>
                                         @row.Name
@@ -141,6 +140,13 @@
 
     $(document).ready(function () {
         $("body").addClass("cwps-editor-container");
+
+        $(".row-click-ckbox").click(function (e) {
+            if (e.target.type != 'checkbox' && e.target.tagName != 'A') {
+                var cb = $(this).find("input[type=checkbox]");
+                cb.trigger('click');
+            }
+        });
 
         $("#frmNewRole").submit(function (e) {
             e.preventDefault();

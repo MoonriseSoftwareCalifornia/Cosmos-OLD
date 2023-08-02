@@ -1,17 +1,18 @@
-﻿using Cosmos.Common.Data;
-using Cosmos.Common.Data.Logic;
-using Cosmos.Common.Models;
+﻿using Cosmos.BlobService;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Publisher.Models;
+using Cosmos.Common.Data;
+using Cosmos.Common.Data.Logic;
+using Cosmos.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System.Diagnostics;
-using System.Text;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Diagnostics;
+using System.Security.Claims;
+using System.Text;
 
 namespace Cosmos.Cms.Publisher.Controllers
 {
@@ -34,20 +35,38 @@ namespace Cosmos.Cms.Publisher.Controllers
         {
             try
             {
-                var article = await _articleLogic.GetByUrl(HttpContext.Request.Path, HttpContext.Request.Query["lang"], TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20)); // ?? await _articleLogic.GetByUrl(id, langCookie);
+                ArticleViewModel article;
 
-                // Article not found?
-                // try getting a version not published.
+                if (_options.Value.SiteSettings.PublisherRequiresAuthentication)
+                {
+                    // If the user is not logged in, have them login first.
+                    if (User.Identity == null || User.Identity?.IsAuthenticated == false)
+                    {
+                        return Redirect("~/Identity/Account/Login?returnUrl=" + Request.Path);
+                    }
+
+                    if (User.IsInRole(_options.Value.SiteSettings.CosmosRequiredPublisherRole) == false)
+                    {
+                        return Unauthorized();
+                    }
+
+                    article = await _articleLogic.GetByUrl(HttpContext.Request.Path, HttpContext.Request.Query["lang"], TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20)); // ?? await _articleLogic.GetByUrl(id, langCookie);
+                    
+                    if (article.ArticlePermissions.Any() && (await AuthenticateUser(article.ArticlePermissions)) == false)
+                    {
+                        return Unauthorized();
+                    }
+                    Response.Headers.Expires = DateTimeOffset.UtcNow.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
+                }
+                else
+                {
+                    article = await _articleLogic.GetByUrl(HttpContext.Request.Path, HttpContext.Request.Query["lang"], TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20)); // ?? await _articleLogic.GetByUrl(id, langCookie);
+                    Response.Headers.Expires = article.Expires.HasValue ? article.Expires.Value.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'") : DateTimeOffset.UtcNow.AddMinutes(30).ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
+                }
 
                 if (article == null)
                 {
-
-                    //
-                    // Create your own not found page for a graceful page for users.
-                    //
-                    article = await _articleLogic.GetByUrl("/not_found", HttpContext.Request.Query["lang"]);
-
-                    if (article == null && !await _dbContext.Pages.CosmosAnyAsync())
+                    if (!await _dbContext.Pages.CosmosAnyAsync())
                     {
                         // No pages published yet
                         return View("UnderConstruction");
@@ -58,38 +77,6 @@ namespace Cosmos.Cms.Publisher.Controllers
                     if (article == null) return NotFound();
                 }
 
-
-                // Check group membership
-                if (!string.IsNullOrEmpty(article.RoleList))
-                {
-                    if (User.Identity == null || User.Identity.IsAuthenticated == false)
-                    {
-                        return Unauthorized();
-                    }
-
-                    var roles = article.RoleList.Split(',');
-                    var authenticated = false;
-                    foreach (var role in roles)
-                    {
-                        if (User.IsInRole(role))
-                        {
-                            authenticated = true;
-                        }
-                    }
-                    if (!authenticated)
-                    {
-                        return Unauthorized();
-                    }
-                }
-
-                if (article.Expires.HasValue)
-                {
-                    Response.Headers.Expires = article.Expires.Value.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
-                }
-                else
-                {
-                    Response.Headers.Expires = DateTimeOffset.UtcNow.AddMinutes(30).ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
-                }
                 Response.Headers.ETag = article.Id.ToString();
                 Response.Headers.LastModified = article.Updated.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
 
@@ -116,16 +103,6 @@ namespace Cosmos.Cms.Publisher.Controllers
             {
                 string? message = e.Message;
                 _logger.LogError(e, message);
-
-                //try
-                //{
-                //    if (!await _dbContext.Pages.CosmosAnyAsync())
-                //        await HandleException(e); // Only use if there are no articles
-                //}
-                //catch
-                //{
-                //    // This can fail because the error can't be emailed
-                //}
 
                 if (HttpContext.Request.Query["mode"] == "json")
                 {
@@ -196,6 +173,21 @@ namespace Cosmos.Cms.Publisher.Controllers
             }
 
             return StatusCode(500);
+        }
+
+        private async Task<bool> AuthenticateUser(List<ArticlePermission> permissions)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (permissions.Any(a => a.IdentityObjectId.Equals(userId, StringComparison.OrdinalIgnoreCase)))
+            {
+                return true;
+            }
+
+            var objectIds = permissions.Where(w => w.IsRoleObject).Select(s => s.IdentityObjectId).ToArray();
+
+            return (await _dbContext.UserRoles.CountAsync(a => a.UserId == userId && objectIds.Contains(a.RoleId))) > 0;
+
         }
     }
 }

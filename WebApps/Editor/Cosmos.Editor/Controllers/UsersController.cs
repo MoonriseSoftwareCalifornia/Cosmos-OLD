@@ -15,6 +15,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
+using Cosmos.Cms.Common.Services.Configurations;
+using Microsoft.Extensions.Options;
 
 namespace Cosmos.Cms.Controllers
 {
@@ -31,6 +33,7 @@ namespace Cosmos.Cms.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly AzureCommunicationEmailSender _emailSender;
         private readonly ApplicationDbContext _dbContext;
+        private readonly IOptions<CosmosConfig> _options;
 
         /// <summary>
         /// Constructor
@@ -40,18 +43,21 @@ namespace Cosmos.Cms.Controllers
         /// <param name="roleManager"></param>
         /// <param name="emailSender"></param>
         /// <param name="dbContext"></param>
+        /// <param name="options"
         public UsersController(
             ILogger<UsersController> logger,
             UserManager<IdentityUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IEmailSender emailSender,
-            ApplicationDbContext dbContext)
+            ApplicationDbContext dbContext,
+            IOptions<CosmosConfig> options)
         {
             _logger = logger;
             _userManager = userManager;
             _roleManager = roleManager;
             _emailSender = (AzureCommunicationEmailSender)emailSender;
             _dbContext = dbContext;
+            _options = options;
         }
 
 
@@ -222,6 +228,14 @@ namespace Cosmos.Cms.Controllers
                 }
             }
 
+            if (_options.Value.SiteSettings.PublisherRequiresAuthentication && (await _roleManager.RoleExistsAsync(_options.Value.SiteSettings.CosmosRequiredPublisherRole)) == false)
+            {
+                await _roleManager.CreateAsync(new IdentityRole()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = _options.Value.SiteSettings.CosmosRequiredPublisherRole
+                });
+            }
 
             query = query.Skip(pageNo * pageSize).Take(pageSize);
 

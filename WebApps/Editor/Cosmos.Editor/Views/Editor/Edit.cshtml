@@ -97,6 +97,8 @@
     // Current user
     const ccms_editor_userid = "@this.Context.User.Identity.Name";
     const isAuthor = @User.IsInRole("Authors").ToString().ToLower();
+    const isReviewer = @User.IsInRole("Reviewers").ToString().ToLower();
+    const hasModel = @((Model != null).ToString().ToLower());
 
     // Editable areas
     let ccms_editibleAreas = [];
@@ -330,17 +332,11 @@
             $("#btnSave").removeClass("show");
         });
 
-    });
-
-    $(window).bind('keydown', function (event) {
-        if (event.ctrlKey || event.metaKey) {
-            switch (String.fromCharCode(event.which).toLowerCase()) {
-                case 's':
-                    event.preventDefault();
-                    saveChanges(null, null, true);
-                    break;
-            }
+        if (hasModel && isReviewer === false) {
+            $("#btnArticleAccess").show();
+            $("#btnArticleAccess").attr("href", "@Url.Action("Permissions", "Editor", new { Id = Model.ArticleNumber })");
         }
+
     });
 
     function getEditableAreas() {

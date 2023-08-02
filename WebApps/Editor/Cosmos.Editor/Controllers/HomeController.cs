@@ -18,6 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Cosmos.BlobService;
+using System.Security.Claims;
 
 namespace Cosmos.Cms.Controllers
 {
@@ -172,7 +173,6 @@ namespace Cosmos.Cms.Controllers
                         Response.Cookies.Delete("CosmosAuthCookie");
                         return Redirect("~/Identity/Account/Logout");
                     }
-
 
                     if (!User.IsInRole("Reviewers") && !User.IsInRole("Authors") && !User.IsInRole("Editors") &&
                         !User.IsInRole("Administrators")) return RedirectToAction("AccessPending");

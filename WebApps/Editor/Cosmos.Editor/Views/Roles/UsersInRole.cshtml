@@ -1,6 +1,7 @@
-﻿@model UsersInRoleViewModel
+﻿@model List<UserIndexViewModel>
 @{
-    ViewData["Title"] = Model.RoleName;
+    var roleInfo = (UsersInRoleViewModel)ViewData["RoleInfo"];
+    ViewData["Title"] = roleInfo.RoleName;
 }
 
 <style>
@@ -25,30 +26,11 @@
                 <div class="card-body">
                     <form id="addUsersForm" method="post">
                         <div asp-validation-summary="All" class="text-danger"></div>
-                        @Html.HiddenFor(m => m.RoleId)
-                        @Html.HiddenFor(m => m.RoleName)
+                            <input type="hidden" name="RoleId" value="@roleInfo.RoleId." />
+                            <input type="hidden" name="RoleName" value="@roleInfo.RoleName." />
+                            <input type="hidden" name="UserIds" value="@roleInfo.UserIds." />
                         @Html.AntiForgeryToken()
-                        <div class="mb-3" id="pwdField">
-                            <label asp-for="UserIds"></label>
-                            @*@(Html.Kendo().MultiSelectFor(m => m.UserIds)
-                            .DataTextField("Email")
-                            .DataValueField("Id")
-                            .Placeholder("Select users...")
-                            .AutoBind(false)
-                            .Value(Model.Users)
-                            .DataSource(source =>
-                            {
-                            source.Read(read =>
-                            {
-                            read.Action("GetUsers", "Roles");
-                            })
-                            .ServerFiltering(true);
-                            })
-                            )*@
-                            <span asp-validation-for="UserIds" class="text-danger"></span>
-                        </div>
-
-                        <button id="saveAssignments" type="submit" class="btn btn-sm btn-primary">Add</button>
+                        <button id="saveAssignments" type="submit" class="btn btn-sm btn-primary">Save</button>
                     </form>
                 </div>
             </div>

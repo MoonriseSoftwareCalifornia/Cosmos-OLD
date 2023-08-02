@@ -1,5 +1,6 @@
 ﻿using Cosmos.Common.Data.Logic;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Cosmos.Common.Data
@@ -99,6 +100,11 @@ namespace Cosmos.Common.Data
         /// Article author
         /// </summary>
         public string UserId { get; set; }
+
+        /// <summary>
+        /// Article permissions
+        /// </summary>
+        public List<ArticlePermission> ArticlePermissions { get; set; } = new List<ArticlePermission>();
 
         #region PERMISSIONS
 

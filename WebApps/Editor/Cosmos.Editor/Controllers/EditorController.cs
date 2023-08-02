@@ -5,6 +5,8 @@ using Cosmos.Cms.Services;
 using Cosmos.Common.Data;
 using Cosmos.Common.Data.Logic;
 using Cosmos.Common.Models;
+using Cosmos.Editor.Models;
+using System.Linq;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,11 +18,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
@@ -38,6 +38,7 @@ namespace Cosmos.Cms.Controllers
         private readonly ApplicationDbContext _dbContext;
         private readonly ILogger<EditorController> _logger;
         private readonly IOptions<CosmosConfig> _options;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly Uri _blobPublicAbsoluteUrl;
         private readonly IViewRenderService _viewRenderService;
@@ -48,12 +49,14 @@ namespace Cosmos.Cms.Controllers
         /// <param name="logger"></param>
         /// <param name="dbContext"></param>
         /// <param name="userManager"></param>
+        /// <param name="roleManager"></param>
         /// <param name="articleLogic"></param>
         /// <param name="options"></param>
         /// <param name="viewRenderService"></param>
         public EditorController(ILogger<EditorController> logger,
             ApplicationDbContext dbContext,
             UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             ArticleEditLogic articleLogic,
             IOptions<CosmosConfig> options,
             IViewRenderService viewRenderService
@@ -63,10 +66,9 @@ namespace Cosmos.Cms.Controllers
             _logger = logger;
             _dbContext = dbContext;
             _options = options;
+            _roleManager = roleManager;
             _userManager = userManager;
             _articleLogic = articleLogic;
-
-
             var htmlUtilities = new HtmlUtilities();
 
             if (htmlUtilities.IsAbsoluteUri(options.Value.SiteSettings.BlobPublicUrl))
@@ -882,6 +884,167 @@ namespace Cosmos.Cms.Controllers
         public IActionResult Publish()
         {
             return View();
+        }
+
+        /// <summary>
+        /// Un-publishes an article
+        /// </summary>
+        /// <param name="Id"></param>
+        /// <returns></returns>
+        [Authorize(Roles = "Administrators, Editors")]
+        public async Task<IActionResult> UnpublishPage(int Id)
+        {
+            await _articleLogic.Unpublish(Id);
+
+            return Ok();
+        }
+
+        /// <summary>
+        ///     Publishes a website.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Authorize(Roles = "Administrators, Editors")]
+        public async Task<IActionResult> Permissions(int Id, bool forRoles = true, string sortOrder = "asc", string currentSort = "Name", int pageNo = 0, int pageSize = 10)
+        {
+
+            ViewData["sortOrder"] = sortOrder;
+            ViewData["currentSort"] = currentSort;
+            ViewData["pageNo"] = pageNo;
+            ViewData["pageSize"] = pageSize;
+            ViewData["showingRoles"] = forRoles;
+
+            var article = await _articleLogic.Get(Id, null);
+
+            ViewData["ArticleNumber"] = article.ArticleNumber;
+            ViewData["ArticlePermissions"] = article.ArticlePermissions;
+            var objectIds = article.ArticlePermissions.Select(s => s.IdentityObjectId).ToArray();
+
+            ViewData["ViewModel"] = new ArticlePermissionsViewModel(article, forRoles);
+            ViewData["Title"] = article.Title;
+            ViewData["AllowedUsers"] = await _userManager.Users.Where(w => objectIds.Contains(w.Id)).ToListAsync();
+            ViewData["AllowedRoles"] = await _roleManager.Roles.Where(w => objectIds.Contains(w.Id)).ToListAsync();
+
+            IQueryable<ArticlePermisionItem> query;
+
+            if (forRoles)
+            {
+                query = _roleManager.Roles.Select(
+                    s => new ArticlePermisionItem
+                    {
+                        IdentityObjectId = s.Id,
+                        Name = s.Name,
+                    }
+                    ).AsQueryable();
+            }
+            else
+            {
+                query = _userManager.Users.Select(
+                    s => new ArticlePermisionItem
+                    {
+                        IdentityObjectId = s.Id,
+                        Name = s.Email,
+                    }
+                    ).AsQueryable();
+            }
+
+            // Get count
+            ViewData["RowCount"] = await query.CountAsync();
+
+            if (sortOrder.Equals("desc", StringComparison.InvariantCultureIgnoreCase))
+            {
+                switch (currentSort)
+                {
+                    case "Name":
+                        query = query.OrderByDescending(o => o.Name);
+                        break;
+                }
+            }
+            else
+            {
+                switch (currentSort)
+                {
+                    case "Name":
+                        query = query.OrderBy(o => o.Name);
+                        break;
+                }
+            }
+
+
+            query = query.Skip(pageNo * pageSize).Take(pageSize);
+
+            var data = await query.ToListAsync();
+
+            return View(data);
+        }
+
+        /// <summary>
+        /// Sets the permissions for an article.
+        /// </summary>
+        /// <param name="Id">Article Number</param>
+        /// <param name="IdentityObjectIds"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [Authorize(Roles = "Administrators, Editors")]
+        public async Task<IActionResult> Permissions(int Id, string[] IdentityObjectIds)
+        {
+            try
+            {
+
+                var article = await _dbContext.Articles.OrderByDescending(v => v.VersionNumber)
+                .FirstOrDefaultAsync(
+                    a => a.ArticleNumber == Id &&
+                         a.StatusCode != 2);
+
+                if (article.ArticlePermissions == null)
+                {
+                    article.ArticlePermissions = new List<ArticlePermission>();
+                }
+                else
+                {
+                    article.ArticlePermissions.Clear();
+                }
+
+                var roles = await _dbContext.Roles.Where(w => IdentityObjectIds.Contains(w.Id)).ToListAsync();
+                var users = await _dbContext.Users.Where(w => IdentityObjectIds.Contains(w.Id)).ToListAsync();
+
+                if (roles.Any())
+                {
+                    article.ArticlePermissions.AddRange(roles.Select(s => new ArticlePermission()
+                    {
+                        IdentityObjectId = s.Id,
+                        IsRoleObject = true
+
+                    }).ToArray());
+                }
+
+                if (users.Any())
+                {
+                    article.ArticlePermissions.AddRange(users.Select(s => new ArticlePermission()
+                    {
+                        IdentityObjectId = s.Id,
+                        IsRoleObject = false
+
+                    }).ToArray());
+                }
+                await _dbContext.SaveChangesAsync();
+
+                var pages = await _dbContext.Pages.Where(w => w.ArticleNumber == Id).ToListAsync();
+
+                foreach(var  page in pages)
+                {
+                    page.ArticlePermissions = article.ArticlePermissions;
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
 
         /// <summary>

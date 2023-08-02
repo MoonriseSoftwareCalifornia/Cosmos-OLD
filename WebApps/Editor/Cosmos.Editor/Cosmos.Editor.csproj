@@ -7,9 +7,9 @@
 		<EnableNETAnalyzers>false</EnableNETAnalyzers>
 		<RepositoryUrl>https://github.com/CosmosSoftware/CosmosCms</RepositoryUrl>
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-		<Version>7.4.15.4</Version>
-		<AssemblyVersion>7.4.15.4</AssemblyVersion>
-		<FileVersion>7.4.15.4</FileVersion>
+		<Version>7.5.1.1</Version>
+		<AssemblyVersion>7.5.1.1</AssemblyVersion>
+		<FileVersion>7.5.1.1</FileVersion>
 		<RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
 		<Authors></Authors>
 		<ApplicationInsightsResourceId>/subscriptions/9bdb8e29-156f-4fc9-a1fe-1bb6a915a4f0/resourceGroups/CosmosCMS/providers/microsoft.insights/components/edit-cosmos-cms202107021426</ApplicationInsightsResourceId>
@@ -214,7 +214,7 @@
 		<PackageReference Include="Azure.ResourceManager" Version="1.7.0" />
 		<PackageReference Include="Azure.ResourceManager.Cdn" Version="1.1.0" />
 		<PackageReference Include="Azure.ResourceManager.FrontDoor" Version="1.1.0" />
-		<PackageReference Include="HtmlAgilityPack" Version="1.11.50" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.51" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="7.0.9" />

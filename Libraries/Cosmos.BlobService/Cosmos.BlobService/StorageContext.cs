@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Storage.Blobs.Specialized;
 using Cosmos.BlobService.Config;
 using Cosmos.BlobService.Drivers;
 using Cosmos.BlobService.Models;
@@ -127,6 +128,26 @@ namespace Cosmos.BlobService
                     await azureStorage.EnableStaticWebsite();
                 }
             }
+        }
+
+        /// <summary>
+        /// Gets and Azure storage append blob client.
+        /// </summary>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public AppendBlobClient GetAppendBlobClient(string target)
+        {
+            var drivers = GetDrivers();
+
+            foreach (var driver in drivers)
+            {
+                if (driver.GetType() == typeof(AzureStorage))
+                {
+                    var azureStorage = (AzureStorage)driver;
+                    return azureStorage.GetAppendBlobClient(target);
+                }
+            }
+            return null;
         }
 
         /// <summary>

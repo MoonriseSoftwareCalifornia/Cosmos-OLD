@@ -814,6 +814,8 @@ namespace Cosmos.Cms.Data.Logic
             // Don't track this for now
             DbContext.Entry(article).State = EntityState.Detached;
 
+            var lastSetPermissions = await DbContext.Articles.OrderByDescending(a => a.ArticleNumber).Select(a => a.ArticlePermissions).FirstOrDefaultAsync();
+
             // =======================================================
             // BEGIN: MAKE CONTENT CHANGES HERE
             //
@@ -842,6 +844,7 @@ namespace Cosmos.Cms.Data.Logic
             article.FooterJavaScript = model.FooterJavaScript;
             article.RoleList = model.RoleList;
             article.BannerImage = model.BannerImage;
+            article.ArticlePermissions = lastSetPermissions;
 
             #endregion
             //
@@ -1021,7 +1024,7 @@ namespace Cosmos.Cms.Data.Logic
         /// If article is published, it adds the correct versions to the public pages collection. If not, 
         /// the article is removed from the public pages collection.
         /// </remarks>
-        private async Task<ArmOperation?> HandlePublishing(Article article, string userId)
+        private async Task<ArmOperation> HandlePublishing(Article article, string userId)
         {
             if (article.Published.HasValue)
             {
@@ -1084,11 +1087,45 @@ namespace Cosmos.Cms.Data.Logic
         }
 
         /// <summary>
+        /// Unpublishes an article
+        /// </summary>
+        /// <param name="articleNumber"></param>
+        /// <returns></returns>
+        public async Task Unpublish(int articleNumber)
+        {
+            var versions = await DbContext.Articles.Where(w => w.ArticleNumber == articleNumber && w.Published != null).ToListAsync();
+
+            if (versions.Any(a => a.UrlPath.Equals("root", StringComparison.InvariantCultureIgnoreCase)))
+            {
+                // Cannot unpublish a home page
+                return;
+            }
+
+            foreach (var version in versions)
+            {
+                version.Published = null;
+            }
+            await DbContext.SaveChangesAsync();
+
+            var catalog = await DbContext.ArticleCatalog.Where(w => w.ArticleNumber == articleNumber).ToListAsync();
+            foreach (var item in catalog)
+            {
+                item.Published = null;
+            }
+            await DbContext.SaveChangesAsync();
+
+            var pages = await DbContext.Pages.Where(w => w.ArticleNumber == articleNumber).ToListAsync();
+            DbContext.Pages.RemoveRange(pages);
+
+            await DbContext.SaveChangesAsync();
+        }
+
+        /// <summary>
         /// Updates the published pages collection by article number
         /// </summary>
         /// <param name="articleNumber"></param>
         /// <returns></returns>
-        private async Task<ArmOperation?> UpdatePublishedPages(int articleNumber)
+        private async Task<ArmOperation> UpdatePublishedPages(int articleNumber)
         {
             // Now we are going to update the Pages table
             var itemsToPublish = await DbContext.Articles.Where(w => w.ArticleNumber == articleNumber && w.Published != null)
@@ -1115,7 +1152,6 @@ namespace Cosmos.Cms.Data.Logic
 
                     var authorInfo = await DbContext.AuthorInfos.FirstOrDefaultAsync(f => f.UserId == item.UserId && f.AuthorName != "");
 
-
                     var newPage = new PublishedPage()
                     {
                         ArticleNumber = item.ArticleNumber,
@@ -1133,7 +1169,8 @@ namespace Cosmos.Cms.Data.Logic
                         UrlPath = item.UrlPath,
                         ParentUrlPath = item.UrlPath.Substring(0, Math.Max(item.UrlPath.LastIndexOf('/'), 0)),
                         VersionNumber = item.VersionNumber,
-                        AuthorInfo = JsonConvert.SerializeObject(authorInfo).Replace("\"", "'")
+                        AuthorInfo = JsonConvert.SerializeObject(authorInfo).Replace("\"", "'"),
+                        ArticlePermissions = item.ArticlePermissions
                     };
 
                     // Check for duplicate
@@ -1146,8 +1183,6 @@ namespace Cosmos.Cms.Data.Logic
                     {
                         throw new Exception($"Duplicate Page Id. Existing: {duplicate.Id} New: {newPage.Id} ArticleId: {articleNumber}.");
                     }
-
-
                 }
 
                 // Update the pages collection
@@ -1197,73 +1232,75 @@ namespace Cosmos.Cms.Data.Logic
 
                 return result;
             }
-
-            // Check for CDN
-            var cdnSetting = await DbContext.Settings.FirstOrDefaultAsync(f => f.Name == Cosmos_Admin_CdnController.CDNSERVICENAME);
-
-            if (cdnSetting != null)
+            else
             {
-                try
+                // Check for CDN
+                var cdnSetting = await DbContext.Settings.FirstOrDefaultAsync(f => f.Name == Cosmos_Admin_CdnController.CDNSERVICENAME);
+
+                if (cdnSetting != null && _azureSubscription.Subscription != null)
                 {
-                    var azureCdnEndpoint = JsonConvert.DeserializeObject<AzureCdnEndpoint>(cdnSetting.Value);
-
-                    SubscriptionResource subscription = _azureSubscription.Subscription;
-
-                    var group = await subscription.GetResourceGroupAsync(azureCdnEndpoint.ResourceGroupName);
-
-                    var profile = await group.Value.GetProfileAsync(azureCdnEndpoint.CdnProfileName);
-
-                    var endPoint = await profile.Value.GetCdnEndpointAsync(azureCdnEndpoint.EndpointName);
-
-                    ArmOperation operation = null;
-
-                    if (purgeUrls.Count > 100)
+                    try
                     {
-                        if (azureCdnEndpoint.SkuName.Contains("akamai", StringComparison.CurrentCultureIgnoreCase))
+                        var azureCdnEndpoint = JsonConvert.DeserializeObject<AzureCdnEndpoint>(cdnSetting.Value);
+
+                        SubscriptionResource subscription = _azureSubscription.Subscription;
+
+                        var group = await subscription.GetResourceGroupAsync(azureCdnEndpoint.ResourceGroupName);
+
+                        var profile = await group.Value.GetProfileAsync(azureCdnEndpoint.CdnProfileName);
+
+                        var endPoint = await profile.Value.GetCdnEndpointAsync(azureCdnEndpoint.EndpointName);
+
+                        ArmOperation operation = null;
+
+                        if (purgeUrls.Count > 100)
                         {
-                            // Akamami does not support wildcard so iterate throw URLs in batches of 100
-
-                            var urls = new List<string>();
-                            int count = 0;
-
-                            foreach (var url in purgeUrls)
+                            if (azureCdnEndpoint.SkuName.Contains("akamai", StringComparison.CurrentCultureIgnoreCase))
                             {
-                                count++;
-                                urls.Add(url);
-                                if (count == 100)
+                                // Akamami does not support wildcard so iterate throw URLs in batches of 100
+
+                                var urls = new List<string>();
+                                int count = 0;
+
+                                foreach (var url in purgeUrls)
+                                {
+                                    count++;
+                                    urls.Add(url);
+                                    if (count == 100)
+                                    {
+                                        var purgeContent = new PurgeContent(urls);
+                                        operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
+                                        count = 0;
+                                        urls.Clear();
+                                    }
+                                }
+
+                                if (urls.Any())
                                 {
                                     var purgeContent = new PurgeContent(urls);
                                     operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
-                                    count = 0;
-                                    urls.Clear();
                                 }
-                            }
 
-                            if (urls.Any())
+                            }
+                            else
                             {
-                                var purgeContent = new PurgeContent(urls);
-                                operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
+                                // Purge everything with wildcard * (Akamai does not support this)
+                                operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, new PurgeContent(new string[] { "/*" }));
                             }
-
                         }
                         else
                         {
-                            // Purge everything with wildcard * (Akamai does not support this)
-                            operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, new PurgeContent(new string[] { "/*" }));
+                            // 100 paths or less, no need to page or use wildcard
+                            var purgeContent = new PurgeContent(purgeUrls);
+                            operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
                         }
-                    }
-                    else
-                    {
-                        // 100 paths or less, no need to page or use wildcard
-                        var purgeContent = new PurgeContent(purgeUrls);
-                        operation = endPoint.Value.PurgeContent(Azure.WaitUntil.Started, purgeContent);
-                    }
 
-                    return operation;
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError($"Failed to refresh CDN for {string.Join(",", purgeUrls)} the following reason:", e);
+                        return operation;
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError($"Failed to refresh CDN for {string.Join(",", purgeUrls)} the following reason:", e);
+                    }
                 }
             }
 

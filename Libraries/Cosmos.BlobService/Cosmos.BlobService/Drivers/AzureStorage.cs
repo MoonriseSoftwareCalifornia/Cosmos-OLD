@@ -350,7 +350,6 @@ namespace Cosmos.BlobService.Drivers
             return await blobClient.OpenReadAsync(new BlobOpenReadOptions(false));
         }
 
-
         /// <summary>
         /// Uploads file to a stream
         /// </summary>
@@ -399,7 +398,7 @@ namespace Cosmos.BlobService.Drivers
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
-        private AppendBlobClient GetAppendBlobClient(string target)
+        public AppendBlobClient GetAppendBlobClient(string target)
         {
             var containerClient =
                 _blobServiceClient.GetBlobContainerClient(_containerName);

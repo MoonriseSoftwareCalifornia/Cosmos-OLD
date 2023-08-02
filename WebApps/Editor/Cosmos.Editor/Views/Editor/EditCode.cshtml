@@ -107,6 +107,10 @@
     var fieldId;
     var fieldName;
     var ccmsEditorIsLocked = false;
+
+    const isReviewer = @User.IsInRole("Reviewers").ToString().ToLower();
+    const hasModel = @((Model != null).ToString().ToLower());
+
     // Indicates a save is in progress - used to deconflict simultaneous saves
     var saveInProgress = false;
     const modalPreview = new bootstrap.Modal(document.getElementById('modalPreview'));
@@ -479,6 +483,11 @@
                 alert("Could not find openInsertImageModel().");
             }
         });
+
+        if (hasModel && isReviewer === false) {
+            $("#btnArticleAccess").show();
+            $("#btnArticleAccess").attr("href", "@Url.Action("Permissions", "Editor", new { Id = Model.ArticleNumber })");
+        }
 
         checkDisplayLiveEditorButton();
     });

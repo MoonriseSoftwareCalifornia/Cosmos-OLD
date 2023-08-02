@@ -89,6 +89,16 @@ namespace Cosmos.Cms.Common.Services.Configurations
         public string ContentSecurityPolicy { get; set; } = "";
 
         /// <summary>
+        /// Publisher requires authentication
+        /// </summary>
+        public bool PublisherRequiresAuthentication { get; set; } = false;
+
+        /// <summary>
+        /// Required user role membership to access the publisher website
+        /// </summary>
+        public string CosmosRequiredPublisherRole { get; set; } = "";
+
+        /// <summary>
         /// X-Frame-Options
         /// </summary>
         /// <remarks>

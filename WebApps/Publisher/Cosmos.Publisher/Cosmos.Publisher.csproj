@@ -2,8 +2,8 @@
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
-		<AssemblyVersion>7.4.15.4</AssemblyVersion>
-		<FileVersion>7.4.15.4</FileVersion>
+		<AssemblyVersion>7.5.1.1</AssemblyVersion>
+		<FileVersion>7.5.1.1</FileVersion>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UserSecretsId>aspnet-Cosmos.Cms.Publisher-F1D91233-1093-41F8-B23F-43E81E1454FF</UserSecretsId>
@@ -20,6 +20,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Include="Areas\Identity\Pages\_ViewStart.cshtml" />
 		<None Include="wwwroot\ccms\js\cosmosUtils.js" />
 		<None Include="wwwroot\ccms\js\GoogleTranslations.js" />
 		<None Include="wwwroot\ccms\js\TimeUtils.js" />
@@ -36,11 +37,14 @@
 		<PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="7.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.9" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Cosmos" Version="1.5.0" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.18.1" />
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\..\Libraries\Cosmos.BlobService\Cosmos.BlobService\Cosmos.BlobService.csproj" />
 		<ProjectReference Include="..\..\..\Libraries\Cosmos.Common\Cosmos.Common\Cosmos.Common.csproj" />
+		<ProjectReference Include="..\..\..\Libraries\Cosmos.EmailServices\Cosmos.EmailServices.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.ComponentModel.DataAnnotations;
 using Cosmos.Common.Data;
+using System.Collections.Generic;
 
 namespace Cosmos.Common.Models
 {
@@ -14,6 +15,12 @@ namespace Cosmos.Common.Models
     [Serializable]
     public class ArticleViewModel
     {
+
+        public ArticleViewModel()
+        {
+            ArticlePermissions = new List<ArticlePermission>();
+        }
+
         /// <summary>
         ///     Entity key for the article
         /// </summary>
@@ -163,6 +170,11 @@ namespace Cosmos.Common.Models
         /// Article banner image
         /// </summary>
         public string BannerImage { get; set; }
+
+        /// <summary>
+        /// Article permissions
+        /// </summary>
+        public List<ArticlePermission> ArticlePermissions { get; internal set; }
 
         #endregion
     }

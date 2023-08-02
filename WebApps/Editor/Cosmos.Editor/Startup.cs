@@ -170,6 +170,7 @@ namespace Cosmos.Cms
                 cacheOptions.ClientBuilder = new CosmosClientBuilder(connectionString);
                 cacheOptions.CreateIfNotExists = true;
             });
+
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromSeconds(3600);

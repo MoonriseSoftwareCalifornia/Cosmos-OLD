@@ -73,15 +73,13 @@
                             <tr>
                                 <th scope="col">
                                     Select
-                                    @*<label class="control control--checkbox">
-                                    <input type="checkbox" class="js-check-all">
-                                    <span class="control__indicator"></span>
-                                    </label>*@
                                 </th>
                                 <th scope="col"><i class="fa-solid fa-house"></i></th>
                                 <th scope="col">#</th>
                                 <th scope="col">Page</th>
                                 <th scope="col">Last Updated</th>
+                                <th scope="col"></th>
+                                <th scope="col"></th>
                                 <th scope="col"></th>
                                 <th scope="col">Trash</th>
                             </tr>
@@ -125,6 +123,18 @@
                                         <div class='toLocalTimeZone'>@row.Updated</div>
                                     </td>
                                     <td>
+                                        @if (row.LastPublished.HasValue && canEdit && row.IsDefault == false)
+                                        {
+                                            <button onclick="unpublish(@row.ArticleNumber)" title="Unpublishes a this item, and makes it no longer accessible except for editing." class="btn btn-sm btn-secondary">Unpublish</button>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (canEdit)
+                                        {
+                                            <a href='/Editor/Permissions/@row.ArticleNumber' title='Set access permissions for users and roles.' id="btnArticleAccess" class='btn btn-sm btn-secondary'><i class="fa-solid fa-users"></i></a>
+                                        }
+                                    </td>
+                                    <td>
                                         <a class="btn btn-sm btn-secondary" title="Create a clone of this page" asp-action="Clone" asp-route-id="@row.ArticleNumber"><i class="fa-solid fa-copy"></i> Clone</a>
                                     </td>
                                     <td>
@@ -135,7 +145,6 @@
                                     </td>
                                 </tr>
                             }
-
                         </tbody>
                     </table>
                 </div>
@@ -201,6 +210,12 @@
 
     function openArticleVersions(id) {
         window.location.href = "@Url.Action("Versions")/" + id;
+    }
+
+    function unpublish(articleNumber) {
+        $.get("@Url.Action("UnpublishPage", "Editor")/" + articleNumber, function (data) {
+            window.location.reload(true);
+        });
     }
 
     $(document).ready(function () {

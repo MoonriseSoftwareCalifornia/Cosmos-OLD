@@ -3,8 +3,10 @@ using Cosmos.Common.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,19 +21,23 @@ namespace Cosmos.IdentityManagement.Website.Controllers
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly ApplicationDbContext _dbContext;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="roleManager"></param>
+        /// <param name="dbContext"></param>
         public RolesController(
             UserManager<IdentityUser> userManager,
-            RoleManager<IdentityRole> roleManager
+            RoleManager<IdentityRole> roleManager,
+            ApplicationDbContext dbContext
             )
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _dbContext = dbContext;
         }
 
         /// <summary>
@@ -179,18 +185,105 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// Page designed to add/remove users from a single role.
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="Id"></param>
+        /// <param name="sortOrder"></param>
+        /// <param name="currentSort"></param>
+        /// <param name="pageNo"></param>
+        /// <param name="pageSize"></param>
         /// <returns></returns>
-        public async Task<IActionResult> UsersInRole(string id)
+        public async Task<IActionResult> UsersInRole(string id, string Id = "", string sortOrder = "asc", string currentSort = "EmailAddress", int pageNo = 0, int pageSize = 10)
         {
             var role = await _roleManager.FindByIdAsync(id);
             if (role == null) return NotFound();
 
-            var model = new UsersInRoleViewModel()
+            ViewData["RoleInfo"] = new UsersInRoleViewModel()
             {
                 RoleId = role.Id,
                 RoleName = role.Name
             };
-            return View(model);
+            ViewData["sortOrder"] = sortOrder;
+            ViewData["currentSort"] = currentSort;
+            ViewData["pageNo"] = pageNo;
+            ViewData["pageSize"] = pageSize;
+
+            var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name);
+
+            var query = _dbContext.Users.AsQueryable();
+
+            if (!string.IsNullOrEmpty(Id))
+            {
+                var identityRole = await _roleManager.FindByIdAsync(Id);
+
+                var ids = usersInRole.Select(s => s.Id).ToArray();
+                query = query.Where(w => ids.Contains(w.Id));
+            }
+
+            // Get count
+            ViewData["RowCount"] = await query.CountAsync();
+
+            if (sortOrder.Equals("desc", StringComparison.InvariantCultureIgnoreCase))
+            {
+                switch (currentSort)
+                {
+                    case "EmailConfirmed":
+                        query = query.OrderByDescending(o => o.EmailConfirmed);
+                        break;
+                    case "EmailAddress":
+                        query = query.OrderByDescending(o => o.Email);
+                        break;
+                    case "PhoneNumber":
+                        query.OrderByDescending(o => o.PhoneNumber);
+                        break;
+                    case "TwoFactorEnabled":
+                        query = query.OrderByDescending(o => o.TwoFactorEnabled);
+                        break;
+                }
+            }
+            else
+            {
+                switch (currentSort)
+                {
+                    case "EmailConfirmed":
+                        query = query.OrderBy(o => o.EmailConfirmed);
+                        break;
+                    case "EmailAddress":
+                        query = query.OrderBy(o => o.Email);
+                        break;
+                    case "PhoneNumber":
+                        query = query.OrderBy(o => o.PhoneNumber);
+                        break;
+                    case "TwoFactorEnabled":
+                        query = query.OrderBy(o => o.TwoFactorEnabled);
+                        break;
+                }
+            }
+            query = query.Skip(pageNo * pageSize).Take(pageSize);
+
+            var data = await query.ToListAsync();
+
+            var users = data.Select(s => new UserIndexViewModel()
+            {
+                UserId = s.Id,
+                EmailAddress = s.Email,
+                EmailConfirmed = s.EmailConfirmed,
+                PhoneNumber = s.PhoneNumber,
+                IsLockedOut = s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow : false,
+                TwoFactorEnabled = s.TwoFactorEnabled
+            }).ToList();
+
+
+            // Now get the role for these people
+            var roles = await _dbContext.Roles.ToListAsync();
+            var userIds = await query.Select(s => s.Id).ToListAsync();
+            var links = await _dbContext.UserRoles.Where(ur => userIds.Contains(ur.UserId)).ToListAsync();
+
+            foreach (var user in users)
+            {
+                var roleIds = links.Where(w => w.UserId == user.UserId).Select(s => s.RoleId).ToList();
+                user.RoleMembership = roles.Where(w => roleIds.Contains(w.Id)).Select(s => s.Name).ToList();
+            }
+            //s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow 
+            return View(users);
         }
 
         /// <summary>

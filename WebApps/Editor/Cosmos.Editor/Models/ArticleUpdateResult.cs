@@ -22,7 +22,7 @@ namespace Cosmos.Cms.Models
         /// <summary>
         /// Will return an ARM Operation if CDN purged
         /// </summary>
-        public ArmOperation? ArmOperation { get; set; } = null;
+        public ArmOperation ArmOperation { get; set; } = null;
 
         /// <summary>
         ///     Urls that need to be flushed

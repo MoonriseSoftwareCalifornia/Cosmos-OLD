@@ -1,12 +1,16 @@
 using AspNetCore.Identity.CosmosDb.Extensions;
 using AspNetCore.Identity.Services.SendGrid;
 using AspNetCore.Identity.Services.SendGrid.Extensions;
+using Cosmos.BlobService;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Common.Data;
 using Cosmos.Common.Data.Logic;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Cosmos;
 using Newtonsoft.Json.Serialization;
+using System.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +65,10 @@ else
 }
 #pragma warning restore CS8604 // Possible null reference argument.
 
+
+// Add the BLOB and File Storage contexts for Cosmos WPS
+builder.Services.AddCosmosStorageContext(builder.Configuration);
+
 builder.Services.AddMvc()
                 .AddNewtonsoftJson(options =>
                     options.SerializerSettings.ContractResolver =
@@ -108,6 +116,18 @@ builder.Services.ConfigureApplicationCookie(o =>
     o.Cookie.Name = "CosmosAuthCookie";
     o.ExpireTimeSpan = TimeSpan.FromDays(5);
     o.SlidingExpiration = true;
+});
+
+// Add IDistributed cache using Cosmos DB
+// This enables the editor to run in a web farm without needing
+// the "sticky bit" set.
+// See: https://github.com/Azure/Microsoft.Extensions.Caching.Cosmos
+builder.Services.AddCosmosCache((CosmosCacheOptions cacheOptions) =>
+{
+    cacheOptions.ContainerName = "EditorCache";
+    cacheOptions.DatabaseName = cosmosIdentityDbName;
+    cacheOptions.ClientBuilder = new CosmosClientBuilder(connectionString);
+    cacheOptions.CreateIfNotExists = true;
 });
 
 //
@@ -172,6 +192,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 //app.UseResponseCompression();
+app.MapControllerRoute(name: "pub",
+                pattern: "pub/{*index}",
+                defaults: new { controller = "Pub", action = "Index" });
 
 app.MapControllerRoute(
     name: "default",

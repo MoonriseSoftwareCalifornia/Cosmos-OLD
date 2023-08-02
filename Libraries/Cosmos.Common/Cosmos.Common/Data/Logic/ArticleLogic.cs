@@ -239,7 +239,8 @@ namespace Cosmos.Common.Data.Logic
                 RoleList = article.RoleList,
                 Expires = article.Expires.HasValue ? article.Expires.Value : null,
                 BannerImage = article.BannerImage,
-                AuthorInfo = JsonConvert.SerializeObject(authorInfo).Replace("\"", "'")
+                AuthorInfo = JsonConvert.SerializeObject(authorInfo).Replace("\"", "'"),
+                ArticlePermissions = article.ArticlePermissions
             };
         }
 
@@ -283,7 +284,8 @@ namespace Cosmos.Common.Data.Logic
                 ReadWriteMode = _isEditor,
                 RoleList = article.RoleList,
                 Expires = article.Expires.HasValue ? article.Expires.Value : null,
-                AuthorInfo = article.AuthorInfo
+                AuthorInfo = article.AuthorInfo,
+                ArticlePermissions = article.ArticlePermissions
             };
         }
 

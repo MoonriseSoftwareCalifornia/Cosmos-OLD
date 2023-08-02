@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Cosmos.Common.Data
@@ -104,6 +105,11 @@ namespace Cosmos.Common.Data
         /// Information about the person who authored this document.
         /// </summary>
         public string AuthorInfo { get; set; }
+
+        /// <summary>
+        /// Article permissions
+        /// </summary>
+        public List<ArticlePermission> ArticlePermissions { get; set; }
 
         #region PERMISSIONS
 

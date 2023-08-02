@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Cosmos.Common.Data;
+using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Cosmos.Cms.Models
@@ -48,6 +49,6 @@ namespace Cosmos.Cms.Models
         /// Last person to edit this page
         /// </summary>
         [Display(Name = "Edited by")]
-        public string UserId {  get; set; }
+        public string UserId { get; set; }
     }
 }
