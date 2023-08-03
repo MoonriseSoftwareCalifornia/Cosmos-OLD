@@ -25,6 +25,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using SendGrid.Helpers.Mail;
+using NuGet.Packaging;
 
 namespace Cosmos.Cms.Controllers
 {
@@ -517,6 +518,10 @@ namespace Cosmos.Cms.Controllers
             ViewData["currentSort"] = currentSort;
             ViewData["pageNo"] = pageNo;
             ViewData["pageSize"] = pageSize;
+            var reserved = await _articleLogic.GetReservedPaths();
+            var existingUrls = await _dbContext.Articles.Where(w => w.StatusCode == (int)StatusCodeEnum.Active).Select(s => s.Title).Distinct().ToListAsync();
+            existingUrls.AddRange(reserved.Select(s => s.Path));
+            ViewData["reservedPaths"] = existingUrls;
 
             var query = _dbContext.Templates.OrderBy(t => t.Title)
                 .Where(w => w.LayoutId == defautLayout.Id)

@@ -9,14 +9,16 @@
     var currentSort = (string)ViewData["currentSort"];
     var pageNumber = (int)ViewData["pageNo"];
     var pageSize = (int)ViewData["pageSize"];
+    var reservedPaths = (List<string>)ViewData["reservedPaths"];
 
     var pagerModel = new GridPagerPartialViewModel(pageNumber, rowCount, pageSize, sortOrder, currentSort, "/Editor/Create");
 }
 <div class="cwps-editor-container pt-3">
     <div class="container">
         <div class="row">
-            <div class="col-md-12 text-light">
+            <div class="col-md-12 text-light mb-3">
                 <h3>Create a Page</h3>
+                <p>Enter the desired page URL below, and optionally select a quick start page template below.</p>
                 <form id="frmCreate" asp-action="Create">
                     <input asp-for="Id" type="hidden" />
                     <input asp-for="TemplateId" type="hidden" />
@@ -27,8 +29,9 @@
                     <div class="input-group mb-3">
                         <span class="input-group-text">Page URL: /</span>
                         <input class="form-control" autocomplete="off" asp-for="Title" />
+                        <input type="submit" value="Create" class="btn btn-primary" />
                     </div>
-                    <span asp-validation-for="Title" ></span>
+                    <span asp-validation-for="Title"></span>
 
                     <div id="frmgpSelectedTemplate" class="form-group mb-3" style="display:none">
                         <div class="input-group input-group-sm mb-3">
@@ -40,12 +43,13 @@
 
                     <div class="form-group">
                         <button type="button" id="previewBtn" style="display:none" class="btn btn-primary" onclick="openPreview()">Full Page Preview</button>
-                        <input type="submit" value="Create" class="btn btn-primary" />
+                        
                     </div>
                 </form>
-                <br />
-                <h5>Create new page using a template selected from below:</h5>
             </div>
+        </div>
+        <div class="row">
+            <div class="col"><h5 class="text-light">Quick start page templates:</h5></div>
         </div>
         <div class="row cpws-table-pager-row-top">
             <div class="col-md-12 d-flex justify-content-center">
@@ -127,14 +131,69 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal mt-5" id="modalAlert" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-secondary text-light">
+            <div class="modal-header">
+                <h5 class="modal-title">Page URL</h5>
+            </div>
+            <div class="modal-body">
+                <div id="divSaveFirstDialog"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     let sessionTitle;
+    var a = "\"";
+    var b = "'";
+    const reservedPaths = [@Html.Raw(string.Join(',', reservedPaths.Select(s => "\"" + s.Replace("\"","\'") + "\"")))];
+
+    const modalAlert = new bootstrap.Modal(document.getElementById('modalAlert'));
 
     $("#frmCreate").submit(function (e) {
-        sessionStorage.setItem("sessionTitle", "");
-        sessionStorage.setItem("templateId", "");
-        return true;
+        e.preventDefault();
+
+        var validTitle = validateTitle($("#Title").val());
+
+        if (validTitle) {
+            sessionStorage.setItem("sessionTitle", "");
+            sessionStorage.setItem("templateId", "");
+        }
+        return validTitle;
     });
+
+    function validateTitle(title) {
+        var isValid = true;
+        if (title.indexOf("'") > -1 || title.indexOf("\"") > -1) {
+            $("#divSaveFirstDialog").html("<p>Avoid a URL with <b>quote</b> characters such as: <b>&#39; or &#34;</b>.</p>");
+            modalAlert.show();
+            return false;
+        }
+        $.each(reservedPaths, function (index, value) {
+            if (value.endsWith("*")) {
+                if (title.toLowerCase().startsWith(value.substring(value.length).toLowerCase())) {
+                    $("#divSaveFirstDialog").html("<p>Cannot have a URL that <u>starts with</u>: <b>/" + title + "</b>.</p>");
+                    modalAlert.show();
+                    isValid = false;
+                }
+            } else {
+                if (title.toLowerCase() === value.toLowerCase()) {
+                    $("#divSaveFirstDialog").html("<p>This URL is already taken or reserved: <b>/" + title + "</b>.</p>");
+                    modalAlert.show();
+                    isValid = false;
+                }
+            }
+
+        });
+        return isValid;
+    }
 
     $(document).ready(function () {
         if ("@Model.Title" === "") {
