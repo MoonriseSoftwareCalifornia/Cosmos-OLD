@@ -230,7 +230,7 @@ namespace Cosmos.Cms.Controllers
         /// <param name="articleNumber"></param>
         /// <param name="versionNumber"></param>
         /// <returns></returns>
-        public async Task<IActionResult> Preview(int articleNumber, int versionNumber)
+        public async Task<IActionResult> Preview(int articleNumber, int? versionNumber = null)
         {
             try
             {
