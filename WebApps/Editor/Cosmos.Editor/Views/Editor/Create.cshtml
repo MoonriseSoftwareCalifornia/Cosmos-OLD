@@ -43,7 +43,7 @@
 
                     <div class="form-group">
                         <button type="button" id="previewBtn" style="display:none" class="btn btn-primary" onclick="openPreview()">Full Page Preview</button>
-                        
+
                     </div>
                 </form>
             </div>
@@ -171,23 +171,36 @@
 
     function validateTitle(title) {
         var isValid = true;
-        if (title.indexOf("'") > -1 || title.indexOf("\"") > -1) {
-            $("#divSaveFirstDialog").html("<p>Avoid a URL with <b>quote</b> characters such as: <b>&#39; or &#34;</b>.</p>");
+        //
+        if (title.indexOf(",") > -1 || 
+        title.indexOf(".") > -1 ||
+            title.indexOf("'") > -1 ||
+            title.indexOf("\"") > -1 ||
+            title.indexOf("#") > -1 ||
+            title.indexOf("@@") > -1 ||
+            title.indexOf("{") > -1 ||
+            title.indexOf("}") > -1 ||
+            title.indexOf("&") > -1 ||
+            title.indexOf("\\") > -1) {
+            $("#divSaveFirstDialog").html("<p>Avoid a URL with <b>quote</b> characters such as: <b>&#39; or &#34;</b> and special characters such as: . (period), ',' (comma), \\ (backslash), #, @@, {, }, and & (ampersand).</p><p>Spaces ' ', forward slashes '/' and underscores '_' are OK.</p>");
             modalAlert.show();
             return false;
         }
         $.each(reservedPaths, function (index, value) {
             if (value.endsWith("*")) {
-                if (title.toLowerCase().startsWith(value.substring(value.length).toLowerCase())) {
-                    $("#divSaveFirstDialog").html("<p>Cannot have a URL that <u>starts with</u>: <b>/" + title + "</b>.</p>");
+                if (title.toLowerCase().startsWith(value.substring(0, value.length - 1).toLowerCase())) {
+                    const starts = value.substring(0, value.length - 1);
+                    $("#divSaveFirstDialog").html("<p>Cannot have a URL that <u>starts with</u>: <b>/" + starts + "</b></p>");
                     modalAlert.show();
                     isValid = false;
+                    return false;
                 }
             } else {
                 if (title.toLowerCase() === value.toLowerCase()) {
-                    $("#divSaveFirstDialog").html("<p>This URL is already taken or reserved: <b>/" + title + "</b>.</p>");
+                    $("#divSaveFirstDialog").html("<p>This URL is already taken or reserved: <b>/" + title + "</b></p>");
                     modalAlert.show();
                     isValid = false;
+                    return false;
                 }
             }
 
