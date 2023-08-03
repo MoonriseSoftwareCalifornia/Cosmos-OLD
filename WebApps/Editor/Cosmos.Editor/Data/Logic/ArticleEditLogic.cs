@@ -162,18 +162,18 @@ namespace Cosmos.Cms.Data.Logic
             };
         }
 
-        private async Task HandleLogEntry(Article article, string note, string userId)
-        {
-            DbContext.ArticleLogs.Add(new ArticleLog
-            {
-                ArticleId = article.Id,
-                IdentityUserId = userId,
-                ActivityNotes = note,
-                DateTimeStamp = DateTime.Now.ToUniversalTime()
-            });
+        //private async Task HandleLogEntry(Article article, string note, string userId)
+        //{
+        //    DbContext.ArticleLogs.Add(new ArticleLog
+        //    {
+        //        ArticleId = article.Id,
+        //        IdentityUserId = userId,
+        //        ActivityNotes = note,
+        //        DateTimeStamp = DateTime.Now.ToUniversalTime()
+        //    });
 
-            await DbContext.SaveChangesAsync();
-        }
+        //    await DbContext.SaveChangesAsync();
+        //}
 
         /// <summary>
         /// Make sure all content editble DIVs have a unique C/CMS ID (attribute 'data-ccms-ceid'), removes CK editor classes.
@@ -577,7 +577,7 @@ namespace Cosmos.Cms.Data.Logic
 
             await HandlePublishing(published, userId);
 
-            await HandleLogEntry(published, $"Article {published.ArticleNumber} is now the new home page.", userId);
+            //await HandleLogEntry(published, $"Article {published.ArticleNumber} is now the new home page.", userId);
         }
 
         /// <summary>
@@ -716,7 +716,7 @@ namespace Cosmos.Cms.Data.Logic
             await DbContext.SaveChangesAsync();
 
             // Update the log
-            await HandleLogEntry(redeemed.LastOrDefault(), $"Recovered '{sample.Title}' from trash.", userId);
+            //await HandleLogEntry(redeemed.LastOrDefault(), $"Recovered '{sample.Title}' from trash.", userId);
 
         }
 
@@ -814,8 +814,6 @@ namespace Cosmos.Cms.Data.Logic
             // Don't track this for now
             DbContext.Entry(article).State = EntityState.Detached;
 
-            var lastSetPermissions = await DbContext.Articles.OrderByDescending(a => a.ArticleNumber).Select(a => a.ArticlePermissions).FirstOrDefaultAsync();
-
             // =======================================================
             // BEGIN: MAKE CONTENT CHANGES HERE
             //
@@ -844,7 +842,6 @@ namespace Cosmos.Cms.Data.Logic
             article.FooterJavaScript = model.FooterJavaScript;
             article.RoleList = model.RoleList;
             article.BannerImage = model.BannerImage;
-            article.ArticlePermissions = lastSetPermissions;
 
             #endregion
             //
@@ -855,7 +852,7 @@ namespace Cosmos.Cms.Data.Logic
             DbContext.Articles.Add(article);
             // Make sure this saves now
             await DbContext.SaveChangesAsync();
-            await HandleLogEntry(article, "Saved new version", userId);
+            //await HandleLogEntry(article, "Saved new version", userId);
 
             // IMPORTANT!
             // Handle title (and URL) changes for existing 
@@ -865,39 +862,14 @@ namespace Cosmos.Cms.Data.Logic
             // This can be a new or existing article.
             var armOperaton = await HandlePublishing(article, userId);
 
-            //
-            // Is the role list changing?
-            //
-            if (!string.Equals(article.RoleList, model.RoleList, StringComparison.CurrentCultureIgnoreCase))
-            {
-                // get all prior article versions, changing security now.
-                var oldArticles = await DbContext.Articles.Where(w => w.ArticleNumber == article.ArticleNumber)
-                    .ToListAsync();
-
-                await HandleLogEntry(article, $"Changing role access from '{article.RoleList}' to '{model.RoleList}'.",
-                    userId);
-
-                //
-                // We have to change the title and paths for all versions now.
-                //
-                foreach (var oldArticle in oldArticles) oldArticle.RoleList = model.RoleList;
-
-                // Save changes to database.
-                await DbContext.SaveChangesAsync();
-            }
-
+            
             // Finally update the catalog entry
             await UpdateCatalogEntry(article.ArticleNumber, (StatusCodeEnum)article.StatusCode);
 
-            var echo = await Get(article.Id, EnumControllerName.Edit, userId);
-
-            var isValid = echo.Content == model.Content && echo.Title == model.Title && echo.Published == model.Published &&
-                echo.HeadJavaScript == model.HeadJavaScript && echo.FooterJavaScript == model.FooterJavaScript;
-
             var result = new ArticleUpdateResult
             {
-                ServerSideSuccess = isValid,
-                Model = echo,
+                ServerSideSuccess = true,
+                Model = model,
                 ArmOperation = armOperaton
             };
 
@@ -1028,7 +1000,7 @@ namespace Cosmos.Cms.Data.Logic
         {
             if (article.Published.HasValue)
             {
-                await HandleLogEntry(article, $"Published for: {article.Published.Value}.", userId);
+                //await HandleLogEntry(article, $"Published for: {article.Published.Value}.", userId);
 
                 try
                 {
@@ -1405,8 +1377,9 @@ namespace Cosmos.Cms.Data.Logic
 
                 // Add redirect here
                 DbContext.Articles.Add(entity);
+                await DbContext.SaveChangesAsync();
 
-                await HandleLogEntry(entity, $"Redirect {oldUrl} to {newUrl}", userId);
+                //await HandleLogEntry(entity, $"Redirect {oldUrl} to {newUrl}", userId);
             }
 
             // We have to change the title and paths for all versions now.

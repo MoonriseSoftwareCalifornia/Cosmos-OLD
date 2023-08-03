@@ -124,7 +124,7 @@
 
     $("#frmSave").submit(function (e) {
         e.preventDefault();
-        saveChanges(null, null, false);
+        saveChanges();
     });
 
     function bgEditClickCustom(command) {
@@ -214,7 +214,7 @@
         $("#btnApply").click(function (e) {
             var data = editor.getValue();
             ckeditor.data.set(data);
-            saveChanges(null, null);
+            saveChanges();
         });
 
         $("#btnSave").click(function () {
@@ -402,7 +402,7 @@
                     // If there are "editable" areas being edited, use this method to save changes
                     const ccms_editibleAreas = iframe.contentWindow.ccms_editibleAreas;
                     if (typeof (ccms_editibleAreas) !== "undefined" && ccms_editibleAreas.length > 0) {
-                        saveChanges(null, null, false);
+                        saveChanges();
                     }
                     break;
             }
@@ -540,7 +540,7 @@
             ckeditor.editing.view.focus();
         });
 
-        saveChanges(null, null, true);
+        saveChanges();
     }
 
     function insertFileLink(path) {
@@ -616,7 +616,7 @@
             if (getAutoSave()) {
                 const data = [];
                 data.push(item);
-                const savePromise = saveChanges(null, null, true);
+                const savePromise = saveChanges();
                 ccms_signal_focus_others(editor, "updateEditors", editor.getData());
                 doneSaving();
                 savePromise.then(resolve);
@@ -696,15 +696,11 @@
     }
 
     // Saves changes to page title, publishing, not content.
-    function saveChanges(myModal, next) {
+    function saveChanges() {
 
         // Signal to the user that saving has started.
         saving();
         saveInProgress = true;
-
-        if (typeof (myModel) !== "undefined" && myModel !== null) {
-            myModal.hide();
-        }
 
         // Get the latest date
         savePublishDateTime();
@@ -738,12 +734,23 @@
             Data: JSON.stringify(data)
         };
 
-        try {
-            signalRConnection.invoke("Notification", JSON.stringify(model));
-        } catch (err) {
-            console.error(err);
-        }
+        $.post("@Url.Action("SaveLiveEditorData", "Editor")", model, function (data){
+            saveInProgress = false;
+            doneSaving();
+        }).fail(function(data){
+            alert("Problem!");
+        }).done(function (data) {
+            try {
+                model.Data = ""; // Not needed for this
+                signalRConnection.invoke("Notification", JSON.stringify(model));
+            } catch (err) {
+                console.error(err);
+            }
 
+            if (next) {
+                next();
+            }
+        });
     }
 
     function cosmosSignalOthers(editor, command) {
@@ -792,12 +799,7 @@
             $.post("@Url.Action("SaveLiveEditorData")", model)
                 .done(function (data) {
 
-                    $("#UrlPath").val(data.UrlPath);
-                    $("#RoleList").val(data.RoleList);
-                    $("#Title").val(data.Title);
-                    $("#Published").val(data.Published);
-                    $("#Updated").val(data.Updated);
-                    $("#BannerImage").val(data.BannerImage);
+                    savePageProperties(data);
 
                     // Now, we don't need the data anymore
                     model.Data = "";

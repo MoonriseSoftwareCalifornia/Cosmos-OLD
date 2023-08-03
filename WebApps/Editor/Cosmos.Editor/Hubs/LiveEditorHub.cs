@@ -67,72 +67,9 @@ namespace Cosmos.Cms.Hubs
                         await Groups.AddToGroupAsync(Context.ConnectionId, GetArticleGroupName(model.ArticleNumber));
                         break;
                     case "save":
-                        try
-                        {
-                            // Next send the new article backed to others.
-                            var article = await _articleLogic.Get(model.ArticleNumber, null);
-
-                            // Find the editor that was changed and get the new HTML
-                            // Get the editable regions from the original document.
-                            var originalHtmlDoc = new HtmlDocument();
-                            originalHtmlDoc.LoadHtml(article.Content);
-                            var originalEditableDivs = originalHtmlDoc.DocumentNode.SelectNodes("//*[@data-ccms-ceid]");
-
-                            // Find the region we are updating
-                            var target = originalEditableDivs.FirstOrDefault(w => w.Attributes["data-ccms-ceid"].Value == model.EditorId);
-                            if (target == null)
-                            {
-                                throw new Exception($"Could not find editor '{model.EditorId}.'");
-                            }
-
-                            model.Id = article.Id;
-                            model.Command = "saved"; // Let caller know item is saved.
-                            model.Data = target.InnerHtml;
-                            model.VersionNumber = article.VersionNumber;
-                            model.Published = article.Published;
-                            model.Updated = article.Updated;
-                            model.Title = article.Title;
-                            model.UrlPath = article.UrlPath;
-                            model.BannerImage = article.BannerImage;
-                            model.RoleList = article.RoleList;
-
-                            var stringData = JsonConvert.SerializeObject(model);
-
-                            await Clients.OthersInGroup(GetArticleGroupName(model.ArticleNumber)).SendCoreAsync("broadcastMessage", new[] { stringData });
-
-                            model.Command = "PropertiesSaved";
-                            model.Data = "";
-                            await Clients.Caller.SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogError($"SIGNALR: {model.Command} method error: {e.Message}", e);
-                            await ReturnErrorToCaller("Error saving editor content.", model);
-                        }
-                        break;
                     case "SavePageProperties":
-                        var result = await SavePageProperties(model);
-                        if (result == null)
-                        {
-                            await ReturnErrorToCaller("Error saving page properties.", model);
-                        }
-                        else
-                        {
-                            model.Id = result.Id;
-                            model.VersionNumber = result.VersionNumber;
-                            model.Published = result.Published;
-                            model.Updated = result.Updated;
-                            model.Title = result.Title;
-                            model.UrlPath = result.UrlPath;
-                            model.BannerImage = result.BannerImage;
-                            model.RoleList = result.RoleList;
-
-                            // Alert others
-                            await Clients.OthersInGroup(GetArticleGroupName(model.ArticleNumber)).SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
-                            // Notify caller of job done.
-                            model.Command = "PropertiesSaved";
-                            await Clients.Caller.SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
-                        }
+                        // Alert others
+                        await Clients.OthersInGroup(GetArticleGroupName(model.ArticleNumber)).SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
                         break;
                     default:
                         await Clients.OthersInGroup(GetArticleGroupName(model.ArticleNumber)).SendCoreAsync("broadcastMessage", new[] { data });
@@ -144,61 +81,6 @@ namespace Cosmos.Cms.Hubs
                 _logger.LogError($"{e.Message}", e);
             }
 
-        }
-
-        private async Task ReturnErrorToCaller(string errorMessage, LiveEditorSignal model)
-        {
-            model.Command = "Error";
-            model.Data = errorMessage;
-            await Clients.Caller.SendCoreAsync("broadcastMessage", new[] { JsonConvert.SerializeObject(model) });
-        }
-
-        /// <summary>
-        /// Saves page properties like title, published, banner image, etc...
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
-        private async Task<ArticleViewModel> SavePageProperties(LiveEditorSignal model)
-        {
-            if (model == null)
-            {
-                _logger.LogError("SIGNALR: SavePageProperties method, model was null.");
-                return null;
-            }
-
-            // Next pull the original. This is a view model, not tracked by DbContext.
-            var article = await _articleLogic.Get(model.ArticleNumber, null);
-            if (article == null)
-            {
-                _logger.LogError($"SIGNALR: SavePageProperties method, could not find artile with ID: {model.ArticleNumber}.");
-                return null;
-            }
-
-            try
-            {
-                var properties = JsonConvert.DeserializeObject<LiveEditorSignal>(model.Data);
-
-                // Make sure we are setting to the orignal updated date/time
-                // This is validated to make sure that someone else hasn't already edited this
-                // entity
-                article.Updated = DateTimeOffset.UtcNow;
-
-                article.Title = properties.Title;
-                article.Published = properties.Published;
-                article.RoleList = properties.RoleList;
-                article.BannerImage = properties.BannerImage;
-                
-                // Save changes back to the database
-                var result = await _articleLogic.Save(article, model.UserId);
-
-                return result.Model;
-
-            }
-            catch (Exception e)
-            {
-                _logger.LogError($"SIGNALR: SavePageProperties failed for article #: {model.ArticleNumber} with the following error: " + e.Message, e);
-                return null;
-            }
         }
 
         /// <summary>
