@@ -644,7 +644,14 @@ namespace Cosmos.Cms.Controllers
         [Authorize(Roles = "Administrators, Editors, Authors")]
         public async Task<IActionResult> CreateVersion(int id, Guid? entityId = null)
         {
-            IQueryable<Article> query;
+            //
+            // Grab the latest versions regardless
+            //
+            var latest = await _dbContext.Articles.OrderByDescending(o => o.VersionNumber).FirstOrDefaultAsync(f =>
+                    f.ArticleNumber == id);
+
+            // This is the article that we will edit
+            Article article;
 
             //
             // Are we basing this on an existing entity?
@@ -652,18 +659,9 @@ namespace Cosmos.Cms.Controllers
             if (entityId == null)
             {
                 //
-                // If here, we are not. Clone the new version from the last version.
+                // Yes we are, target that version now.
                 //
-                // Find the last version here
-                var maxVersion = await _dbContext.Articles.Where(a => a.ArticleNumber == id)
-                    .MaxAsync(m => m.VersionNumber);
-
-                //
-                // Now find that version.
-                //
-                query = _dbContext.Articles.Where(f =>
-                    f.ArticleNumber == id &&
-                    f.VersionNumber == maxVersion);
+                article = latest;
             }
             else
             {
@@ -674,37 +672,42 @@ namespace Cosmos.Cms.Controllers
                 //
                 // Create a new version based on a specific version
                 //
-                query = _dbContext.Articles.Where(f =>
+                article = await _dbContext.Articles.FirstOrDefaultAsync(f =>
                     f.Id == entityId.Value);
+
             }
 
-            var article = await query.FirstOrDefaultAsync();
-
-            var model = new ArticleViewModel
+            var newArticle = new Article()
             {
-                Id = article.Id, // This is the article we are going to clone as a new version.
-                StatusCode = StatusCodeEnum.Active,
+                Id = Guid.NewGuid(),
                 ArticleNumber = article.ArticleNumber,
-                UrlPath = article.UrlPath,
-                VersionNumber = 0,
-                Published = null,
-                Title = article.Title,
+                BannerImage = article.BannerImage,
                 Content = article.Content,
-                Updated = article.Updated,
-                HeadJavaScript = article.HeaderJavaScript,
+                Expires = article.Expires,
                 FooterJavaScript = article.FooterJavaScript,
-                ReadWriteMode = false,
-                PreviewMode = false,
-                EditModeOn = false,
-                CacheKey = null,
-                CacheDuration = 0
+                HeaderJavaScript = article.HeaderJavaScript,
+                Published = article.Published,
+                RoleList = article.RoleList,
+                StatusCode = article.StatusCode,
+                Title = article.Title,
+                Updated = article.Updated,
+                UrlPath = article.UrlPath,
+                UserId = User.Identity.Name,
+                VersionNumber = latest.VersionNumber + 1
             };
 
-            var user = await _userManager.GetUserAsync(User);
+            newArticle.ArticlePermissions.AddRange(latest.ArticlePermissions.Select(s => new ArticlePermission()
+            {
+                IdentityObjectId = s.IdentityObjectId,
+                IsRoleObject = s.IsRoleObject,
+                Permission = s.Permission
+            }));
 
-            var result = await _articleLogic.Save(model, user.Email);
+            _dbContext.Articles.Add(newArticle);
 
-            return RedirectToAction("EditCode", "Editor", new { result.Model.Id });
+            await _dbContext.SaveChangesAsync();
+
+            return RedirectToAction("EditCode", "Editor", new { id = newArticle.ArticleNumber });
         }
 
         /// <summary>
@@ -1343,7 +1346,7 @@ namespace Cosmos.Cms.Controllers
         /// <summary>
         /// Edit web page code with Monaco editor.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">Article Number (not ID)</param>
         /// <returns></returns>
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
         public async Task<IActionResult> EditCode(int id)
