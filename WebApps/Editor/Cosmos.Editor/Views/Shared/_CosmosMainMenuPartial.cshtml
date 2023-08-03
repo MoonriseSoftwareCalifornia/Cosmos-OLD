@@ -30,29 +30,16 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                @if (Model != null)
-                {
-                    <li class="nav-item dropdown">
-                        <a id="navbarEditDropdown" onclick="loadDdEditMenu()" data-ccms-urlpath="@Model.UrlPath" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Edit
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-dark" id="ddEditMenu">
-                            <li><a class="dropdown-item" href="#">Choose version to edit:</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                        </ul>
-                    </li>
-                }
                 <li class="nav-item dropdown">
                     <a id="btnManage" href="#" role="button" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        Manage
+                        Menu
                     </a>
                     <ul class="dropdown-menu dropdown-menu-dark" id="ddManageMenu">
-                        <li class="dropdown-header bg-dark text-light">Website Content</li>
                         <li>
                             <a class="dropdown-item" title="List of pages on this website." href="/Editor/Index">Pages</a>
                         </li>
                         <li>
-                            <a class="dropdown-item" title="Open files stored on this website." href="/FileManager/Index">Files</a>
+                            <a class="dropdown-item" title="Open files stored on this website." href="/FileManager/Index">File Manager</a>
                         </li>
                         @if (isAdministrator || isEditor)
                         {
@@ -67,19 +54,30 @@
                             <a id="btnPublicWebsite" class="dropdown-item" title="Open public (publisher) website" href="" target="_blank">Public Website</a>
                         </li>
                         <li><hr class="dropdown-divider"></li>
-                        <li>
+                        <li style="display:none">
                             <a class="dropdown-item" title="Internal (non-public) file storage." href="/Code/Index">Internal Files</a>
                         </li>
                         @if (isAdministrator || isEditor)
                         {
                             <li><hr class="dropdown-divider"></li>
-                            <li class="dropdown-header bg-dark text-light">System Admin</li>
                             <li>
                                 <a class="dropdown-item" title="Manage user accounts." href="/Users/Index">Users</a>
                             </li>
                         }
                     </ul>
                 </li>
+                @if (Model != null)
+                {
+                    <li class="nav-item dropdown">
+                        <a id="navbarEditDropdown" onclick="loadDdEditMenu()" data-ccms-urlpath="@Model.UrlPath" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Edit
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" id="ddEditMenu">
+                            <li><a class="dropdown-item" href="#">Choose version to edit:</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                        </ul>
+                    </li>
+                }
                 <li class="nav-item"><span title="Cosmos WPS Version" class="nav-link text-mute">@assemblyVersion.ToString()</span></li>
                 @if (Context.Request.Path.Equals("/home/preview", StringComparison.InvariantCultureIgnoreCase))
                 {
