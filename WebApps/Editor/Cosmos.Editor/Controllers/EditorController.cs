@@ -6,7 +6,6 @@ using Cosmos.Common.Data;
 using Cosmos.Common.Data.Logic;
 using Cosmos.Common.Models;
 using Cosmos.Editor.Models;
-using System.Linq;
 using HtmlAgilityPack;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -21,11 +20,10 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using SendGrid.Helpers.Mail;
-using NuGet.Packaging;
 
 namespace Cosmos.Cms.Controllers
 {
@@ -1443,26 +1441,35 @@ namespace Cosmos.Cms.Controllers
 
             //
             // Detect duplicate div editor IDs and fix.
-            var htmlDoc = new HtmlAgilityPack.HtmlDocument();
-            htmlDoc.LoadHtml(model.Content);
 
-            var elements = htmlDoc.DocumentNode.SelectNodes("//*[@contenteditable]|//*[@crx]|//*[@data-ccms-ceid]");
-            var dups = elements.GroupBy(x => x.Attributes["data-ccms-ceid"].Value).Where(g => g.Count() > 1).Select(y => new { id = y.Key, Counter = y.Count() })
-              .ToList();
-
-            if (dups.Any())
+            if (!string.IsNullOrEmpty(model.Content))
             {
-                var ids = dups.Select(s => s.id).ToList();
 
-                var duplicates = elements.Where(w => ids.Contains(w.Attributes["data-ccms-ceid"].Value));
+                var htmlDoc = new HtmlAgilityPack.HtmlDocument();
+                htmlDoc.LoadHtml(model.Content);
 
-                foreach (var duplicate in duplicates)
+                var elements = htmlDoc.DocumentNode.SelectNodes("//*[@contenteditable]|//*[@crx]|//*[@data-ccms-ceid]");
+                var dups = elements.GroupBy(x => x.Attributes["data-ccms-ceid"].Value).Where(g => g.Count() > 1).Select(y => new { id = y.Key, Counter = y.Count() })
+                  .ToList();
+
+                if (dups.Any())
                 {
-                    duplicate.Attributes["data-ccms-ceid"].Value = Guid.NewGuid().ToString();
-                }
-            }
+                    var ids = dups.Select(s => s.id).ToList();
 
-            model.Content = htmlDoc.DocumentNode.OuterHtml;
+                    var duplicates = elements.Where(w => ids.Contains(w.Attributes["data-ccms-ceid"].Value));
+
+                    foreach (var duplicate in duplicates)
+                    {
+                        duplicate.Attributes["data-ccms-ceid"].Value = Guid.NewGuid().ToString();
+                    }
+                }
+
+                model.Content = htmlDoc.DocumentNode.OuterHtml;
+            }
+            else
+            {
+                model.Content = "";
+            }
 
             var article = await _dbContext.Articles.FirstOrDefaultAsync(f => f.Id == model.Id);
 
