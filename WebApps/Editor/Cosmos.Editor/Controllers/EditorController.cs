@@ -1436,12 +1436,8 @@ namespace Cosmos.Cms.Controllers
 
             if (model == null) return NotFound();
 
-            // Get the user's ID for logging.
-            //var userId = await GetUserEmail();
-
             //
             // Detect duplicate div editor IDs and fix.
-
             if (!string.IsNullOrEmpty(model.Content))
             {
 
@@ -1449,22 +1445,27 @@ namespace Cosmos.Cms.Controllers
                 htmlDoc.LoadHtml(model.Content);
 
                 var elements = htmlDoc.DocumentNode.SelectNodes("//*[@contenteditable]|//*[@crx]|//*[@data-ccms-ceid]");
-                var dups = elements.GroupBy(x => x.Attributes["data-ccms-ceid"].Value).Where(g => g.Count() > 1).Select(y => new { id = y.Key, Counter = y.Count() })
-                  .ToList();
 
-                if (dups.Any())
+                if (elements != null && elements.Count > 0)
                 {
-                    var ids = dups.Select(s => s.id).ToList();
 
-                    var duplicates = elements.Where(w => ids.Contains(w.Attributes["data-ccms-ceid"].Value));
+                    var dups = elements.GroupBy(x => x.Attributes["data-ccms-ceid"].Value).Where(g => g.Count() > 1).Select(y => new { id = y.Key, Counter = y.Count() })
+                      .ToList();
 
-                    foreach (var duplicate in duplicates)
+                    if (dups.Any())
                     {
-                        duplicate.Attributes["data-ccms-ceid"].Value = Guid.NewGuid().ToString();
-                    }
-                }
+                        var ids = dups.Select(s => s.id).ToList();
 
-                model.Content = htmlDoc.DocumentNode.OuterHtml;
+                        var duplicates = elements.Where(w => ids.Contains(w.Attributes["data-ccms-ceid"].Value));
+
+                        foreach (var duplicate in duplicates)
+                        {
+                            duplicate.Attributes["data-ccms-ceid"].Value = Guid.NewGuid().ToString();
+                        }
+                    }
+
+                    model.Content = htmlDoc.DocumentNode.OuterHtml;
+                }
             }
             else
             {

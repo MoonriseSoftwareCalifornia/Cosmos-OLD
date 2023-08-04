@@ -158,15 +158,14 @@
     const modalAlert = new bootstrap.Modal(document.getElementById('modalAlert'));
 
     $("#frmCreate").submit(function (e) {
-        e.preventDefault();
-
         var validTitle = validateTitle($("#Title").val());
 
         if (validTitle) {
             sessionStorage.setItem("sessionTitle", "");
             sessionStorage.setItem("templateId", "");
+            return true;
         }
-        return validTitle;
+        return false;
     });
 
     function validateTitle(title) {
