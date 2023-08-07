@@ -635,22 +635,27 @@
                     },
                     "properties": {
                         "AllowLocalAccounts": "true",
+
                         "AzureBlobStorageEndPoint": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2018-07-01').primaryEndpoints.web]",
                         "AzureBlobStorageContainerName": "$web",
                         "AzureBlobStorageConnectionString": "[concat('@Microsoft.KeyVault(VaultName=', variables('farmKeyVaultName'), ';SecretName=', variables('storageAccountName'),')')]",
+                        
                         "Authentication_Google_ClientId": "",
                         "Authentication_Google_ClientSecret": "",
+
                         "Authentication_Microsoft_ClientId": "",
                         "Authentication_Microsoft_ClientSecret": "",
+                        
+                        "SetupCosmosDb": "true",
+
                         "CosmosIdentityDbName": "[variables('databaseName')]",
                         "CosmosAdminEmail": "[variables('adminEmail')]",
-                        "CosmosPrimaryCloud": "azure",
+                        
                         "CosmosAllowSetup": "true",
                         "CosmosPublisherUrl": "[parameters('primaryDnsName')]",
                         "CosmosEditorUrl": "[concat('https://', variables('editorName'), '.azurewebsites.net')]",
                         "CosmosStorageUrl": "[parameters('primaryDnsName')]",
-                        "CosmosBlobContainer": "$web",
-                        "CosmosSecretKey": "[concat('CSK-', uniqueString(resourceGroup().id))]",
+                        
                         "FrontdoorConnection": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=FrontdoorStd01Connection)')]",
                         "FrontdoorEndpointName": "[parameters('frontdoorEndpoint')]",
                         "FrontdoorDnsNames": "[parameters('frontdoorDnsNames')]",

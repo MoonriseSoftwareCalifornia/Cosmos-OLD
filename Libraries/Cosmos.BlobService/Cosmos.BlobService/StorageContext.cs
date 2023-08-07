@@ -160,79 +160,38 @@ namespace Cosmos.BlobService
             // Ensure leading slash is removed.
             target = target.TrimStart('/');
 
-            FileManagerEntry fileManagerEntry;
-            switch (_config.Value.PrimaryCloud.ToLower())
+            //FileManagerEntry fileManagerEntry;
+            var driver = (AzureStorage)GetPrimaryDriver();
+            var blob = await driver.GetBlobAsync(target);
+            var isDirectory = blob.Name.EndsWith("folder.stubxx");
+            var hasDirectories = false;
+            var fileName = Path.GetFileName(blob.Name);
+            var path = blob.Name;
+
+            if (isDirectory)
             {
-                case "amazon":
-                {
-                    var driver = (AmazonStorage) GetPrimaryDriver();
-                    var blob = await driver.GetBlobAsync(target);
-
-                    var isDirectory = blob.Key.EndsWith("folder.stubxx");
-                    var hasDirectories = false;
-                    var fileName = Path.GetFileName(blob.Key);
-                    var path = blob.Key;
-                    if (isDirectory)
-                    {
-                        var children = await driver.GetObjectsAsync(target, null);
-                        hasDirectories = children.Count(c => c.Key.EndsWith("folder.stubxx")) > 1;
-                        fileName = ParseFirstFolder(blob.Key)[0];
-                        path = path?.Replace("/folder.stubxx", "");
-                    }
-
-                    fileManagerEntry = new FileManagerEntry
-                    {
-                        Created = blob.LastModified.Date,
-                        CreatedUtc = blob.LastModified.ToUniversalTime(),
-                        Extension = isDirectory ? "" : Path.GetExtension(blob.Key),
-                        HasDirectories = hasDirectories,
-                        IsDirectory = isDirectory,
-                        Modified = blob.LastModified.Date,
-                        ModifiedUtc = blob.LastModified.ToUniversalTime(),
-                        Name = fileName,
-                        Path = path,
-                        Size = blob.ContentLength
-                    };
-                }
-                    break;
-                case "azure":
-                {
-                    var driver = (AzureStorage) GetPrimaryDriver();
-                    var blob = await driver.GetBlobAsync(target);
-                    var isDirectory = blob.Name.EndsWith("folder.stubxx");
-                    var hasDirectories = false;
-                    var fileName = Path.GetFileName(blob.Name);
-                    var path = blob.Name;
-
-                    if (isDirectory)
-                    {
-                        var children = await driver.GetObjectsAsync(target);
-                        hasDirectories = children.Any(c => c.IsPrefix);
-                        fileName = ParseFirstFolder(blob.Name)[0];
-                        path = path?.Replace("/folder.stubxx", "");
-                    }
-
-                    var props = await blob.GetPropertiesAsync();
-
-
-                    fileManagerEntry = new FileManagerEntry
-                    {
-                        Created = props.Value.CreatedOn.DateTime,
-                        CreatedUtc = props.Value.CreatedOn.UtcDateTime,
-                        Extension = isDirectory ? "" : Path.GetExtension(blob.Name),
-                        HasDirectories = hasDirectories,
-                        IsDirectory = isDirectory,
-                        Modified = props.Value.LastModified.DateTime,
-                        ModifiedUtc = props.Value.LastModified.UtcDateTime,
-                        Name = fileName,
-                        Path = path,
-                        Size = props.Value.ContentLength
-                    };
-                }
-                    break;
-                default:
-                    throw new Exception($"Primary provider '{_config.Value.PrimaryCloud}' not supported.");
+                var children = await driver.GetObjectsAsync(target);
+                hasDirectories = children.Any(c => c.IsPrefix);
+                fileName = ParseFirstFolder(blob.Name)[0];
+                path = path?.Replace("/folder.stubxx", "");
             }
+
+            var props = await blob.GetPropertiesAsync();
+
+
+            var fileManagerEntry = new FileManagerEntry
+            {
+                Created = props.Value.CreatedOn.DateTime,
+                CreatedUtc = props.Value.CreatedOn.UtcDateTime,
+                Extension = isDirectory ? "" : Path.GetExtension(blob.Name),
+                HasDirectories = hasDirectories,
+                IsDirectory = isDirectory,
+                Modified = props.Value.LastModified.DateTime,
+                ModifiedUtc = props.Value.LastModified.UtcDateTime,
+                Name = fileName,
+                Path = path,
+                Size = props.Value.ContentLength
+            };
 
             return fileManagerEntry;
         }
@@ -246,24 +205,9 @@ namespace Cosmos.BlobService
         {
             // Ensure leading slash is removed.
             target = target.TrimStart('/');
-
-            switch (_config.Value.PrimaryCloud.ToLower())
-            {
-                case "amazon":
-                {
-                    var driver = (AmazonStorage) GetPrimaryDriver();
-                    var blob = await driver.GetBlobAsync(target);
-                    return blob.ResponseStream;
-                }
-                case "azure":
-                {
-                    var driver = (AzureStorage) GetPrimaryDriver();
-                    var blob = await driver.GetBlobAsync(target);
-                    return await blob.OpenReadAsync();
-                }
-                default:
-                    throw new Exception($"Primary provider '{_config.Value.PrimaryCloud}' not supported.");
-            }
+            var driver = (AzureStorage)GetPrimaryDriver();
+            var blob = await driver.GetBlobAsync(target);
+            return await blob.OpenReadAsync();
         }
 
         /// <summary>
@@ -365,49 +309,16 @@ namespace Cosmos.BlobService
         private List<ICosmosStorage> GetDrivers()
         {
             var drivers = new List<ICosmosStorage>();
-            switch (_config.Value.PrimaryCloud.ToLower())
-            {
-                case "amazon":
-                {
-                    foreach (var storageConfigAmazonConfig in _config.Value.StorageConfig.AmazonConfigs)
-                        drivers.Add(new AmazonStorage(storageConfigAmazonConfig, _memoryCache));
 
-                    if (_config.Value.StorageConfig.AzureConfigs.Any())
-                        foreach (var storageConfigAzureConfig in _config.Value.StorageConfig.AzureConfigs)
-                            drivers.Add(new AzureStorage(storageConfigAzureConfig, ContainerName));
-
-                    break;
-                }
-                case "azure":
-                {
-                    foreach (var storageConfigAzureConfig in _config.Value.StorageConfig.AzureConfigs)
-                        drivers.Add(new AzureStorage(storageConfigAzureConfig, ContainerName));
-
-                    if (_config.Value.StorageConfig.AmazonConfigs.Any())
-                        foreach (var storageConfigAmazonConfig in _config.Value.StorageConfig.AmazonConfigs)
-                            drivers.Add(new AmazonStorage(storageConfigAmazonConfig, _memoryCache));
-
-                    break;
-                }
-                default:
-                    throw new Exception("No primary storage provider defined.");
-            }
+            foreach (var storageConfigAzureConfig in _config.Value.StorageConfig.AzureConfigs)
+                drivers.Add(new AzureStorage(storageConfigAzureConfig, ContainerName));
 
             return drivers;
         }
 
         private ICosmosStorage GetPrimaryDriver()
         {
-            switch (_config.Value.PrimaryCloud.ToLower())
-            {
-                case "amazon":
-                    return new AmazonStorage(_config.Value.StorageConfig.AmazonConfigs.FirstOrDefault(),
-                        _memoryCache);
-                case "azure":
-                    return new AzureStorage(_config.Value.StorageConfig.AzureConfigs.FirstOrDefault(), ContainerName);
-                default:
-                    throw new Exception($"Primary provider '{_config.Value.PrimaryCloud}' is not supported.");
-            }
+            return new AzureStorage(_config.Value.StorageConfig.AzureConfigs.FirstOrDefault(), ContainerName);
         }
 
         private string[] ParseFirstFolder(string path)
@@ -495,124 +406,53 @@ namespace Cosmos.BlobService
             if (!string.IsNullOrEmpty(path)) path = path.TrimStart('/');
             var entries = new List<FileManagerEntry>();
 
-            switch (_config.Value.PrimaryCloud.ToLower())
-            {
-                case "amazon":
-                    var amazonDriver = (AmazonStorage) GetPrimaryDriver();
+            var azureDriver = (AzureStorage)GetPrimaryDriver();
 
-                    var amazonResults = await amazonDriver.GetObjectsAsync(path, null);
+            var azureResults = await azureDriver.GetObjectsAsync(path);
 
-                    var length = path.Length;
+            foreach (var azureResult in azureResults)
+                if (azureResult.IsBlob)
+                {
+                    if (azureResult.Blob.Name.EndsWith("folder.stubxx")) continue;
 
-                    foreach (var amazonResult in amazonResults)
+                    var fileName = Path.GetFileNameWithoutExtension(azureResult.Blob.Name);
+
+                    var modified = azureResult.Blob.Properties.LastModified?.UtcDateTime ?? DateTime.UtcNow;
+
+                    entries.Add(new FileManagerEntry
                     {
-                        var keyParts = amazonResult.Key.Substring(length).Split('/');
+                        Created = DateTime.Now,
+                        CreatedUtc = DateTime.UtcNow,
+                        Extension = Path.GetExtension(azureResult.Blob.Name),
+                        HasDirectories = false,
+                        IsDirectory = false,
+                        Modified = modified,
+                        ModifiedUtc = modified,
+                        Name = fileName,
+                        Path = azureResult.Blob.Name,
+                        Size = azureResult.Blob.Properties.ContentLength ?? 0
+                    });
+                }
+                else
+                {
+                    var parse = azureResult.Prefix.TrimEnd('/').Split('/');
 
-                        if (keyParts[0] == "folder.stubxx") continue;
+                    var subDirectory = await azureDriver.GetObjectsAsync(azureResult.Prefix);
 
-                        //
-                        // Is this a folder stub?
-                        //
-                        if (keyParts.Last() == "folder.stubxx" && entries.All(a => a.Name != keyParts[0]))
-                        {
-                            var blobPath = path.TrimEnd('/') + "/" + keyParts[0];
-
-                            var children = await amazonDriver.GetObjectsAsync(blobPath, null);
-
-                            // Add the folder here
-                            entries.Add(new FileManagerEntry
-                            {
-                                Created = amazonResult.LastModified,
-                                CreatedUtc = amazonResult.LastModified.ToUniversalTime(),
-                                Extension = string.Empty,
-                                HasDirectories = children.Any(a => a.Key == "folder.stubxx"),
-                                IsDirectory = true,
-                                Modified = amazonResult.LastModified,
-                                ModifiedUtc = amazonResult.LastModified.ToUniversalTime(),
-                                Name = keyParts[0],
-                                Path = blobPath,
-                                Size = 0
-                            });
-                        }
-                        else if (keyParts.Length < 3)
-                        {
-                            var fileName = Path.GetFileNameWithoutExtension(amazonResult.Key);
-                            var extension = Path.GetExtension(fileName);
-
-
-                            var blobPath = path.TrimEnd('/') + "/" + fileName;
-
-                            if (entries.All(a => a.Path != blobPath))
-                                entries.Add(new FileManagerEntry
-                                {
-                                    Created = amazonResult.LastModified,
-                                    CreatedUtc = amazonResult.LastModified.ToUniversalTime(),
-                                    Extension = extension,
-                                    HasDirectories = false,
-                                    IsDirectory = false,
-                                    Modified = amazonResult.LastModified,
-                                    ModifiedUtc = amazonResult.LastModified.ToUniversalTime(),
-                                    Name = fileName,
-                                    Path = blobPath,
-                                    Size = amazonResult.Size
-                                });
-                        }
-                    }
-
-                    break;
-                case "azure":
-                    var azureDriver = (AzureStorage) GetPrimaryDriver();
-
-                    var azureResults = await azureDriver.GetObjectsAsync(path);
-
-                    foreach (var azureResult in azureResults)
-                        if (azureResult.IsBlob)
-                        {
-                            if (azureResult.Blob.Name.EndsWith("folder.stubxx")) continue;
-
-                            var fileName = Path.GetFileNameWithoutExtension(azureResult.Blob.Name);
-
-                            var modified = azureResult.Blob.Properties.LastModified?.UtcDateTime ?? DateTime.UtcNow;
-
-                            entries.Add(new FileManagerEntry
-                            {
-                                Created = DateTime.Now,
-                                CreatedUtc = DateTime.UtcNow,
-                                Extension = Path.GetExtension(azureResult.Blob.Name),
-                                HasDirectories = false,
-                                IsDirectory = false,
-                                Modified = modified,
-                                ModifiedUtc = modified,
-                                Name = fileName,
-                                Path = azureResult.Blob.Name,
-                                Size = azureResult.Blob.Properties.ContentLength ?? 0
-                            });
-                        }
-                        else
-                        {
-                            var parse = azureResult.Prefix.TrimEnd('/').Split('/');
-
-                            var subDirectory = await azureDriver.GetObjectsAsync(azureResult.Prefix);
-
-                            entries.Add(new FileManagerEntry
-                            {
-                                Created = DateTime.Now,
-                                CreatedUtc = DateTime.UtcNow,
-                                Extension = string.Empty,
-                                HasDirectories = subDirectory.Any(a => a.IsPrefix),
-                                IsDirectory = true,
-                                Modified = DateTime.Now,
-                                ModifiedUtc = DateTime.UtcNow,
-                                Name = parse.Last(),
-                                Path = azureResult.Prefix.TrimEnd('/'),
-                                Size = 0
-                            });
-                        }
-
-                    break;
-                default:
-                    throw new Exception($"Provider '{_config.Value.PrimaryCloud}' is not supported.");
-            }
+                    entries.Add(new FileManagerEntry
+                    {
+                        Created = DateTime.Now,
+                        CreatedUtc = DateTime.UtcNow,
+                        Extension = string.Empty,
+                        HasDirectories = subDirectory.Any(a => a.IsPrefix),
+                        IsDirectory = true,
+                        Modified = DateTime.Now,
+                        ModifiedUtc = DateTime.UtcNow,
+                        Name = parse.Last(),
+                        Path = azureResult.Prefix.TrimEnd('/'),
+                        Size = 0
+                    });
+                }
 
             return entries;
         }

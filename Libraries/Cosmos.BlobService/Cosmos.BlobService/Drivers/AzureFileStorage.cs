@@ -1,12 +1,8 @@
-﻿using Amazon.Auth.AccessControlPolicy;
-using Amazon.S3.Model;
-using Azure.Storage.Files.Shares;
+﻿using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
-using Cosmos.BlobService.Config;
 using Cosmos.BlobService.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;

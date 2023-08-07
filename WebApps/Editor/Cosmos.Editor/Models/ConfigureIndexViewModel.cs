@@ -113,7 +113,6 @@ namespace Cosmos.Cms.Models
         /// <param name="config"></param>
         private void Init(CosmosConfig config)
         {
-            PrimaryCloud = config.PrimaryCloud;
             SiteSettings = config.SiteSettings;
             ImportJson = string.Empty;
             CdnConfig = config.CdnConfig;
@@ -136,7 +135,6 @@ namespace Cosmos.Cms.Models
             {
                 CdnConfig = CdnConfig,
                 GoogleCloudAuthConfig = GoogleCloudAuthConfig,
-                PrimaryCloud = PrimaryCloud,
                 SendGridConfig = SendGridConfig,
                 SiteSettings = SiteSettings,
                 StorageConfig = StorageConfig

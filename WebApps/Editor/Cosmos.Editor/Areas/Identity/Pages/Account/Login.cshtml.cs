@@ -88,7 +88,11 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl.Replace("http:", "https:");
 
             // If there are no users yet, go strait to the register page.
-            await _dbContext.Database.EnsureCreatedAsync();
+
+            if (_options.Value.AllowSetup)
+            {
+                await _dbContext.Database.EnsureCreatedAsync();
+            }
 
             if (_userManager.Users.Count() == 0)
             {

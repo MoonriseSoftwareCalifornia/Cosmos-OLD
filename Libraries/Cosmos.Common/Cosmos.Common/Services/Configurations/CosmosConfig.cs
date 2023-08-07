@@ -22,13 +22,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
         }
 
         /// <summary>
-        ///     Primary cloud for this installation.
-        /// </summary>
-        [Display(Name = "Primary Cloud")]
-        [UIHint("CloudProvider")]
-        public string PrimaryCloud { get; set; }
-
-        /// <summary>
         /// Primary ISO-639-1 language code for this website.
         /// </summary>
         /// <remarks>

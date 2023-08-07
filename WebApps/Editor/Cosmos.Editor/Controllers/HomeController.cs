@@ -178,8 +178,11 @@ namespace Cosmos.Cms.Controllers
                         !User.IsInRole("Administrators")) return RedirectToAction("AccessPending");
                 }
 
-                // Enable static website for Azure BLOB storage
-                await _storageContext.EnableAzureStaticWebsite();
+                if (_options.Value.SiteSettings.AllowSetup)
+                {
+                    // Enable static website for Azure BLOB storage
+                    await _storageContext.EnableAzureStaticWebsite();
+                }
 
                 // If we do not yet have a layout, go to a page where we can select one.
                 if (!await EnsureLayoutExists()) return RedirectToAction("Index", "Layouts");

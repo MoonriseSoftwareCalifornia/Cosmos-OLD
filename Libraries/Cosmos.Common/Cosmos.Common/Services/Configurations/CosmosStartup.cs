@@ -154,7 +154,11 @@ namespace Cosmos.Cms.Common.Services.Configurations
             var cosmosConfig = new CosmosConfig();
 
             // SETUP VALUES
-            cosmosConfig.SiteSettings.AllowSetup = GetValue<bool?>("CosmosAllowSetup");
+            var allowSetup = GetValue<bool?>("CosmosAllowSetup");
+            if (allowSetup.HasValue)
+            {
+                cosmosConfig.SiteSettings.AllowSetup = allowSetup.Value;
+            }
             cosmosConfig.SiteSettings.AllowConfigEdit = GetValue<bool>("CosmosAllowConfigEdit");
             cosmosConfig.SiteSettings.AllowReset = GetValue<bool>("CosmosAllowReset");
 
@@ -171,19 +175,17 @@ namespace Cosmos.Cms.Common.Services.Configurations
             // Microsoft App ID
             cosmosConfig.SecretName = GetValue<string>("CosmosSecretName");
             cosmosConfig.MicrosoftAppId = GetValue<string>("Authentication_Microsoft_ClientId");
-            cosmosConfig.PrimaryCloud = GetValue<string>("CosmosPrimaryCloud");
             cosmosConfig.SendGridConfig.EmailFrom = GetValue<string>("CosmosAdminEmail");
             cosmosConfig.SendGridConfig.SendGridKey = GetValue<string>("CosmosSendGridApiKey");
 
             // Cosmos Endpoints
             cosmosConfig.SiteSettings.PublisherUrl = GetValue<string>("CosmosPublisherUrl");
-            cosmosConfig.SiteSettings.FileShare = GetValue<string>("CosmosFileShare");
-            cosmosConfig.SiteSettings.BlobPublicUrl = GetValue<string>("CosmosStorageUrl");
+            cosmosConfig.SiteSettings.BlobPublicUrl = GetValue<string>("AzureBlobStorageEndPoint");
             cosmosConfig.SiteSettings.BlobPublicUrl = cosmosConfig.SiteSettings.BlobPublicUrl?.TrimEnd('/');
             var editorUrl = GetValue<string>("CosmosEditorUrl");
             if (!string.IsNullOrEmpty(editorUrl))
             {
-                cosmosConfig.EditorUrls.Add(new EditorUrl() { CloudName = cosmosConfig.PrimaryCloud, Url = editorUrl });
+                cosmosConfig.EditorUrls.Add(new EditorUrl() { CloudName = "Azure", Url = editorUrl });
             };
 
             return Options.Create(cosmosConfig);

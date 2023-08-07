@@ -1436,42 +1436,6 @@ namespace Cosmos.Cms.Controllers
 
             if (model == null) return NotFound();
 
-            //
-            // Detect duplicate div editor IDs and fix.
-            if (!string.IsNullOrEmpty(model.Content))
-            {
-
-                var htmlDoc = new HtmlAgilityPack.HtmlDocument();
-                htmlDoc.LoadHtml(model.Content);
-
-                var elements = htmlDoc.DocumentNode.SelectNodes("//*[@contenteditable]|//*[@crx]|//*[@data-ccms-ceid]");
-
-                if (elements != null && elements.Count > 0)
-                {
-
-                    var dups = elements.GroupBy(x => x.Attributes["data-ccms-ceid"].Value).Where(g => g.Count() > 1).Select(y => new { id = y.Key, Counter = y.Count() })
-                      .ToList();
-
-                    if (dups.Any())
-                    {
-                        var ids = dups.Select(s => s.id).ToList();
-
-                        var duplicates = elements.Where(w => ids.Contains(w.Attributes["data-ccms-ceid"].Value));
-
-                        foreach (var duplicate in duplicates)
-                        {
-                            duplicate.Attributes["data-ccms-ceid"].Value = Guid.NewGuid().ToString();
-                        }
-                    }
-
-                    model.Content = htmlDoc.DocumentNode.OuterHtml;
-                }
-            }
-            else
-            {
-                model.Content = "";
-            }
-
             var article = await _dbContext.Articles.FirstOrDefaultAsync(f => f.Id == model.Id);
 
             if (article == null) return NotFound();

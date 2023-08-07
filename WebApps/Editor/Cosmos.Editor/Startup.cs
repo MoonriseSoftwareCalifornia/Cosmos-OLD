@@ -54,6 +54,19 @@ namespace Cosmos.Cms
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+
+            //
+            // Get the boot variables loaded, and
+            // do some validation to make sure Cosmos can boot up
+            // based on the values given.
+            //
+            var cosmosStartup = new CosmosStartup(Configuration);
+
+            // Add Cosmos Options
+            var option = cosmosStartup.Build();
+            services.AddSingleton(option);
+
             // The following line enables Application Insights telemetry collection.
             // See: https://learn.microsoft.com/en-us/azure/azure-monitor/app/asp-net-core?tabs=netcore6
             services.AddApplicationInsightsTelemetry();
@@ -68,11 +81,11 @@ namespace Cosmos.Cms
             // 1. Create the database if it does not already exist.
             // 2. Create the required containers if they do not already exist.
             // IMPORTANT: Remove this variable if after first run. It will improve startup performance.
-            var setupCosmosDb = Configuration.GetValue<bool?>("SetupCosmosDb");
+            //var setupCosmosDb = Configuration.GetValue<bool?>("SetupCosmosDb");
 
             // If the following is set, it will create the Cosmos database and
             //  required containers.
-            if (setupCosmosDb.HasValue && setupCosmosDb.Value)
+            if (option.Value.SiteSettings.AllowSetup)
             {
                 var builder1 = new DbContextOptionsBuilder<ApplicationDbContext>();
                 builder1.UseCosmos(connectionString, cosmosIdentityDbName);
@@ -104,25 +117,6 @@ namespace Cosmos.Cms
                 });
             }
 
-            // Add Azure Frontdoor connection here
-            // First try and get the connection from a configuration variable
-            var azureFrontdoorConnection = Configuration.GetValue<FrontdoorConnection>("FrontdoorConnection");
-
-            if (azureFrontdoorConnection == null)
-            {
-                azureFrontdoorConnection = Configuration.GetSection("FrontdoorConnection").Get<FrontdoorConnection>();
-            }
-
-            if (azureFrontdoorConnection == null)
-            {
-                azureFrontdoorConnection = new FrontdoorConnection();
-            }
-            else
-            {
-                azureFrontdoorConnection.EndpointName = Configuration["FrontdoorEndpointName"];
-            }
-            services.AddSingleton(azureFrontdoorConnection);
-
             //
             // Add Cosmos Identity here
             //
@@ -137,6 +131,7 @@ namespace Cosmos.Cms
 
             // SUPPORTED OAuth Providers
             // Add Google if keys are present
+
             var googleClientId = Configuration["Authentication_Google_ClientId"];
             var googleClientSecret = Configuration["Authentication_Google_ClientSecret"];
             if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
@@ -171,6 +166,25 @@ namespace Cosmos.Cms
                 cacheOptions.CreateIfNotExists = true;
             });
 
+            // Add Azure Frontdoor connection here
+            // First try and get the connection from a configuration variable
+            var azureFrontdoorConnection = Configuration.GetValue<FrontdoorConnection>("FrontdoorConnection");
+
+            if (azureFrontdoorConnection == null)
+            {
+                azureFrontdoorConnection = Configuration.GetSection("FrontdoorConnection").Get<FrontdoorConnection>();
+            }
+
+            if (azureFrontdoorConnection == null)
+            {
+                azureFrontdoorConnection = new FrontdoorConnection();
+            }
+            else
+            {
+                azureFrontdoorConnection.EndpointName = Configuration["FrontdoorEndpointName"];
+            }
+            services.AddSingleton(azureFrontdoorConnection);
+
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromSeconds(3600);
@@ -200,17 +214,6 @@ namespace Cosmos.Cms
             services.AddSingleton(azureSubscription);
 
             //
-            // Get the boot variables loaded, and
-            // do some validation to make sure Cosmos can boot up
-            // based on the values given.
-            //
-            var cosmosStartup = new CosmosStartup(Configuration);
-
-            // Add Cosmos Options
-            var option = cosmosStartup.Build();
-            services.AddSingleton(option);
-
-            //
             // Add services
             //
             var azureCommunicationConnection = Configuration.GetConnectionString("AzureCommunicationConnection");
@@ -223,21 +226,6 @@ namespace Cosmos.Cms
 
             // Add the BLOB and File Storage contexts for Cosmos WPS
             services.AddCosmosStorageContext(Configuration);
-
-            // Add file share storage context
-            var fileStorageCon = Configuration.GetValue<string>("AzureFileStorageConnectionString");
-            if (string.IsNullOrEmpty(fileStorageCon))
-            {
-                // Connect using the blob storage connection string
-                fileStorageCon = Configuration.GetValue<string>("AzureBlobStorageConnectionString");
-            }
-
-            var fileShare = Configuration.GetValue<string>("CosmosFileShare");
-            if (string.IsNullOrEmpty(fileShare))
-            {
-                fileShare = "ccmsshare";
-            }
-            services.AddSingleton(new FileStorageContext(fileStorageCon, fileShare));
 
             services.AddTransient<ArticleEditLogic>();
 

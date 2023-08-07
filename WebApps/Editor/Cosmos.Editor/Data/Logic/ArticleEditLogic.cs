@@ -307,6 +307,27 @@ namespace Cosmos.Cms.Data.Logic
                 }
             }
 
+            // Detect duplicate editable 
+            if (elements != null && elements.Count > 0 && htmlDoc.DocumentNode.SelectNodes("//*[@data-ccms-ceid]").Any())
+            {
+
+                var dups = elements.GroupBy(x => x.Attributes["data-ccms-ceid"].Value).Where(g => g.Count() > 1).Select(y => new { id = y.Key, Counter = y.Count() })
+                  .ToList();
+
+                if (dups.Any())
+                {
+                    var ids = dups.Select(s => s.id).ToList();
+
+                    var duplicates = elements.Where(w => ids.Contains(w.Attributes["data-ccms-ceid"].Value));
+
+                    foreach (var duplicate in duplicates)
+                    {
+                        duplicate.Attributes["data-ccms-ceid"].Value = Guid.NewGuid().ToString();
+                    }
+                }
+
+            }
+
 
 
             // If we had to add at least one ID, then re-save the article.
@@ -527,10 +548,6 @@ namespace Cosmos.Cms.Data.Logic
         /// <param name="model"></param>
         /// <param name="userId"></param>
         /// <returns></returns>
-        /// <remarks>
-        ///     The old home page has its URL changed from "root" to its normal path.  Also writes to the log
-        ///     using <see cref="HandleLogEntry" />.
-        /// </remarks>
         public async Task NewHomePage(NewHomeViewModel model, string userId)
         {
             //
@@ -777,9 +794,6 @@ namespace Cosmos.Cms.Data.Logic
         ///         <item>
         ///             Published articles will trigger the prior published article to have its Expired property set to this
         ///             article's published property.
-        ///         </item>
-        ///         <item>
-        ///             Actions taken here by users are logged using <see cref="HandleLogEntry" />.
         ///         </item>
         ///         <item>
         ///             Title changes (and redirects) are handled by adding a new article with redirect info.

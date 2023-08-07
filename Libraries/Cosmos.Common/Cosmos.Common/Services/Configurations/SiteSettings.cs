@@ -8,11 +8,6 @@ namespace Cosmos.Cms.Common.Services.Configurations
     /// </summary>
     public class SiteSettings
     {
-        /// <summary>
-        /// Azure file share name
-        /// </summary>
-        [Display(Name = "File Share")]
-        public string FileShare { get; set; }
 
         /// <summary>
         ///     Allowed file type extensions
@@ -31,7 +26,7 @@ namespace Cosmos.Cms.Common.Services.Configurations
         ///     Allows a website to go into setup mode. For use only on fresh sites.
         /// </summary>
         [Display(Name = "Allow setup")]
-        public bool? AllowSetup { get; set; } = true;
+        public bool AllowSetup { get; set; } = false;
 
         /// <summary>
         /// Allows the advanced configuration editor to be available to Administrators.
