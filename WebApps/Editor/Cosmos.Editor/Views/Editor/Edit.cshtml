@@ -711,7 +711,7 @@
         var updated = $("#Updated").val();
         var articleNumber = $("#ArticleNumber").val();
 
-        var data = {
+        @*var data = {
             Id: $("#Id").val(),
             Title: $("#Title").val(),
             Published: published,
@@ -720,18 +720,21 @@
             RoleList: $("#RoleList").val(),
             UrlPath: "",
             VersionNumber: $("#VersionNumber").val()
-        };
+        };*@
 
         let model = {
             Id: $("#Id").val(),
             ArticleNumber: $("#ArticleNumber").val(),
             EditorId: null,
             UserId: ccms_editor_userid,
+            Published: published,
+            Updated: updated,
+            Title: $("#Title").val(),
             Offset: -1,
             Command: "SavePageProperties",
             IsFocused: false,
             VersionNumber: $("#VersionNumber").val(),
-            Data: JSON.stringify(data)
+            Data: ""
         };
 
         $.post("@Url.Action("SaveLiveEditorData", "Editor")", model, function (data){

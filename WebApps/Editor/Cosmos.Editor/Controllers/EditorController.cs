@@ -345,7 +345,9 @@ namespace Cosmos.Cms.Controllers
             // Make sure we are setting to the orignal updated date/time
             // This is validated to make sure that someone else hasn't already edited this
             // entity
+            article.Published = model.Published;
             article.Updated = DateTimeOffset.UtcNow;
+            article.Title = model.Title;
 
             // Save changes back to the database
             var result = await _articleLogic.Save(article, model.UserId);
