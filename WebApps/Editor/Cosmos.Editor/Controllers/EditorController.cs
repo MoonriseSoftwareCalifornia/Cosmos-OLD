@@ -308,6 +308,11 @@ namespace Cosmos.Cms.Controllers
         public async Task<IActionResult> SaveLiveEditorData(LiveEditorSignal model)
         {
             var t = model;
+
+            if (string.IsNullOrEmpty(model.Title))
+            {
+                throw new Exception("Title cannot be null or empty.");
+            }
             if (model == null)
             {
                 throw new Exception("SaveEditorContent method, model was null.");
@@ -1435,6 +1440,11 @@ namespace Cosmos.Cms.Controllers
         public async Task<IActionResult> EditCode(EditCodePostModel model)
         {
             var saveError = new StringBuilder();
+
+            if (string.IsNullOrEmpty(model.Title))
+            {
+                throw new Exception("Title cannot be null or empty.");
+            }
 
             if (model == null) return NotFound();
 

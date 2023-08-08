@@ -696,7 +696,7 @@
     }
 
     // Saves changes to page title, publishing, not content.
-    function saveChanges() {
+    function saveChanges(data, editorId) {
 
         // Signal to the user that saving has started.
         saving();
@@ -725,7 +725,7 @@
         let model = {
             Id: $("#Id").val(),
             ArticleNumber: $("#ArticleNumber").val(),
-            EditorId: null,
+            EditorId: editorId,
             UserId: ccms_editor_userid,
             Published: published,
             Updated: updated,
@@ -734,7 +734,7 @@
             Command: "SavePageProperties",
             IsFocused: false,
             VersionNumber: $("#VersionNumber").val(),
-            Data: ""
+            Data: data
         };
 
         $.post("@Url.Action("SaveLiveEditorData", "Editor")", model, function (data){
@@ -784,7 +784,9 @@
 
             var html = editor.getData();
 
-            let model = {
+            saveChanges(editor.getData(), id);
+
+            @*let model = {
                 Id: $("#Id").val(),
                 ArticleNumber: $("#ArticleNumber").val(),
                 EditorId: id,
@@ -815,7 +817,7 @@
                     saveInProgress = false;
                     doneSaving();
                     alert("error");
-                });
+                });*@
         }
         else {
             let model = {

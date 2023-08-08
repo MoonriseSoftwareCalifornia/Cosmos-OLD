@@ -870,7 +870,7 @@ namespace Cosmos.Cms.Data.Logic
 
             // IMPORTANT!
             // Handle title (and URL) changes for existing 
-            await HandleTitleChange(article, oldTitle, userId);
+            await HandleTitleChange(article, oldTitle);
 
             // HANDLE PUBLISHING OF AN ARTICLE
             // This can be a new or existing article.
@@ -987,7 +987,7 @@ namespace Cosmos.Cms.Data.Logic
 
             if (model.IncludeTitle)
             {
-                await HandleTitleChange(entities.FirstOrDefault(), oldTitle, userId);
+                await HandleTitleChange(entities.FirstOrDefault(), oldTitle);
             }
 
             if (entities.Any(a => a.Published.HasValue))
@@ -1312,10 +1312,10 @@ namespace Cosmos.Cms.Data.Logic
         /// <item>Saves changes to the database</item>
         /// </list>
         /// </remarks>
-        private async Task HandleTitleChange(Article article, string oldTitle, string userId)
+        private async Task HandleTitleChange(Article article, string oldTitle)
         {
 
-            if (string.Equals(article.Title, oldTitle, StringComparison.CurrentCultureIgnoreCase))
+            if (string.Equals(article.Title, oldTitle, StringComparison.CurrentCultureIgnoreCase) && !string.IsNullOrEmpty(article.UrlPath))
             {
                 // Nothing to do
                 return;
@@ -1401,6 +1401,11 @@ namespace Cosmos.Cms.Data.Logic
                 .ToListAsync();
 
             var catalog = await DbContext.ArticleCatalog.Where(a => a.ArticleNumber == article.ArticleNumber).ToListAsync();
+
+            if (string.IsNullOrEmpty(article.UrlPath))
+            {
+                article.UrlPath = NormailizeArticleUrl(article.Title);
+            }
 
             foreach (var art in versions)
             {
