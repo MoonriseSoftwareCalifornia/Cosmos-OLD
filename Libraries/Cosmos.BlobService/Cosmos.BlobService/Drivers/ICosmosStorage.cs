@@ -54,6 +54,12 @@ namespace Cosmos.BlobService.Drivers
         Task<int> DeleteFolderAsync(string target);
 
         /// <summary>
+        /// Gets the number of bytes consumed for a storage account
+        /// </summary>
+        /// <returns></returns>
+        Task<long> GetBytesConsumed();
+
+        /// <summary>
         ///     Gets a list of blob names for a given path (is recursive).
         /// </summary>
         /// <param name="path"></param>

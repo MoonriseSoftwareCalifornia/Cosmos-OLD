@@ -662,5 +662,10 @@ namespace Cosmos.BlobService.Drivers
                 await sourceFile.RenameAsync(destinationFolderPath + "/" + sourceFile.Name);
             }
         }
+
+        public Task<long> GetBytesConsumed()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

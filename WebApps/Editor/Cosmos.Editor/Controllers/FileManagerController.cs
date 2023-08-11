@@ -433,6 +433,7 @@ namespace Cosmos.Cms.Controllers
             }
             catch (Exception e)
             {
+                _logger.LogError(e.Message, e);
                 return Json(ReturnSimpleErrorMessage(e.Message));
             }
 

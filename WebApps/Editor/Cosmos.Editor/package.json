@@ -3,5 +3,6 @@
   "name": "asp.net",
   "private": true,
   "devDependencies": {
+    "eslint": "^8.46.0"
   }
 }

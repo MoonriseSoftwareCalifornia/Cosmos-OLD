@@ -151,6 +151,21 @@ namespace Cosmos.BlobService
         }
 
         /// <summary>
+        /// Gets total bytes consumed for a storage account
+        /// </summary>
+        /// <returns></returns>
+        public async Task<long> GetBytesConsumed()
+        {
+            var drivers = GetDrivers();
+            long consumption = 0;
+            foreach (var driver in drivers)
+            {
+                consumption += await driver.GetBytesConsumed();
+            }
+            return consumption;
+        }
+
+        /// <summary>
         ///     Gets a file
         /// </summary>
         /// <param name="target"></param>

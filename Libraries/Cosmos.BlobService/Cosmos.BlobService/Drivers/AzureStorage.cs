@@ -30,6 +30,25 @@ namespace Cosmos.BlobService.Drivers
         }
 
         /// <summary>
+        /// Gets the amount of bytes consumed in a storage account container
+        /// </summary>
+        /// <returns></returns>
+        public async Task<long> GetBytesConsumed()
+        {
+            var info = await _blobServiceClient.GetAccountInfoAsync();
+            var container = _blobServiceClient.GetBlobContainerClient(_containerName);
+            long bytesConsumed = 0;
+            var blobs = container.GetBlobsAsync().AsPages();
+
+            await foreach (var blobPage in blobs)
+            {
+                bytesConsumed += blobPage.Values.Sum(b => b.Properties.ContentLength.GetValueOrDefault());
+            }
+
+            return bytesConsumed;
+        }
+
+        /// <summary>
         ///     Appends byte array to blob
         /// </summary>
         /// <param name="data"></param>

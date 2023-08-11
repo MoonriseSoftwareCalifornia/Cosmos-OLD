@@ -244,6 +244,23 @@
             .withUrl("/___cwps_hubs_live_editor")
             .withAutomaticReconnect().build();
 
+        async function signalRStart() {
+            try {
+                await signalRConnection.start();
+                console.log('SignalRConnection started');
+                signalRConnection.invoke("JoinArticleGroup", "@Model.ArticleNumber.ToString()");
+            } catch (err) {
+                console.log(err);
+                setTimeout(signalRStart, 5000);
+            }
+        };
+
+        signalRConnection.onclose(async () => {
+            await signalRStart();
+        });
+
+        signalRStart();
+
         // Create a function that the hub can call to broadcast messages.
         signalRConnection.on('broadcastMessage', function (data) {
             var model = JSON.parse(data);
@@ -316,17 +333,6 @@
             const iframe = document.getElementById("ccmsContFrame");
         });
 
-        signalRConnection.logging = true;
-
-        // Transport fall-back functionality is now built into start.
-        signalRConnection.start()
-            .then(function () {
-                console.log('connection started');
-                signalRConnection.invoke("JoinArticleGroup", "@Model.ArticleNumber.ToString()");
-            })
-            .catch(error => {
-                console.error(error.message);
-            });
 
         $("#ccmsContFrame").click(function () {
             $("#btnSave").removeClass("show");
@@ -616,10 +622,8 @@
             if (getAutoSave()) {
                 const data = [];
                 data.push(item);
-                const savePromise = saveChanges();
+                saveChanges();
                 ccms_signal_focus_others(editor, "updateEditors", editor.getData());
-                doneSaving();
-                savePromise.then(resolve);
             }
             else {
                 resolve();

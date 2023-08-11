@@ -26,6 +26,7 @@ namespace Cosmos.Publisher.Controllers
             _dbContext = dbContext;
             _storageContext = storageContext;
         }
+
         public async Task<IActionResult> Index()
         {
 
@@ -69,14 +70,6 @@ namespace Cosmos.Publisher.Controllers
             return File(await client.OpenReadAsync(), properties.Value.ContentType);
         }
 
-        private async Task<bool> AuthenticateUser(int articleNumber)
-        {
-            var article = await _dbContext.Pages.OrderByDescending(o => o.Published).FirstOrDefaultAsync(f => f.ArticleNumber == articleNumber && f.Published != null && f.Published <= DateTimeOffset.UtcNow);
-            if (article == null) return false;
-
-            return await AuthenticateUser(article.ArticlePermissions);
-        }
-
         private async Task<bool> AuthenticateUser(List<ArticlePermission> permissions)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -91,5 +84,6 @@ namespace Cosmos.Publisher.Controllers
             return (await _dbContext.UserRoles.CountAsync(a => a.UserId == userId && objectIds.Contains(a.RoleId))) > 0;
 
         }
+
     }
 }
