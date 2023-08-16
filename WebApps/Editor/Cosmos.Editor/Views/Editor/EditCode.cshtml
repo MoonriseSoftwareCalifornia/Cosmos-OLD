@@ -255,14 +255,7 @@
                     $("#Updated").val(response.Model.Updated);
                     $("#HeadJavaScript").val(response.Model.HeadJavaScript);
                     $("#FooterJavaScript").val(response.Model.FooterJavaScript);
-
-                    //
-                    // We are creating a new version of the article with this method.
-                    // Update the page history, so if the user refreshes the page, the
-                    // most recent version will appear.
-                    let stateObj = { id: response.Model.Id }
-                    window.history.pushState(stateObj, response.Model.Title, "/Editor/EditCode/" + response.Model.Id);
-
+                                       
                     checkDisplayLiveEditorButton();
 
                     if (next) {

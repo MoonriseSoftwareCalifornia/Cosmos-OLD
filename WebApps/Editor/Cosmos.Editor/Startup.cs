@@ -78,6 +78,10 @@ namespace Cosmos.Cms
 
             // Name of the Cosmos database to use
             var cosmosIdentityDbName = Configuration.GetValue<string>("CosmosIdentityDbName");
+            if (string.IsNullOrEmpty(cosmosIdentityDbName) )
+            {
+                cosmosIdentityDbName = "cosmoscms";
+            }
 
             // If this is set, the Cosmos identity provider will:
             // 1. Create the database if it does not already exist.
@@ -403,6 +407,11 @@ namespace Cosmos.Cms
                 endpoints.MapControllerRoute(
                     "MyArea",
                     "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+
+
+                endpoints.MapControllerRoute(name: "pub",
+                                pattern: "pub/{*index}",
+                                defaults: new { controller = "Pub", action = "Index" });
 
                 endpoints.MapControllerRoute(
                         "default",

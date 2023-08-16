@@ -63,13 +63,6 @@ namespace Cosmos.Common
 
             var contents = await storageContext.GetFolderContents(path);
 
-            var trim = $"/pub/articles/{articleNumber}";
-
-            foreach (var item in contents)
-            {
-                item.Path = path.Substring(trim.Length - 1);
-            }
-
             return contents;
 
         }

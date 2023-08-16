@@ -126,9 +126,18 @@ namespace Cosmos.Cms.Controllers
         /// <param name="id">Article Number</param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task<IActionResult> CCMS_GetArticleFolderContents(int id, string path = "")
+        public async Task<IActionResult> CCMS_GetArticleFolderContents(string path = "")
         {
-            var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, id, path);
+            string r = Request.Headers["referer"];
+            var url = new Uri(r);
+            var page = await _dbContext.Pages.Select(s => new { s.ArticleNumber, s.UrlPath }).FirstOrDefaultAsync(f => f.UrlPath == url.AbsolutePath.TrimStart('/'));
+            
+            if (page == null)
+            {
+                return Json("[]");
+            }
+            
+            var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, page.ArticleNumber, path);
 
             return Json(contents);
 
