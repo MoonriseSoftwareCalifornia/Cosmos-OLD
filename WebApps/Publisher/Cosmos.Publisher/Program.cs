@@ -156,7 +156,7 @@ builder.Services.AddControllersWithViews();
 
 // Email provider
 var sendGridApiKey = builder.Configuration.GetValue<string>("CosmosSendGridApiKey");
-var adminEmail = builder.Configuration.GetValue<string>("CosmosAdminEmail");
+var adminEmail = "no-reply@cosmosws.io";
 if (!string.IsNullOrEmpty(sendGridApiKey) && !string.IsNullOrEmpty(adminEmail))
 {
     var sendGridOptions = new SendGridEmailProviderOptions(sendGridApiKey, adminEmail);

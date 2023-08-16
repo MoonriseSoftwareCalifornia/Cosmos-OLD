@@ -75,6 +75,10 @@ namespace Cosmos.Cms
 
             // The Cosmos connection string
             var connectionString = Configuration.GetConnectionString("ApplicationDbContextConnection");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new Exception("STARTUP: ApplicationDbContextConnection is null or empty.");
+            }
 
             // Name of the Cosmos database to use
             var cosmosIdentityDbName = Configuration.GetValue<string>("CosmosIdentityDbName");
@@ -93,12 +97,19 @@ namespace Cosmos.Cms
             //  required containers.
             if (option.Value.SiteSettings.AllowSetup)
             {
-                var builder1 = new DbContextOptionsBuilder<ApplicationDbContext>();
-                builder1.UseCosmos(connectionString, cosmosIdentityDbName);
-
-                using (var dbContext = new ApplicationDbContext(builder1.Options))
+                try
                 {
-                    dbContext.Database.EnsureCreated();
+                    var builder1 = new DbContextOptionsBuilder<ApplicationDbContext>();
+                    builder1.UseCosmos(connectionString, cosmosIdentityDbName);
+
+                    using (var dbContext = new ApplicationDbContext(builder1.Options))
+                    {
+                        dbContext.Database.EnsureCreated();
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("STARTUP: Could not initialize database with error.", e);
                 }
             }
 
@@ -134,6 +145,10 @@ namespace Cosmos.Cms
 
             // Add shared data protection here
             var blobConnection = Configuration.GetConnectionString("AzureBlobStorageConnectionString");
+            if (string.IsNullOrEmpty(blobConnection))
+            {
+                throw new Exception("STARTUP: AzureBlobStorageConnectionString is null or empty");
+            }
             var container = new BlobContainerClient(blobConnection, "ekyes");
             container.CreateIfNotExists();
             services.AddDataProtection().PersistKeysToAzureBlobStorage(container.GetBlobClient("keys.xml"));
