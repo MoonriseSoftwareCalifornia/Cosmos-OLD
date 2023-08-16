@@ -1,10 +1,12 @@
 using AspNetCore.Identity.CosmosDb.Extensions;
 using AspNetCore.Identity.Services.SendGrid;
 using AspNetCore.Identity.Services.SendGrid.Extensions;
+using Azure.Storage.Blobs;
 using Cosmos.BlobService;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Common.Data;
 using Cosmos.Common.Data.Logic;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.EntityFrameworkCore;
@@ -68,6 +70,13 @@ else
 
 // Add the BLOB and File Storage contexts for Cosmos WPS
 builder.Services.AddCosmosStorageContext(builder.Configuration);
+
+
+// Add shared data protection here
+var blobConnection = builder.Configuration.GetConnectionString("AzureBlobStorageConnectionString");
+var container = new BlobContainerClient(blobConnection, "pkyes");
+container.CreateIfNotExists();
+builder.Services.AddDataProtection().PersistKeysToAzureBlobStorage(container.GetBlobClient("keys.xml"));
 
 builder.Services.AddMvc()
                 .AddNewtonsoftJson(options =>

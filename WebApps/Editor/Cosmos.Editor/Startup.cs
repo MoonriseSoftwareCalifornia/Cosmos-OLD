@@ -1,6 +1,7 @@
 using AspNetCore.Identity.CosmosDb.Extensions;
 using Azure.Identity;
 using Azure.ResourceManager;
+using Azure.Storage.Blobs;
 using Cosmos.BlobService;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
@@ -22,6 +23,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -127,7 +129,10 @@ namespace Cosmos.Cms
                 .AddDefaultTokenProviders();
 
             // Add shared data protection here
-            services.AddDataProtection().PersistKeysToDbContext<ApplicationDbContext>();
+            var blobConnection = Configuration.GetConnectionString("AzureBlobStorageConnectionString");
+            var container = new BlobContainerClient(blobConnection, "ekyes");
+            container.CreateIfNotExists();
+            services.AddDataProtection().PersistKeysToAzureBlobStorage(container.GetBlobClient("keys.xml"));
 
             // SUPPORTED OAuth Providers
             // Add Google if keys are present

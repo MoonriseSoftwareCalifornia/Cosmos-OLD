@@ -39,7 +39,7 @@ namespace Cosmos.Cms.Common.Services.Configurations
         /// <remarks>
         /// If disabled then assumes the use of Microsoft, Google or other supported OAuth provider.
         /// </remarks>
-        public bool AllowLocalAccounts { get; set; } = true;
+        public bool AllowLocalAccounts { get; set; } = false;
 
         /// <summary>
         /// URI of the blob public website (can be same as publisher URL).

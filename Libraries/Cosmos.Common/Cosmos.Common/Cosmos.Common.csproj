@@ -14,9 +14,9 @@
 		<SignAssembly>false</SignAssembly>
 		<AnalysisLevel>5.0</AnalysisLevel>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<Version>7.5.2.4</Version>
-		<AssemblyVersion>7.5.2.4</AssemblyVersion>
-		<FileVersion>7.5.2.4</FileVersion>
+		<Version>7.5.3.1</Version>
+		<AssemblyVersion>7.5.3.1</AssemblyVersion>
+		<FileVersion>7.5.3.1</FileVersion>
 		<UserSecretsId>498e495c-d772-4d44-870d-92009f01de57</UserSecretsId>
 		<PackageProjectUrl>https://www.cosmoswps.com</PackageProjectUrl>
 		<NeutralLanguage></NeutralLanguage>
@@ -65,6 +65,10 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.9" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Cosmos.BlobService\Cosmos.BlobService\Cosmos.BlobService.csproj" />
 	</ItemGroup>
 
 

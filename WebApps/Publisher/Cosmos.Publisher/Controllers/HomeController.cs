@@ -1,6 +1,7 @@
 ﻿using Cosmos.BlobService;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Publisher.Models;
+using Cosmos.Common;
 using Cosmos.Common.Data;
 using Cosmos.Common.Data.Logic;
 using Cosmos.Common.Models;
@@ -54,7 +55,7 @@ namespace Cosmos.Cms.Publisher.Controllers
 
                     article = await _articleLogic.GetByUrl(HttpContext.Request.Path, HttpContext.Request.Query["lang"], TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20)); // ?? await _articleLogic.GetByUrl(id, langCookie);
 
-                    if (article.ArticlePermissions.Any() && (await AuthenticateUser(article.ArticlePermissions)) == false)
+                    if (!await CosmosUtilities.AuthUser(_dbContext,User, article.ArticleNumber))
                     {
                         return Unauthorized();
                     }
@@ -167,10 +168,6 @@ namespace Cosmos.Cms.Publisher.Controllers
         public async Task<IActionResult> CCMS_GetArticleFolderContents(int id, string path = "")
         {
 
-            var page = _dbContext.Pages.LastOrDefault(l => l.ArticleNumber == id);
-
-            if (page == null) { return NotFound(); }
-
             if (_options.Value.SiteSettings.PublisherRequiresAuthentication)
             {
                 // If the user is not logged in, have them login first.
@@ -184,39 +181,15 @@ namespace Cosmos.Cms.Publisher.Controllers
                     return Unauthorized();
                 }
 
-                if (page.ArticlePermissions.Any() && (await AuthenticateUser(page.ArticlePermissions)) == false)
+                if (!await CosmosUtilities.AuthUser(_dbContext, User, id))
                 {
                     return Unauthorized();
                 }
             }
 
-            path = $"/pub/articles/{id}/{path.TrimStart('/')}";
-
-            var contents = await _storageContext.GetFolderContents(path);
-
-            var trim = $"/pub/articles/{id}";
-
-            foreach (var item in contents)
-            {
-                item.Path = path.Substring(trim.Length - 1);
-            }
+            var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, id, path);
 
             return Json(contents);
-
-        }
-
-        private async Task<bool> AuthenticateUser(List<ArticlePermission> permissions)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (permissions.Any(a => a.IdentityObjectId.Equals(userId, StringComparison.OrdinalIgnoreCase)))
-            {
-                return true;
-            }
-
-            var objectIds = permissions.Where(w => w.IsRoleObject).Select(s => s.IdentityObjectId).ToArray();
-
-            return (await _dbContext.UserRoles.CountAsync(a => a.UserId == userId && objectIds.Contains(a.RoleId))) > 0;
 
         }
 

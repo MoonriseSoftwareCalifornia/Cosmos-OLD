@@ -127,7 +127,6 @@
                         .then(editor => {
                             
                             const imageUploadEditing = editor.plugins.get('ImageUploadEditing');
-
                             imageUploadEditing.on('uploadComplete', (evt, { data, imageElement }) => {
                                 parent.ccms_setBannerImage(data.url);
                             });
@@ -137,13 +136,13 @@
                                 console.log(`View document is focused: ${isFocused}.`);
                                 if (isFocused) {
                                     focusedEditor = editor;
+                                    parent.cosmosSignalOthers(editor, "join");
                                 } else {
                                     focusedEditor = null;
                                 }
                             });
 
                             ccms_editors.push(editor);
-                            //return parent.cosmosSignalOthers(editor, "join");
                         })
                 });
 

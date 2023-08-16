@@ -1,8 +1,10 @@
-﻿using Cosmos.Common.Data;
-using Cosmos.Common.Models;
+﻿using Cosmos.BlobService;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Models;
+using Cosmos.Common;
+using Cosmos.Common.Data;
+using Cosmos.Common.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
@@ -17,8 +19,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Cosmos.BlobService;
-using System.Security.Claims;
 
 namespace Cosmos.Cms.Controllers
 {
@@ -118,6 +118,22 @@ namespace Cosmos.Cms.Controllers
             return View(article);
         }
 
+
+
+        /// <summary>
+        /// Gets contents in an article folder
+        /// </summary>
+        /// <param name="id">Article Number</param>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> CCMS_GetArticleFolderContents(int id, string path = "")
+        {
+            var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, id, path);
+
+            return Json(contents);
+
+        }
+
         /// <summary>
         /// Get edit list
         /// </summary>
@@ -178,19 +194,17 @@ namespace Cosmos.Cms.Controllers
                         !User.IsInRole("Administrators")) return RedirectToAction("AccessPending");
                 }
 
-                if (_options.Value.SiteSettings.AllowSetup)
-                {
-                    // Enable static website for Azure BLOB storage
-                    await _storageContext.EnableAzureStaticWebsite();
-                }
+                //if (_options.Value.SiteSettings.AllowSetup)
+                //{
+                //    // Enable static website for Azure BLOB storage
+                //    await _storageContext.EnableAzureStaticWebsite();
+                //}
 
                 // If we do not yet have a layout, go to a page where we can select one.
                 if (!await EnsureLayoutExists()) return RedirectToAction("Index", "Layouts");
 
                 // If there are not web pages yet, let's go create a new home page.
                 if (!await EnsureArticleExists()) return RedirectToAction("Index", "Editor");
-
-                
 
                 //
                 // If yes, do NOT include headers that allow caching. 
@@ -361,30 +375,6 @@ namespace Cosmos.Cms.Controllers
             var result = await _articleLogic.GetTOC(page, pageNo ?? 0, pageSize ?? 10, orderByPub ?? false);
             return Json(result);
         }
-
-        ///// <summary>
-        ///// Returns a proxy result as a <see cref="JsonResult"/>.
-        ///// </summary>
-        ///// <param name="id"></param>
-        ///// <returns></returns>
-        //public async Task<IActionResult> SimpleProxyJson(string id)
-        //{
-        //    if (_proxyConfigs.Value == null) return Json(string.Empty);
-        //    var proxy = new SimpleProxyService(_proxyConfigs);
-        //    return Json(await proxy.CallEndpoint(id, new UserIdentityInfo(User)));
-        //}
-
-        ///// <summary>
-        ///// Returns a proxy as a simple string.
-        ///// </summary>
-        ///// <param name="id"></param>
-        ///// <returns></returns>
-        //public async Task<string> SimpleProxy(string id)
-        //{
-        //    if (_proxyConfigs.Value == null) return string.Empty;
-        //    var proxy = new SimpleProxyService(_proxyConfigs);
-        //    return await proxy.CallEndpoint(id, new UserIdentityInfo(User));
-        //}
 
         #endregion
     }
