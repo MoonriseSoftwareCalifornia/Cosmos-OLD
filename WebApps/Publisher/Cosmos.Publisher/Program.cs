@@ -42,8 +42,13 @@ else
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("ApplicationDbContextConnection");
+
 // Name of the Cosmos database to use
 var cosmosIdentityDbName = builder.Configuration.GetValue<string>("CosmosIdentityDbName");
+if (string.IsNullOrEmpty(cosmosIdentityDbName))
+{
+    cosmosIdentityDbName = "cosmoscms";
+}
 
 //
 // Add the Cosmos database context here
