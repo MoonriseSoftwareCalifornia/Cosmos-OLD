@@ -5,26 +5,6 @@
         "description": "Installs the Cosmos CMS Web Farm."
     },
     "parameters": {
-        "subscriptionId": {
-            "type": "string",
-            "defaultValue": "SHARED",
-            "metadata": {
-                "description": "Subscription ID of where deployed (if applicable)."
-            }
-        },
-        "purchaserTenantId": {
-            "type": "string",
-            "defaultValue": "9366b962-6d44-4019-a4cb-9dc33d9c80b7",
-            "metadata": {
-                "description": "Tenant ID of purchaser (default moonrise.net)."
-            }
-        },
-        "purchaserEmail": {
-            "type": "string",
-            "metadata": {
-                "description": "Email of purchaser."
-            }
-        },
         "storageAccountType": {
             "type": "string",
             "defaultValue": "Locally-redundant storage",
@@ -35,254 +15,30 @@
             "metadata": {
                 "description": "Storage account type."
             }
-        },
-        "keyVaultName": {
-            "type": "string",
-            "defaultValue": "mastervaultwestus",
-            "metadata": {
-                "description": "Master Keyvault for this subscription."
-            }
-        },
-        "frontdoorEndpoint": {
-            "type": "string",
-            "defaultValue": "frontdoor-01",
-            "metadata": {
-                "description": "Frontdoor Endpoint used by this instance."
-            }
-        },
-        "primaryDnsName": {
-            "type": "string",
-            "metadata": {
-                "description" :"The main DNS Name of the publisher website"
-            }
-        },
-        "frontdoorDnsNames": {
-            "type": "string",
-            "metadata": {
-                "description": "Comma delimited list of DNS names for this website will respond to."
-            }
         }
     },
     "functions": [],
     "variables": {
+        "keyVaultName": "mastervaultwestus",
+        "frontdoorEndpoint": "frontdoorEndpoint",
+        "vnetNameEditor": "[resourceId('RG-WESTUS-FARM-SHARED-RESOURCES', 'Microsoft.Network/virtualNetworks/subnets', 'vinet-westus-farm-shared-resources', 'default')]",
+        "vnetNamePublisher": "[resourceId('RG-WESTUS-FARM-SHARED-RESOURCES', 'Microsoft.Network/virtualNetworks/subnets', 'vinet-westus-farm-shared-resources', 'publisher')]",
         "publisherAppServicePlan": "app-plan-publishers-01-westus",
         "editorAppServicePlan": "app-plan-editors-01-westus",
         "dockerRegUrl": "https://moonrise.azurecr.io",
-        "location": "westus",
-        "databaseName": "cosmoscms",
-        "vnetName": "[concat('vnet-', uniquestring(resourceGroup().id))]",
-        "farmKeyVaultName": "[concat('farmvault', uniquestring(resourceGroup().id))]",
-        "adminEmail": "[parameters('purchaserEmail')]",
         "accountName": "[concat('cosmos', uniqueString(resourceGroup().id))]",
         "storageAccountName": "[concat('files', uniquestring(resourceGroup().id))]",
         "editorName": "[concat('edi-', uniquestring(resourceGroup().id))]",
-        "publisherName": "[concat('pub-', uniquestring(resourceGroup().id))]",
-        "farmResourceGroupName": "[resourceGroup().name]"
+        "publisherName": "[concat('pub-', uniquestring(resourceGroup().id))]"
     },
     "resources": [
-        {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2022-09-01",
-            "name": "[variables('vnetName')]",
-            "location": "[variables('location')]",
-            "tags": {
-                "SubscriptionId": "[parameters('subscriptionId')]",
-                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
-                "PurchaserEmail": "[parameters('purchaserEmail')]"
-            },
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "10.0.0.0/16"
-                    ]
-                },
-                "subnets": [
-                    {
-                        "name": "default",
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
-                        "properties": {
-                            "addressPrefix": "10.0.0.0/24",
-                            "serviceEndpoints": [
-                                {
-                                    "service": "Microsoft.AzureCosmosDB",
-                                    "locations": [
-                                        "*"
-                                    ]
-                                },
-                                {
-                                    "service": "Microsoft.Storage",
-                                    "locations": [
-                                        "*"
-                                    ]
-                                },
-                                {
-                                    "service": "Microsoft.KeyVault",
-                                    "locations": [
-                                        "*"
-                                    ]
-                                }
-                            ],
-                            "delegations": [
-                                {
-                                    "name": "delegation",
-                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default'), '/delegations/delegation')]",
-                                    "properties": {
-                                        "serviceName": "Microsoft.Web/serverfarms"
-                                    },
-                                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
-                                }
-                            ],
-                            "privateEndpointNetworkPolicies": "Disabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        },
-                        "type": "Microsoft.Network/virtualNetworks/subnets"
-                    },
-                    {
-                        "name": "default2",
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default2')]",
-                        "properties": {
-                            "addressPrefix": "10.0.1.0/24",
-                            "serviceEndpoints": [
-                                {
-                                    "service": "Microsoft.AzureCosmosDB",
-                                    "locations": [
-                                        "*"
-                                    ]
-                                },
-                                {
-                                    "service": "Microsoft.Storage",
-                                    "locations": [
-                                        "*"
-                                    ]
-                                },
-                                {
-                                    "service": "Microsoft.KeyVault",
-                                    "locations": [
-                                        "*"
-                                    ]
-                                }
-                            ],
-                            "delegations": [
-                                {
-                                    "name": "delegation",
-                                    "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default2'), '/delegations/delegation')]",
-                                    "properties": {
-                                        "serviceName": "Microsoft.Web/serverfarms"
-                                    },
-                                    "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
-                                }
-                            ],
-                            "privateEndpointNetworkPolicies": "Disabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        },
-                        "type": "Microsoft.Network/virtualNetworks/subnets"
-                    }
-                ],
-                "virtualNetworkPeerings": [],
-                "enableDdosProtection": false
-            }
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(variables('vnetName'), '/default')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
-            ],
-            "properties": {
-                "addressPrefix": "10.0.0.0/24",
-                "serviceEndpoints": [
-                    {
-                        "service": "Microsoft.AzureCosmosDB",
-                        "locations": [
-                            "*"
-                        ]
-                    },
-                    {
-                        "service": "Microsoft.Storage",
-                        "locations": [
-                            "westus",
-                            "eastus"
-                        ]
-                    },
-                    {
-                        "service": "Microsoft.KeyVault",
-                        "locations": [
-                            "*"
-                        ]
-                    }
-                ],
-                "delegations": [
-                    {
-                        "name": "delegation",
-                        "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default'), '/delegations/delegation')]",
-                        "properties": {
-                            "serviceName": "Microsoft.Web/serverfarms"
-                        },
-                        "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
-                    }
-                ],
-                "privateEndpointNetworkPolicies": "Disabled",
-                "privateLinkServiceNetworkPolicies": "Enabled"
-            }
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2022-09-01",
-            "name": "[concat(variables('vnetName'), '/default2')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
-            ],
-            "properties": {
-                "addressPrefix": "10.0.1.0/24",
-                "serviceEndpoints": [
-                    {
-                        "service": "Microsoft.AzureCosmosDB",
-                        "locations": [
-                            "*"
-                        ]
-                    },
-                    {
-                        "service": "Microsoft.Storage",
-                        "locations": [
-                            "westus",
-                            "eastus"
-                        ]
-                    },
-                    {
-                        "service": "Microsoft.KeyVault",
-                        "locations": [
-                            "*"
-                        ]
-                    }
-                ],
-                "delegations": [
-                    {
-                        "name": "delegation",
-                        "id": "[concat(resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default2'), '/delegations/delegation')]",
-                        "properties": {
-                            "serviceName": "Microsoft.Web/serverfarms"
-                        },
-                        "type": "Microsoft.Network/virtualNetworks/subnets/delegations"
-                    }
-                ],
-                "privateEndpointNetworkPolicies": "Disabled",
-                "privateLinkServiceNetworkPolicies": "Enabled"
-            }
-        },
         {
             "type": "Microsoft.DocumentDB/databaseAccounts",
             "apiVersion": "2022-11-15-preview",
             "name": "[variables('accountName')]",
-            "location": "[variables('location')]",
+            "location": "[resourceGroup().location]",
             "tags": {
-                "SubscriptionId": "[parameters('subscriptionId')]",
-                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
-                "PurchaserEmail": "[parameters('purchaserEmail')]"
             },
-            "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]"
-            ],
             "kind": "GlobalDocumentDB",
             "identity": {
                 "type": "None"
@@ -294,11 +50,11 @@
                 "isVirtualNetworkFilterEnabled": true,
                 "virtualNetworkRules": [
                     {
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
+                        "id": "[variables('vnetNameEditor')]",
                         "ignoreMissingVNetServiceEndpoint": false
                     },
                     {
-                        "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default2')]",
+                        "id": "[variables('vnetNamePublisher')]",
                         "ignoreMissingVNetServiceEndpoint": false
                     }
                 ],
@@ -323,7 +79,7 @@
                 },
                 "locations": [
                     {
-                        "locationName": "[variables('location')]",
+                        "locationName": "[resourceGroup().location]",
                         "provisioningState": "Succeeded",
                         "failoverPriority": 0,
                         "isZoneRedundant": false
@@ -405,18 +161,15 @@
         {
             "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
             "apiVersion": "2023-03-01-preview",
-            "name": "[concat(variables('accountName'), '/', variables('databaseName'))]",
+            "name": "[concat(variables('accountName'), '/cosmoscms')]",
             "dependsOn": [
                 "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
             ],
             "tags": {
-                "SubscriptionId": "[parameters('subscriptionId')]",
-                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
-                "PurchaserEmail": "[parameters('purchaserEmail')]"
             },
             "properties": {
                 "resource": {
-                    "id": "[variables('databaseName')]"
+                    "id": "cosmoscms"
                 }
             }
         },
@@ -425,12 +178,8 @@
             "type": "Microsoft.Storage/storageAccounts",
             "apiVersion": "2021-04-01",
             "tags": {
-                "SubscriptionId": "[parameters('subscriptionId')]",
-                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
-                "PurchaserEmail": "[parameters('purchaserEmail')]",
-                "displayName": "storage20201023"
             },
-            "location": "[variables('location')]",
+            "location": "[resourceGroup().location]",
             "kind": "StorageV2",
             "sku": {
                 "name": "[if(equals(parameters('storageAccountType'), 'Locally-redundant storage'), 'Standard_LRS', 'Standard_RAGRS')]",
@@ -446,25 +195,14 @@
             ]
         },
         {
-            "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
-            "apiVersion": "2021-04-01",
-            "name": "[format('{0}/default/{1}', variables('storageAccountName'), 'ccmsshare')]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-            ]
-        },
-        {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2020-12-01",
             "name": "[variables('publisherName')]",
-            "location": "[variables('location')]",
+            "location": "[resourceGroup().location]",
             "tags": {
-                "SubscriptionId": "[parameters('subscriptionId')]",
-                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
-                "PurchaserEmail": "[parameters('purchaserEmail')]"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
             ],
             "kind": "app,linux,container",
             "identity": {
@@ -489,7 +227,7 @@
                 "isXenon": false,
                 "hyperV": false,
                 "vnetRouteAllEnabled": true,
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
+                "virtualNetworkSubnetId": "[variables('vnetNamePublisher')]",
                 "siteConfig": {
                     "numberOfWorkers": 1,
                     "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-publisher",
@@ -524,18 +262,16 @@
                         "displayName": "appsettings"
                     },
                     "properties": {
-                        "AllowLocalAccounts": "true",
-                        "CosmosIdentityDbName": "[variables('databaseName')]",
-                        "CosmosAdminEmail": "[variables('adminEmail')]",
-                        "CosmosPrimaryCloud": "azure",
+
                         "Authentication_Google_ClientId": "",
                         "Authentication_Google_ClientSecret": "",
                         "Authentication_Microsoft_ClientId": "",
                         "Authentication_Microsoft_ClientSecret": "",
+
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
-                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-PASSWORD)')]",
+                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-PASSWORD)')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",
-                        "DOCKER_REGISTRY_SERVER_USERNAME": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-USERNAME)')]",
+                        "DOCKER_REGISTRY_SERVER_USERNAME": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-USERNAME)')]",
                         "DOCKER_ENABLE_CI": true
                     }
                 },
@@ -548,15 +284,19 @@
                     ],
                     "properties": {
                         "ApplicationDbContextConnection": {
-                            "value": "[concat('@Microsoft.KeyVault(VaultName=', variables('farmKeyVaultName'), ';SecretName=', 'db-', variables('editorName'), ')')]",
+                            "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')), '2019-12-12').connectionStrings[0].connectionString]",
                             "type": "Custom"
                         },
                         "CosmosSignalRConnection": {
-                            "value": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=CosmosSignalRConnection)')]",
+                            "value": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=CosmosSignalRConnection)')]",
                             "type": "Custom"
                         },
                         "AzureCommunicationConnection": {
-                            "value": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=AzureCommunicationConnection)')]",
+                            "value": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=AzureCommunicationConnection)')]",
+                            "type": "Custom"
+                        },
+                        "AzureBlobStorageConnectionString": {
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',concat(listKeys(concat(resourceGroup().id,'/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName')),'2015-05-01-preview').key1))]",
                             "type": "Custom"
                         }
                     }
@@ -567,14 +307,11 @@
             "type": "Microsoft.Web/sites",
             "apiVersion": "2020-12-01",
             "name": "[variables('editorName')]",
-            "location": "[variables('location')]",
+            "location": "[resourceGroup().location]",
             "tags": {
-                "SubscriptionId": "[parameters('subscriptionId')]",
-                "PurchaserTenantId": "[parameters('purchaserTenantId')]",
-                "PurchaserEmail": "[parameters('purchaserEmail')]"
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
             ],
             "kind": "app,linux,container",
             "identity": {
@@ -599,7 +336,7 @@
                 "isXenon": false,
                 "hyperV": false,
                 "vnetRouteAllEnabled": true,
-                "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default2')]",
+                "virtualNetworkSubnetId": "[variables('vnetNameEditor')]",
                 "siteConfig": {
                     "numberOfWorkers": 1,
                     "linuxFxVersion": "DOCKER|moonrise.azurecr.io/cosmos-editor",
@@ -634,35 +371,23 @@
                         "displayName": "appsettings"
                     },
                     "properties": {
-                        "AllowLocalAccounts": "true",
-
                         "AzureBlobStorageEndPoint": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2018-07-01').primaryEndpoints.web]",
-                        "AzureBlobStorageContainerName": "$web",
-                        "AzureBlobStorageConnectionString": "[concat('@Microsoft.KeyVault(VaultName=', variables('farmKeyVaultName'), ';SecretName=', variables('storageAccountName'),')')]",
                         
                         "Authentication_Google_ClientId": "",
                         "Authentication_Google_ClientSecret": "",
-
                         "Authentication_Microsoft_ClientId": "",
                         "Authentication_Microsoft_ClientSecret": "",
                         
-                        "SetupCosmosDb": "true",
-
-                        "CosmosIdentityDbName": "[variables('databaseName')]",
-                        "CosmosAdminEmail": "[variables('adminEmail')]",
-                        
                         "CosmosAllowSetup": "true",
-                        "CosmosPublisherUrl": "[parameters('primaryDnsName')]",
-                        "CosmosEditorUrl": "[concat('https://', variables('editorName'), '.azurewebsites.net')]",
-                        "CosmosStorageUrl": "[parameters('primaryDnsName')]",
+                        "CosmosPublisherUrl": "[concat('https://', variables('publisherName'), '.azurewebsites.net')]",
                         
-                        "FrontdoorConnection": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=FrontdoorStd01Connection)')]",
-                        "FrontdoorEndpointName": "[parameters('frontdoorEndpoint')]",
-                        "FrontdoorDnsNames": "[parameters('frontdoorDnsNames')]",
+                        "FrontdoorConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=FrontdoorStd01Connection)')]",
+                        "FrontdoorEndpointName": "[variables('frontdoorEndpoint')]",
+
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
-                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-PASSWORD)')]",
+                        "DOCKER_REGISTRY_SERVER_PASSWORD": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-PASSWORD)')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",
-                        "DOCKER_REGISTRY_SERVER_USERNAME": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-USERNAME)')]",
+                        "DOCKER_REGISTRY_SERVER_USERNAME": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-USERNAME)')]",
                         "DOCKER_ENABLE_CI": "true"
                     }
                 },
@@ -675,150 +400,24 @@
                     ],
                     "properties": {
                         "ApplicationDbContextConnection": {
-                            "value": "[concat('@Microsoft.KeyVault(VaultName=', variables('farmKeyVaultName'), ';SecretName=', 'db-', variables('editorName'), ')')]",
+                            "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')), '2019-12-12').connectionStrings[0].connectionString]",
                             "type": "Custom"
                         },
                         "CosmosSignalRConnection": {
-                            "value": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=CosmosSignalRConnection)')]",
+                            "value": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=CosmosSignalRConnection)')]",
                             "type": "Custom"
                         },
                         "AzureCommunicationConnection": {
-                            "value": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=AzureCommunicationConnection)')]",
+                            "value": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=AzureCommunicationConnection)')]",
+                            "type": "Custom"
+                        },
+                        "AzureBlobStorageConnectionString": {
+                            "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',concat(listKeys(concat(resourceGroup().id,'/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName')),'2015-05-01-preview').key1))]",
                             "type": "Custom"
                         }
                     }
                 }
             ]
-        },
-        {
-            "type": "Microsoft.KeyVault/vaults",
-            "apiVersion": "2022-11-01",
-            "name": "[variables('farmKeyVaultName')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('publisherName'))]",
-                "[resourceId('Microsoft.Web/sites', variables('editorName'))]"
-            ],
-            "properties": {
-                "sku": {
-                    "family": "A",
-                    "name": "Standard"
-                },
-                "tenantId": "[subscription().tenantId]",
-                "accessPolicies": [
-                    {
-                        "tenantId": "[subscription().tenantId]",
-                        "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('publisherName')), '2019-08-01', 'full').identity.principalId]",
-                        "permissions": {
-                            "secrets": [
-                                "Get",
-                                "List"
-                            ]
-                        }
-                    },
-                    {
-                        "tenantId": "[subscription().tenantId]",
-                        "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('editorName')), '2019-08-01', 'full').identity.principalId]",
-                        "permissions": {
-                            "secrets": [
-                                "Get",
-                                "List"
-                            ]
-                        }
-                    }
-                ],
-                "networkAcls": {
-                    "bypass": "AzureServices",
-                    "defaultAction": "Deny",
-                    "virtualNetworkRules": [
-                        {
-                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default')]",
-                            "ignoreMissingVnetServiceEndpoint": false
-                        },
-                        {
-                            "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), 'default2')]",
-                            "ignoreMissingVnetServiceEndpoint": false
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "type": "Microsoft.KeyVault/vaults/secrets",
-            "apiVersion": "2022-11-01",
-            "name": "[concat(variables('farmKeyVaultName'), '/db-', variables('editorName'))]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('farmKeyVaultName'))]",
-                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName'))]"
-            ],
-            "properties": {
-                "value": "[listConnectionStrings(resourceId('Microsoft.DocumentDB/databaseAccounts', variables('accountName')), '2019-12-12').connectionStrings[0].connectionString]"
-            }
-        },
-        {
-            "type": "Microsoft.KeyVault/vaults/secrets",
-            "apiVersion": "2022-11-01",
-            "name": "[concat(variables('farmKeyVaultName'), '/', variables('storageAccountName'))]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.KeyVault/vaults', variables('farmKeyVaultName'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
-            ],
-            "properties": {
-                "value": "[concat('DefaultEndpointsProtocol=https;AccountName=',variables('storageAccountName'),';AccountKey=',concat(listKeys(concat(resourceGroup().id,'/providers/Microsoft.Storage/storageAccounts/', variables('storageAccountName')),'2015-05-01-preview').key1))]"
-            }
-        },
-        {
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "name": "nestedDeployment",
-            "resourceGroup": "RG-WESTUS-FARM-SHARED-RESOURCES",
-            "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "functions": [],
-                    "resources": [
-                        {
-                            "type": "Microsoft.KeyVault/vaults",
-                            "apiVersion": "2022-11-01",
-                            "name": "[parameters('keyVaultName')]",
-                            "location": "[resourceGroup().location]",
-                            "properties": {
-                                "sku": {
-                                    "family": "A",
-                                    "name": "Standard"
-                                },
-                                "tenantId": "[subscription().tenantId]",
-                                "accessPolicies": [
-                                    {
-                                        "tenantId": "[parameters('purchaserTenantId')]",
-                                        "objectId": "[reference(resourceId(variables('farmResourceGroupName'), 'Microsoft.Web/sites', variables('publisherName')), '2019-08-01', 'full').identity.principalId]",
-                                        "permissions": {
-                                            "secrets": [
-                                                "List",
-                                                "Get"
-                                            ]
-                                        }
-                                    },
-                                    {
-                                        "tenantId": "[parameters('purchaserTenantId')]",
-                                        "objectId": "[reference(resourceId(variables('farmResourceGroupName'), 'Microsoft.Web/sites', variables('editorName')), '2019-08-01', 'full').identity.principalId]",
-                                        "permissions": {
-                                            "secrets": [
-                                                "List",
-                                                "Get"
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    ]
-                }
-            }
         }
     ],
     "outputs": {}

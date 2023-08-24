@@ -4,11 +4,14 @@
       "type": "secrets.user"
     },
     "appInsights1": {
-      "resourceId":
-        "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/microsoft.insights/components/edit-cosmos-cms202107021426",
+      "secretStore": "LocalSecretsFile",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/microsoft.insights/components/edit-cosmos-cms202107021426",
       "type": "appInsights.azure",
-      "connectionId": "APPINSIGHTS_CONNECTIONSTRING",
-      "secretStore": "LocalSecretsFile"
+      "connectionId": "APPINSIGHTS_CONNECTIONSTRING"
+    },
+    "identityapp1": {
+      "type": "identityapp.default",
+      "dynamicId": null
     }
   }
 }

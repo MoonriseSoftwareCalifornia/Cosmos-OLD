@@ -131,12 +131,12 @@ namespace Cosmos.Cms.Controllers
             string r = Request.Headers["referer"];
             var url = new Uri(r);
             var page = await _dbContext.Pages.Select(s => new { s.ArticleNumber, s.UrlPath }).FirstOrDefaultAsync(f => f.UrlPath == url.AbsolutePath.TrimStart('/'));
-            
+
             if (page == null)
             {
                 return Json("[]");
             }
-            
+
             var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, page.ArticleNumber, path);
 
             return Json(contents);
@@ -199,15 +199,20 @@ namespace Cosmos.Cms.Controllers
                         return Redirect("~/Identity/Account/Logout");
                     }
 
+                    if (_options.Value.SiteSettings.AllowSetup && (await _dbContext.Users.CountAsync()) == 1 && !User.IsInRole("Administrators"))
+                    {
+                        await _userManager.AddToRoleAsync(user, "Administrators");
+                    }
+
                     if (!User.IsInRole("Reviewers") && !User.IsInRole("Authors") && !User.IsInRole("Editors") &&
                         !User.IsInRole("Administrators")) return RedirectToAction("AccessPending");
                 }
 
-                //if (_options.Value.SiteSettings.AllowSetup)
-                //{
-                //    // Enable static website for Azure BLOB storage
-                //    await _storageContext.EnableAzureStaticWebsite();
-                //}
+                if (_options.Value.SiteSettings.AllowSetup)
+                {
+                    // Enable static website for Azure BLOB storage
+                    await _storageContext.EnableAzureStaticWebsite();
+                }
 
                 // If we do not yet have a layout, go to a page where we can select one.
                 if (!await EnsureLayoutExists()) return RedirectToAction("Index", "Layouts");
@@ -249,6 +254,8 @@ namespace Cosmos.Cms.Controllers
                 throw;
             }
         }
+
+
 
         /// <summary>
         ///     Gets an article by its ID (or row key).

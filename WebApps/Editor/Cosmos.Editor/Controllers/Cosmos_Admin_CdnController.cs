@@ -1,10 +1,10 @@
 ﻿using Azure.ResourceManager;
 using Azure.ResourceManager.Cdn;
 using Azure.ResourceManager.Resources;
-using Cosmos.Common.Data;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Models;
 using Cosmos.Cms.Services;
+using Cosmos.Common.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

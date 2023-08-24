@@ -1,5 +1,4 @@
-﻿using Cosmos.Common.Data;
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace Cosmos.Cms.Models

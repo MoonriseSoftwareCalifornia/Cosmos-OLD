@@ -119,7 +119,7 @@ namespace Cosmos.Cms.Models
             SendGridConfig = config.SendGridConfig;
             StorageConfig = config.StorageConfig;
             base.SecretName = config.SecretName;
-            
+
             EditorUrls = config.EditorUrls;
             CanSaveSecrets = config.SiteSettings.AllowConfigEdit;
             SecretName = config.SecretName;

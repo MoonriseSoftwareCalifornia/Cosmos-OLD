@@ -1,7 +1,7 @@
-﻿using Cosmos.Common.Models;
+﻿using Azure.ResourceManager;
 using Cosmos.Cms.Data.Logic;
+using Cosmos.Common.Models;
 using System.Collections.Generic;
-using Azure.ResourceManager;
 
 namespace Cosmos.Cms.Models
 {

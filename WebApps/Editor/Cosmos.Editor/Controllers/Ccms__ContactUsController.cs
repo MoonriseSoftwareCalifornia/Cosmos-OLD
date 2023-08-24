@@ -1,13 +1,11 @@
 ﻿
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
-using Cosmos.Common.Data;
 using Cosmos.Common.Models;
 using Cosmos.EmailServices;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -79,7 +77,7 @@ namespace Cosmos.Editor.Controllers
                     var user = await _userManager.GetUserAsync(User);
 
                     await _emailSender.SendEmailAsync(user.Email,
-                        model.Subject, $"<h5>{model.FromEmail} sent the following message:</h5><br />{model.Content}" );
+                        model.Subject, $"<h5>{model.FromEmail} sent the following message:</h5><br />{model.Content}");
 
                     model.SendSuccess = true;
                 }

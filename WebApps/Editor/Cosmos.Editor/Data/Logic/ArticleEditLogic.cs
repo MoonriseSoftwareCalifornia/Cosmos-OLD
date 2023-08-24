@@ -876,7 +876,7 @@ namespace Cosmos.Cms.Data.Logic
             // This can be a new or existing article.
             var armOperaton = await HandlePublishing(article, userId);
 
-            
+
             // Finally update the catalog entry
             await UpdateCatalogEntry(article.ArticleNumber, (StatusCodeEnum)article.StatusCode);
 

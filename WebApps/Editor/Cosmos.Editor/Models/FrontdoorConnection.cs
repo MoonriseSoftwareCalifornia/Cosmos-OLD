@@ -9,7 +9,7 @@
         /// All values are configured
         /// </summary>
         /// <returns></returns>
-        public bool IsConfigured ()
+        public bool IsConfigured()
         {
             return !string.IsNullOrEmpty(SubscriptionId)
                 && !string.IsNullOrEmpty(ResourceGroupName)
@@ -53,6 +53,6 @@
         /// <summary>
         /// Comma delimited list of DNS names to purge
         /// </summary>
-        public string DnsNames {  get; set; }
+        public string DnsNames { get; set; }
     }
 }

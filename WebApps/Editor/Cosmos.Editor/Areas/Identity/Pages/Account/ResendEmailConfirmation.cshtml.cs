@@ -67,7 +67,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                 Input.Email,
                 "Confirm your email",
                 $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
-            ViewData["SendGridResponse"] = ((SendGridEmailSender)_emailSender).Response;
+            //ViewData["SendGridResponse"] = ((SendGridEmailSender)_emailSender).Response;
             ModelState.AddModelError(string.Empty, "Verification email sent. Please check your email.");
             return Page();
         }

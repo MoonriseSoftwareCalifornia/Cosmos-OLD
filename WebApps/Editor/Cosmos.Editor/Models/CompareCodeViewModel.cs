@@ -1,5 +1,5 @@
-﻿using Cosmos.Common.Models;
-using Cosmos.Cms.Models.Interfaces;
+﻿using Cosmos.Cms.Models.Interfaces;
+using Cosmos.Common.Models;
 using System.Collections.Generic;
 
 namespace Cosmos.Cms.Models

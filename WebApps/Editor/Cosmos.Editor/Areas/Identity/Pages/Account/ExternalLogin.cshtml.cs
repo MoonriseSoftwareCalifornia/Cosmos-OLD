@@ -1,10 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Cosmos.Cms.Common.Services.Configurations;
+using Cosmos.Cms.Data;
+using Cosmos.Editor.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Security.Claims;
@@ -24,24 +30,32 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         private readonly ILogger<ExternalLoginModel> _logger;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IOptions<SiteSettings> _options;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="signInManager"></param>
         /// <param name="userManager"></param>
+        /// <param name="roleManager"></param>
         /// <param name="logger"></param>
         /// <param name="emailSender"></param>
+        /// <param name="options"></param>
         public ExternalLoginModel(
             SignInManager<IdentityUser> signInManager,
             UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender,
+            IOptions<SiteSettings> options)
         {
             _signInManager = signInManager;
             _userManager = userManager;
+            _roleManager = roleManager;
             _logger = logger;
             _emailSender = emailSender;
+            _options = options;
         }
 
         /// <summary>
@@ -178,6 +192,8 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
+                        var newAdministrator = await SetupNewAdministrator.Ensure_RolesAndAdmin_Exists(_roleManager, _userManager, user);
+                        
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -187,12 +203,16 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                             new { area = "Identity", userId, code },
                             Request.Scheme);
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                        // If the user is a new administrator, don't do these things
+                        if (!newAdministrator)
+                        {
+                            await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                             $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
-                        // If account confirmation is required, we need to show the link if we don't have a real email sender
-                        if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                            return RedirectToPage("./RegisterConfirmation", new { Input.Email });
+                            // If account confirmation is required, we need to show the link if we don't have a real email sender
+                            if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                                return RedirectToPage("./RegisterConfirmation", new { Input.Email });
+                        }
 
                         await _signInManager.SignInAsync(user, false, info.LoginProvider);
 

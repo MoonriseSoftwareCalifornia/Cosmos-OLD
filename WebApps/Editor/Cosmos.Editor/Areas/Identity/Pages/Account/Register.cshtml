@@ -36,7 +36,7 @@
                                             <img height="35" alt="Google Login Icon" src="~/lib/images/img_login_google2.2x.png" /> Create account using @provider.DisplayName
                                         </button>
                                     }
-                                    else if (provider.Name == "Microsoft")
+                                    else if (provider.Name == "Microsoft" || provider.Name == "OpenIdConnect")
                                     {
                                         <button type="submit" class="btn btn btn-dark" name="provider" value="@provider.Name" title="Create account using  @provider.DisplayName account">
                                             <img height="35" alt="Microsoft Login Icon" src="~/lib/images/img_login_microsoft2.2x.png" /> Create account using @provider.DisplayName

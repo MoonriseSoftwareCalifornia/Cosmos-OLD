@@ -1,10 +1,10 @@
 ﻿using Cosmos.BlobService;
 using Cosmos.BlobService.Models;
-using Cosmos.Common.Data;
 using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data.Logic;
 using Cosmos.Cms.Models;
 using Cosmos.Cms.Services;
+using Cosmos.Common.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -875,7 +875,7 @@ namespace Cosmos.Cms.Controllers
             return NotFound();
         }
 
-        
+
 
         /// <summary>
         ///     Creates a new entry, using relative path-ing, and normalizes entry name to lower case.
@@ -1247,7 +1247,7 @@ namespace Cosmos.Cms.Controllers
         /// <param name="model"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> EditImage([FromBody]FileRobotImagePost model)
+        public async Task<IActionResult> EditImage([FromBody] FileRobotImagePost model)
         {
             //FileRobotImagePost model
             //     = new FileRobotImagePost()

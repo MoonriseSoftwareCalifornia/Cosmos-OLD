@@ -1,6 +1,6 @@
-﻿using Cosmos.Common.Models;
-using Cosmos.Cms.Data;
+﻿using Cosmos.Cms.Data;
 using Cosmos.Cms.Models.Interfaces;
+using Cosmos.Common.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

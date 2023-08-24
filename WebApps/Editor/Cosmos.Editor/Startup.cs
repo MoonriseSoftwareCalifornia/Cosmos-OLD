@@ -21,6 +21,7 @@ using Microsoft.Extensions.Caching.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Linq;
@@ -177,6 +178,7 @@ namespace Cosmos.Cms
                     options.ClientSecret = microsoftClientSecret;
                 });
             }
+            //services.AddMicrosoftIdentityWebAppAuthentication(Configuration, "AzureAdB2C");
 
             // Add IDistributed cache using Cosmos DB
             // This enables the editor to run in a web farm without needing

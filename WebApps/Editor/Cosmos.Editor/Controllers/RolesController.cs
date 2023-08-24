@@ -3,10 +3,8 @@ using Cosmos.Common.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Drawing.Printing;
 using System.Linq;
 using System.Threading.Tasks;
 

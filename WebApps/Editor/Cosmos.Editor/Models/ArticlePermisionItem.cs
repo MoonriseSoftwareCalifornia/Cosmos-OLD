@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Cosmos.Editor.Models
+﻿namespace Cosmos.Editor.Models
 {
     /// <summary>
     /// Article permission item

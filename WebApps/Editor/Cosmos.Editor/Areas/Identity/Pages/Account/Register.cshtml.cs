@@ -1,5 +1,6 @@
 ﻿using Cosmos.Cms.Common.Services.Configurations;
 using Cosmos.Cms.Data;
+using Cosmos.Editor.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -97,9 +98,8 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    // Upon setup with first user, make that person an admin.
-                    var newAdministrator = await Ensure_RolesAndAdmin_Exists(user);
-
+                    var newAdministrator = await SetupNewAdministrator.Ensure_RolesAndAdmin_Exists(_roleManager, _userManager, user);
+                   
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -108,6 +108,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                         new { area = "Identity", userId = user.Id, code, returnUrl },
                         Request.Scheme);
 
+                    // If the user is a new administrator, don't do these things
                     if (!newAdministrator)
                     {
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
@@ -127,72 +128,6 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
 
             // If we got this far, something failed, redisplay form
             return Page();
-        }
-
-        /// <summary>
-        /// Ensures the required roles exist, and, add the first user as an administrator.
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns>True if a new administrator was created.</returns>
-        private async Task<bool> Ensure_RolesAndAdmin_Exists(IdentityUser user)
-        {
-
-            foreach (var role in RequiredIdentityRoles.Roles)
-            {
-                if (!await _roleManager.RoleExistsAsync(role))
-                {
-                    var identityRole = new IdentityRole(role);
-                    var result = await _roleManager.CreateAsync(identityRole);
-                    if (!result.Succeeded)
-                    {
-                        var error = result.Errors.FirstOrDefault();
-                        var exception = new Exception($"Code: {error.Code} - {error.Description}");
-                        _logger.LogError(exception.Message);
-                        throw exception;
-                    }
-                }
-            }
-
-            var userCount = await _userManager.Users.CountAsync();
-
-            // If there is only one registered user (the person who just registered for instance),
-            // and that person is not in the Administrators role, then add that person now.
-            // There must be at least one administrator.
-            if (userCount == 1 && (await _userManager.IsInRoleAsync(user, RequiredIdentityRoles.Administrators)) == false)
-            {
-                var result = await _userManager.AddToRoleAsync(user, RequiredIdentityRoles.Administrators);
-
-                if (result.Succeeded)
-                {
-
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-                    var confirmResult = await _userManager.ConfirmEmailAsync(user, code);
-
-                    if (confirmResult.Succeeded)
-                    {
-                        _logger.LogInformation($"{user.Email} added to the {RequiredIdentityRoles.Administrators} role.");
-                    }
-                    else
-                    {
-                        var error = result.Errors.FirstOrDefault();
-                        var exception = new Exception($"Code: {error.Code} - {error.Description}");
-                        _logger.LogError(exception.Message);
-                        throw exception;
-                    }
-                }
-                else
-                {
-                    var error = result.Errors.FirstOrDefault();
-                    var exception = new Exception($"Code: {error.Code} - {error.Description}");
-                    _logger.LogError(exception.Message);
-                    throw exception;
-                }
-
-                return true;
-            }
-
-            return false;
         }
 
         /// <summary>
