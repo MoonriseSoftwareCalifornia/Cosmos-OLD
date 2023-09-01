@@ -169,6 +169,7 @@ namespace Cosmos.Cms.Controllers
         /// Index page
         /// </summary>
         /// <returns></returns>
+        [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
             //if (_options.Value.SiteSettings.AllowSetup ?? false)
@@ -185,7 +186,8 @@ namespace Cosmos.Cms.Controllers
                     //
                     // See if we need to register a new user.
                     //
-                    if (await _dbContext.Users.CosmosAnyAsync()) return Redirect("~/Identity/Account/Login");
+                    if (await _dbContext.Users.CosmosAnyAsync())
+                        return Redirect("~/Identity/Account/Login");
                     return Redirect("~/Identity/Account/Register");
                 }
                 else

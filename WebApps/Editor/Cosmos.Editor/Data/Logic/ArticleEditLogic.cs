@@ -825,8 +825,15 @@ namespace Cosmos.Cms.Data.Logic
             // Keep track of the old title--used below if title has changed.
             string oldTitle = article.Title;
 
+            
+            // If an article version is not published and the model is not published, then update the existing version
+            var updateOnly = article.Published.HasValue == false && model.Published.HasValue == false;
+
             // Don't track this for now
-            DbContext.Entry(article).State = EntityState.Detached;
+            if (!updateOnly)
+            {
+                DbContext.Entry(article).State = EntityState.Detached;
+            }
 
             // =======================================================
             // BEGIN: MAKE CONTENT CHANGES HERE
@@ -842,12 +849,16 @@ namespace Cosmos.Cms.Data.Logic
 
             //Article article = new Article()
 
+            if (!updateOnly)
+            {
+                // Ensure a user ID is set for creator
+                article.UserId = userId;
+                // New version, gets a new ID.
+                article.Id = Guid.NewGuid();
+                article.VersionNumber = article.VersionNumber + 1;
+                model.VersionNumber = article.VersionNumber;
+            }
 
-            // Ensure a user ID is set for creator
-            article.UserId = userId;
-            // New version, gets a new ID.
-            article.Id = Guid.NewGuid();
-            article.VersionNumber = article.VersionNumber + 1;
             article.Content = model.Content;
             article.Published = model.Published;
             article.Title = model.Title;
@@ -863,7 +874,11 @@ namespace Cosmos.Cms.Data.Logic
             // =======================================================
             UpdateHeadBaseTag(article);
 
-            DbContext.Articles.Add(article);
+            if (!updateOnly)
+            {
+                DbContext.Articles.Add(article);
+            }
+
             // Make sure this saves now
             await DbContext.SaveChangesAsync();
             //await HandleLogEntry(article, "Saved new version", userId);

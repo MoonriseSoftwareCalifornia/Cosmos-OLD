@@ -747,6 +747,7 @@
         }).fail(function(data){
             alert("Problem!");
         }).done(function (data) {
+            setWorkingVersion(data);
             try {
                 model.Data = ""; // Not needed for this
                 signalRConnection.invoke("Notification", JSON.stringify(model));
@@ -874,6 +875,8 @@
         $("#Updated").val(model.Updated);
         $("#BannerImage").val(model.BannerImage);
         $("#RoleList").val(model.RoleList);
+
+        setWorkingVersion(model.VersionNumber);
 
     }
 

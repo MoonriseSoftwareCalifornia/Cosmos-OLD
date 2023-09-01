@@ -59,10 +59,10 @@
                                 <a class="dropdown-item" title="Update this page." onclick="bgEditClick('Save')" href="#">Save</a>
                             </li>
                             <li id="btnSaveAsDraft">
-                                <a class="dropdown-item" title="Save as a new unpublished draft." onclick="bgEditClick('Draft')" href="#">Save new draft</a>
+                                <a class="dropdown-item" title="Save as a new unpublished draft." onclick="bgEditClick('Draft')" href="#">Save draft</a>
                             </li>
                             <li id="btnSaveAndPublish" style="display:none;">
-                                <a class="dropdown-item" title="Save and publish now." onclick="bgEditClick('Publish')" href="#">Save and publish</a>
+                                <a class="dropdown-item" title="Save content and publish now." onclick="bgEditClick('Publish')" href="#">Publish now</a>
                             </li>
                             <li>
                                 <a class="dropdown-item" onclick="bgEditClick('Close')">Close</a>
@@ -143,19 +143,24 @@
                             </div>
                         </div>
                     </li>
+                    <li class="nav-item">
+                        <div id="divPublihedTitleGroup" class="input-group input-group-sm mt-1 ms-3 me-3" style="display:none">
+                            <div id="lblPublished" class="input-group-text" style="height:31px;">Published:</div>
+                            <input autocomplete="off" class="form-control" name="tbPublished" id="tbPublished" placeholder="DRAFT (not published)" value="@((DateTimeOffset?)ViewData["Published"])" />
+                        </div>
+                    </li>
+                    <li class="nav-item">
+                        <div id="divTitleGroup" class="input-group input-group-sm mt-1 ms-3 me-3" style="display:none">
+                            <span class="input-group-text" id="lblTitle" style="height:31px;">URL: /</span>
+                            <div class="form-control text-truncate" id="divTitle">@title</div>
+                        </div>
+                    </li>
                 </ul>
             </div>
             <div class="d-flex">
                 <a target="_blank" title="Open Cosmos documentation" class="btn btn-sm btn-secondary" aria-current="page" href="https://www.moonrise.net/cosmos/documentation"><i class="fa-solid fa-circle-info"></i></a>
                 <a title='Set access permissions for users and roles.' id="btnArticleAccess" class='btn btn-sm btn-secondary' style="display:none"><i class="fa-solid fa-users"></i></a>
-                <div id="divTitleGroup" class="input-group input-group-sm" style="display:none">
-                    <span class="input-group-text" id="lblTitle" style="height:31px;">URL: /</span>
-                    <div class="form-control text-truncate" id="divTitle">@title</div>
-                </div>
-                <div id="divPublihedTitleGroup" class="input-group input-group-sm" style="display:none">
-                    <div id="lblPublished" class="input-group-text" style="height:31px;">Published:</div>
-                    <input autocomplete="off" class="form-control" name="tbPublished" id="tbPublished" placeholder="DRAFT" value="@((DateTimeOffset?)ViewData["Published"])" />
-                </div>
+                
             </div>
         </div>
     </nav>

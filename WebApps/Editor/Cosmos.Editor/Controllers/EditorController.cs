@@ -357,7 +357,7 @@ namespace Cosmos.Cms.Controllers
             // Save changes back to the database
             var result = await _articleLogic.Save(article, model.UserId);
 
-            return Ok();
+            return Json(result.Model.VersionNumber);
         }
         /// <summary>
         /// Open trash
@@ -1332,13 +1332,14 @@ namespace Cosmos.Cms.Controllers
                 // Get an article, or a template based on the controller name.
                 //
                 var model = await _articleLogic.Get(id, null);
-                ViewData["LastPubDateTime"] = await GetLastPublishingDate(model.ArticleNumber);
+                ViewData["LastPubDateTime"] = null;
 
                 ViewData["PageTitle"] = model.Title;
-                ViewData["Published"] = model.Published;
+                ViewData["Published"] = null;
 
                 // Override defaults
                 model.EditModeOn = true;
+                model.Published = null;
 
                 // Authors cannot edit published articles
                 if (model.Published.HasValue && User.IsInRole("Authors"))
@@ -1371,8 +1372,8 @@ namespace Cosmos.Cms.Controllers
             ViewData["Version"] = article.VersionNumber;
 
             ViewData["PageTitle"] = article.Title;
-            ViewData["Published"] = article.Published;
-            ViewData["LastPubDateTime"] = await GetLastPublishingDate(article.ArticleNumber);
+            ViewData["Published"] = null;
+            ViewData["LastPubDateTime"] = null;
 
             return View(new EditCodePostModel
             {
@@ -1380,7 +1381,7 @@ namespace Cosmos.Cms.Controllers
                 ArticleNumber = article.ArticleNumber,
                 VersionNumber = article.VersionNumber,
                 Title = article.Title,
-                Published = article.Published,
+                Published = null,
                 RoleList = article.RoleList,
                 EditorTitle = article.Title,
                 UrlPath = article.UrlPath,
@@ -1448,13 +1449,10 @@ namespace Cosmos.Cms.Controllers
 
             if (model == null) return NotFound();
 
-            var article = await _dbContext.Articles.FirstOrDefaultAsync(f => f.Id == model.Id);
+            // Next pull the original. This is a view model, not tracked by DbContext.
+            var article = await _articleLogic.Get(model.ArticleNumber, null);
 
             if (article == null) return NotFound();
-
-            _dbContext.Entry(article).State = EntityState.Detached;
-
-            ViewData["Version"] = article.VersionNumber;
 
             var jsonModel = new SaveCodeResultJsonModel();
 
@@ -1508,6 +1506,7 @@ namespace Cosmos.Cms.Controllers
                 }
                 catch (Exception e)
                 {
+                    ViewData["Version"] = article.VersionNumber;
                     var provider = new EmptyModelMetadataProvider();
                     ModelState.AddModelError("Save", e, provider.GetMetadataForType(typeof(string)));
                     _logger.LogError(e.Message, e);
@@ -1521,6 +1520,10 @@ namespace Cosmos.Cms.Controllers
                     .Where(w => w.ValidationState == ModelValidationState.Invalid)
                     .ToList());
                 jsonModel.ValidationState = ModelState.ValidationState;
+
+
+                ViewData["Version"] = jsonModel.Model.VersionNumber;
+
 
                 return Json(jsonModel);
             }
@@ -1548,19 +1551,19 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="articleNumber"></param>
         /// <returns></returns>
-        private async Task<DateTimeOffset?> GetLastPublishingDate(int articleNumber)
-        {
-            return await _dbContext.Articles.Where(a => a.ArticleNumber == articleNumber).MaxAsync(m => m.Published);
-        }
+        //private async Task<DateTimeOffset?> GetLastPublishingDate(int articleNumber)
+        //{
+        //    return await _dbContext.Articles.Where(a => a.ArticleNumber == articleNumber).MaxAsync(m => m.Published);
+        //}
 
         /// <summary>
         /// Search and replace for all published pages.
         /// </summary>
         /// <returns></returns>
-        public IActionResult SearchAndReplace()
-        {
-            return View();
-        }
+        //public IActionResult SearchAndReplace()
+        //{
+        //    return View();
+        //}
 
         /// <summary>
         /// Performs a query to see what pages will have changes.

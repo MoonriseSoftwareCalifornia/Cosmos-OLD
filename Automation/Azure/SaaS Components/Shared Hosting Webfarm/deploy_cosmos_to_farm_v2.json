@@ -262,12 +262,7 @@
                         "displayName": "appsettings"
                     },
                     "properties": {
-
-                        "Authentication_Google_ClientId": "",
-                        "Authentication_Google_ClientSecret": "",
-                        "Authentication_Microsoft_ClientId": "",
-                        "Authentication_Microsoft_ClientSecret": "",
-
+                        "AzureBlobStorageEndPoint": "/",
                         "WEBSITES_ENABLE_APP_SERVICE_STORAGE": "false",
                         "DOCKER_REGISTRY_SERVER_PASSWORD": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=DOCKER-REGISTRY-SERVER-PASSWORD)')]",
                         "DOCKER_REGISTRY_SERVER_URL": "[variables('dockerRegUrl')]",
@@ -371,12 +366,7 @@
                         "displayName": "appsettings"
                     },
                     "properties": {
-                        "AzureBlobStorageEndPoint": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2018-07-01').primaryEndpoints.web]",
-                        
-                        "Authentication_Google_ClientId": "",
-                        "Authentication_Google_ClientSecret": "",
-                        "Authentication_Microsoft_ClientId": "",
-                        "Authentication_Microsoft_ClientSecret": "",
+                        "AzureBlobStorageEndPoint": "/",
                         
                         "CosmosAllowSetup": "true",
                         "CosmosPublisherUrl": "[concat('https://', variables('publisherName'), '.azurewebsites.net')]",
