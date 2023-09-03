@@ -165,8 +165,21 @@ namespace Cosmos.Cms.Publisher.Controllers
         /// <param name="id">Article Number</param>
         /// <param name="path"></param>
         /// <returns></returns>
-        public async Task<IActionResult> CCMS_GetArticleFolderContents(int id, string path = "")
+        public async Task<IActionResult> CCMS_GetArticleFolderContents(string path = "")
         {
+            var r = Request.Headers["referer"];
+            if (string.IsNullOrEmpty(r))
+            {
+                return Json("[]");
+            }
+
+            var url = new Uri(r);
+            var page = await _dbContext.Pages.Select(s => new { s.ArticleNumber, s.UrlPath }).FirstOrDefaultAsync(f => f.UrlPath == url.AbsolutePath.TrimStart('/'));
+
+            if (page == null)
+            {
+                return Json("[]");
+            }
 
             if (_options.Value.SiteSettings.PublisherRequiresAuthentication)
             {
@@ -181,13 +194,13 @@ namespace Cosmos.Cms.Publisher.Controllers
                     return Unauthorized();
                 }
 
-                if (!await CosmosUtilities.AuthUser(_dbContext, User, id))
+                if (!await CosmosUtilities.AuthUser(_dbContext, User, page.ArticleNumber))
                 {
                     return Unauthorized();
                 }
             }
 
-            var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, id, path);
+            var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, page.ArticleNumber, path);
 
             return Json(contents);
 

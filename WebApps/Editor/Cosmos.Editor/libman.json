@@ -31,6 +31,10 @@
     {
       "library": "tippy.js@6.3.7",
       "destination": "wwwroot/lib/tippy/"
+    },
+    {
+      "library": "fotorama@4.6.4",
+      "destination": "wwwroot/lib/fotorama"
     }
   ]
 }

@@ -79,6 +79,8 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
+            ViewData["ShowLogin"] = ((await _userManager.Users.CountAsync()) > 0);
+
             return Page();
         }
         /// <summary>

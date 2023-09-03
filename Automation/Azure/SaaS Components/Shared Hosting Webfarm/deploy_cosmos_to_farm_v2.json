@@ -367,8 +367,9 @@
                     },
                     "properties": {
                         "AzureBlobStorageEndPoint": "/",
-                        
+                        "AllowLocalAccounts": "true",
                         "CosmosAllowSetup": "true",
+                        
                         "CosmosPublisherUrl": "[concat('https://', variables('publisherName'), '.azurewebsites.net')]",
                         
                         "FrontdoorConnection": "[concat('@Microsoft.KeyVault(VaultName=', variables('keyVaultName'), ';SecretName=FrontdoorStd01Connection)')]",

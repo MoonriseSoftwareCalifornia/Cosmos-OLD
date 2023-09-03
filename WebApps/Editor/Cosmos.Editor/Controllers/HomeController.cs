@@ -130,14 +130,27 @@ namespace Cosmos.Cms.Controllers
         {
             string r = Request.Headers["referer"];
             var url = new Uri(r);
-            var page = await _dbContext.Pages.Select(s => new { s.ArticleNumber, s.UrlPath }).FirstOrDefaultAsync(f => f.UrlPath == url.AbsolutePath.TrimStart('/'));
 
-            if (page == null)
+            int articleNumber;
+
+            // This is just for the Editor
+            if (url.Query.Contains("articleNumber"))
             {
-                return Json("[]");
+                var query = url.Query.Split('=');
+                articleNumber = int.Parse(query[1]);
+            }
+            else
+            {
+                var page = await _dbContext.Pages.Select(s => new { s.ArticleNumber, s.UrlPath }).FirstOrDefaultAsync(f => f.UrlPath == url.AbsolutePath.TrimStart('/'));
+
+                if (page == null)
+                {
+                    return Json("[]");
+                }
+                articleNumber = page.ArticleNumber;
             }
 
-            var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, page.ArticleNumber, path);
+            var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, articleNumber, path);
 
             return Json(contents);
 

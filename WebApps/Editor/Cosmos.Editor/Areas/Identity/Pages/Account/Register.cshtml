@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = "Create Account";
     Html.ViewContext.ViewBag.BrowserTitle = "Create Your Account";
+    var showLogin = (bool)ViewData["ShowLogin"];
 }
 
 <div class="container">
@@ -17,7 +18,16 @@
                 </div>
                 <div class="card-body">
                     <section>
-                        <p class="card-text text-center mb-3">Already have an account? <a class="btn btn-sm btn-dark" asp-area="Identity" asp-page="/Account/Login">Login</a></p>
+                        @if (showLogin)
+                        {
+
+                            <p class="card-text text-center mb-3">Already have an account? <a class="btn btn-sm btn-dark" asp-area="Identity" asp-page="/Account/Login">Login</a></p>
+                        }
+                        else
+                        {
+
+                            <p class="card-text text-center mb-3">Create the Administrator Account</p>
+                        }
                     </section>
                     <section>
                         <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">

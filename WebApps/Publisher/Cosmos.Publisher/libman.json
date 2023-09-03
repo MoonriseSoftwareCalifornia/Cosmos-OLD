@@ -2,6 +2,9 @@
   "version": "1.0",
   "defaultProvider": "cdnjs",
   "libraries": [
-    
+    {
+      "library": "fotorama@4.6.4",
+      "destination": "wwwroot/lib/fotorama"
+    }
   ]
 }
