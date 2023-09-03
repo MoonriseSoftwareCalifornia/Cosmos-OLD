@@ -139,6 +139,11 @@ namespace Cosmos.Cms.Controllers
                 var query = url.Query.Split('=');
                 articleNumber = int.Parse(query[1]);
             }
+            else if (url.PathAndQuery.ToLower().Contains("editor/ccmscontent"))
+            {
+                var query = url.PathAndQuery.Split('/');
+                articleNumber = int.Parse(query.LastOrDefault());
+            }
             else
             {
                 var page = await _dbContext.Pages.Select(s => new { s.ArticleNumber, s.UrlPath }).FirstOrDefaultAsync(f => f.UrlPath == url.AbsolutePath.TrimStart('/'));
