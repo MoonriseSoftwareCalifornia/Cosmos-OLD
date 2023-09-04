@@ -110,7 +110,7 @@
     <div class="row bg-dark">
         <div class="col-md-12 text-truncate">
             <nav class="d-flex bg-dark">
-                <h6 class="mb-3 mt-3 text-bg-dark">
+                <div class="h6 mb-3 mt-3 text-bg-dark">
                     <a class="text-reset" href="@Html.Raw(baseUrl)target=/"><i class="fa-solid fa-house"></i></a>
 
                     @{
@@ -132,7 +132,12 @@
                             <span>/</span> <a class="text-reset" href="@Html.Raw(baseUrl)@href">@item.TrimStart('/')</a>
                         }
                     }
-                </h6>
+                    <div id="bgroupCopyMove" class="btn-group" role="group" aria-label="Copy and move actions" style="display:none">
+                        <button type="button" class="btn btn-sm btn-success" title="Copy selected items to this folder." onclick="btnClick('copyHere')">Copy to here</button>
+                        <button type="button" class="btn btn-sm btn-success" title="Move selected items to this folder." onclick="btnClick('moveItems')">Move to here</button>
+                        <button type="button" class="btn btn-sm btn-primary" title="Cancel copy or move operation." onclick="btnClick('cancel')">Cancel</button>
+                    </div>
+                </div>
             </nav>
         </div>
     </div>
@@ -178,7 +183,7 @@
                 {
                     <button id="btnRename" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('rename')" disabled>Rename</button>
                     <button id="btnDelete" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('delete')" disabled>Delete</button>
-                    <button id="btnMove" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('move')" disabled>Move</button>
+                    <button id="btnMove" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('move')" disabled>Copy/Move</button>
                     <button id="btnShowSelected" type="button" class="btn btn-sm btn-primary" title="Show list of selected items" style="display:none">Show Selected</button>
                 }
             </div>
@@ -639,7 +644,8 @@
         var data = sessionStorage.getItem("paths");
 
         if (typeof (data) === "undefined" || data === null || data === "") {
-            paths = []
+            paths = [];
+            setMode("");
         } else {
             paths = JSON.parse(data);
         }
@@ -648,11 +654,20 @@
     function clearPaths() {
         paths = [];
         sessionStorage.removeItem("paths");
+        setMode("");
     }
 
     function getItemsToMove() {
         var items = JSON.parse(sessionStorage.getItem("itemsToMove"));
         return items;
+    }
+
+    function setMode(mode) {
+        sessionStorage.setItem("mode", mode);
+    }
+
+    function getMode() {
+        return sessionStorage.getItem("mode");
     }
 
     function getPath(checkbox) {
@@ -773,7 +788,6 @@
         });
 
         resetButtons();
-
     });
 
     function selectImage(element) {
@@ -797,6 +811,22 @@
     }
 
     function resetButtons() {
+
+        const mode = getMode();
+        let disabledChecks = false;
+
+        if (mode === "copyMove") {
+            $("#bgroupCopyMove").show();
+            disabledChecks = true;
+        } else {
+            $("#bgroupCopyMove").hide();
+        }
+
+        if (disabledChecks) {
+            $(".gridCheckBox").each(function (index, element) {
+                $(element).attr("disabled", true);
+            });
+        }
 
         $(".gridCheckBox").each(function (index, element) {
 
@@ -973,8 +1003,10 @@
                     showModal("busy", "Moving item(s)");
                     sessionStorage.setItem("itemsToMove", sessionStorage.getItem("paths"));
                     clearSelection();
+                    setMode("copyMove");
                     window.location.href = '@Html.Raw(baseUrl)target=@pathPrefix'
                 };
+
                 break;
             case "moveItems":
 
@@ -987,7 +1019,7 @@
                 showModal("checkFirst", "Are you sure you want to move item(s) to: <br />" + paths[0], "Move Items");
 
                 next = function () {
-
+                    setMode("");
                     showModal("busy", "Moving item(s)");
                     $.post('@Url.Action("Move", controller)?container=@container',   // url
                         {
