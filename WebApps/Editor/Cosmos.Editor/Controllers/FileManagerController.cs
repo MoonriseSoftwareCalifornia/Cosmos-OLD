@@ -36,6 +36,7 @@ namespace Cosmos.Cms.Controllers
     public class FileManagerController : BaseController
     {
         // Private fields
+        private readonly ApplicationDbContext _dbContext;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ArticleEditLogic _articleLogic;
         private readonly Uri _blobPublicAbsoluteUrl;
@@ -72,6 +73,7 @@ namespace Cosmos.Cms.Controllers
             _hostEnvironment = hostEnvironment;
             _userManager = userManager;
             _articleLogic = articleLogic;
+            _dbContext = dbContext;
 
             var htmlUtilities = new HtmlUtilities();
 
@@ -111,6 +113,20 @@ namespace Cosmos.Cms.Controllers
             target = string.IsNullOrEmpty(target) ? "" : HttpUtility.UrlDecode(target);
 
             ViewData["PathPrefix"] = target.StartsWith('/') ? target : "/" + target;
+
+            var articleTitle = "";
+
+            if (target.Trim('/').StartsWith("pub/articles"))
+            {
+                var split = target.Trim('/').Split('/');
+                if (split.Length > 2 && int.TryParse(split[2], out var articleNumber))
+                {
+                    var article = await _dbContext.ArticleCatalog.Select(s => new { s.ArticleNumber, s.Title }).FirstOrDefaultAsync(f => f.ArticleNumber == articleNumber);
+                    articleTitle = article.Title;
+                }
+            }
+
+            ViewData["ArticleTitle"] = articleTitle;
             ViewData["DirectoryOnly"] = directoryOnly;
             ViewData["Container"] = container;
             ViewData["Title"] = "Website File Manager";
@@ -133,9 +149,31 @@ namespace Cosmos.Cms.Controllers
             //
             // GET FULL OR ABSOLUTE PATH
             //
-            var model = await _storageContext.GetFolderContents(target);
+            //List<FileManagerEntry> model = await _storageContext.GetFolderContents(target);
 
-            var query = model.AsQueryable();
+            IQueryable<FileManagerEntry> query;
+            if (target.Trim('/') == "pub/articles")
+            {
+                var model = _dbContext.ArticleCatalog.Select(s => new FileManagerEntry()
+                {
+                    Created = s.Updated.DateTime,
+                    CreatedUtc = s.Updated.UtcDateTime,
+                    Extension = "",
+                    HasDirectories = true,
+                    IsDirectory = true,
+                    Modified = s.Updated.DateTime,
+                    ModifiedUtc = s.Updated.UtcDateTime,
+                    Name = s.Title,
+                    Path = $"/pub/articles/{s.ArticleNumber}",
+                    Size = 0
+                });
+                query = model.AsQueryable();
+            }
+            else
+            {
+                var model = await _storageContext.GetFolderContents(target);
+                query = model.AsQueryable();
+            }
 
             if (imagesOnly)
             {
@@ -146,6 +184,11 @@ namespace Cosmos.Cms.Controllers
 
             ViewData["RowCount"] = query.Count();
 
+            if (string.IsNullOrEmpty(sortOrder))
+            {
+                // Default sort order
+                query = query.OrderByDescending(o => o.Name);
+            }
             if (sortOrder == "desc")
             {
                 if (!string.IsNullOrEmpty(currentSort))
@@ -176,7 +219,7 @@ namespace Cosmos.Cms.Controllers
                     }
                 }
             }
-            else
+            else if (sortOrder == "asc")
             {
                 if (!string.IsNullOrEmpty(currentSort))
                 {
@@ -224,6 +267,48 @@ namespace Cosmos.Cms.Controllers
         /// <param name="container"></param>
         /// <returns></returns>
         [HttpPost]
+        public async Task<IActionResult> Copy(MoveFilesViewModel model, string container = "$web")
+        {
+            _storageContext.SetContainerName(container);
+            _storageContext.CreateFolder("/pub");
+
+            try
+            {
+                foreach (var item in model.Items)
+                {
+                    string dest;
+
+                    if (item.EndsWith("/"))
+                    {
+                        // moving a directory
+                        dest = model.Destination + item.TrimEnd('/').Split('/').LastOrDefault();
+                    }
+                    else
+                    {
+                        // moving a file
+                        var fileName = Path.GetFileName(item);
+                        dest = model.Destination + "/" + fileName;
+                    }
+
+                    await _storageContext.CopyAsync(item, dest);
+                }
+
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
+            return Ok();
+        }
+
+        /// <summary>
+        /// Moves items to a new folder.
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="container"></param>
+        /// <returns></returns>
+        [HttpPost]
         public async Task<IActionResult> Move(MoveFilesViewModel model, string container = "$web")
         {
             _storageContext.SetContainerName(container);
@@ -243,9 +328,10 @@ namespace Cosmos.Cms.Controllers
                     else
                     {
                         // moving a file
-                        dest = model.Destination + item.Split('/').LastOrDefault();
+                        var fileName = Path.GetFileName(item);
+                        dest = model.Destination + "/" + fileName;
                     }
-
+                    // Same as move
                     await _storageContext.RenameAsync(item, dest);
                 }
 

@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <AssemblyVersion>7.5.4.2</AssemblyVersion>
-    <FileVersion>7.5.4.2</FileVersion>
-    <Version>7.5.4.2</Version>
+    <AssemblyVersion>7.5.5.1</AssemblyVersion>
+    <FileVersion>7.5.5.1</FileVersion>
+    <Version>7.5.5.1</Version>
     <Title>Azure Blob and Amazon S3 Storage Provider</Title>
     <Authors>toiyabe62</Authors>
     <Company>Moonrise Software LLC</Company>

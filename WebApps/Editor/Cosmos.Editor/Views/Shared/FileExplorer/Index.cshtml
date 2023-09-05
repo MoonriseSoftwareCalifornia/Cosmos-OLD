@@ -21,6 +21,7 @@
     var imagesOnly = (bool)ViewData["ImagesOnly"];
     var storageName = (string)ViewData["StorageName"];
     var isNewSession = (bool)ViewData["isNewSession"];
+    var articleTitle = (string)ViewData["ArticleTitle"];
 
     var target = Context.Request.Query["target"];
 
@@ -44,6 +45,7 @@
     var isReviewer = User.IsInRole("Reviewers");
     var canEdit = User.IsInRole("Administrators") || User.IsInRole("Editors");
     var pathPrefix = (string)ViewData["PathPrefix"];
+    var pathNames = (string)(string)ViewData["PathNames"];
     var pathParts = new List<string>();
 
     //var containerCss = "container mt-5 pt-2";
@@ -55,6 +57,12 @@
 
     var pagerModel = new GridPagerPartialViewModel(pageNumber, rowCount, pageSize, sortOrder, currentSort, Url.Action(action, controller) + "?imagesOnly= " + imagesOnly + "&target=" + target + "&selectOne=" + selectOne.ToString().ToLower());
 }
+<style>
+    li.breadcrumb-item.active {
+        color: white;
+        font-weight: 900;
+    }
+</style>
 @if (selectOne)
 {
     <style>
@@ -66,7 +74,7 @@
 <link href="https://unpkg.com/filepond@4/dist/filepond.css" rel="stylesheet" />
 <partial name="_ValidationScriptsPartial" />
 <div class="container mt-3">
-    <div class="row bg-dark">
+    <div class="row">
         <div class="col-6">
             @if (directoryOnly)
             {
@@ -98,47 +106,55 @@
             }
         </div>
     </div>
-    <div class="row bg-dark">
-        <div class="col">
-            @if (directoryOnly)
-            {
-                <h5 class="text-light">Select the folder where you want to place the file(s).</h5>
-            }
-            <span class="fw-light fst-italic text-light">@storageName</span>
-        </div>
-    </div>
-    <div class="row bg-dark">
+    <div class="row mb-3 mt-3">
         <div class="col-md-12 text-truncate">
-            <nav class="d-flex bg-dark">
-                <div class="h6 mb-3 mt-3 text-bg-dark">
-                    <a class="text-reset" href="@Html.Raw(baseUrl)target=/"><i class="fa-solid fa-house"></i></a>
-
-                    @{
-                        var p = "";
-                        int counter = 0;
-                    }
-                    @foreach (var item in pathParts)
-                    {
-                        counter++;
-                        p += "/" + item;
-                        var href = $"target={p}";
-
-                        if (counter == pathParts.Count)
-                        {
-                            <span>/</span> <a class="text-reset font-weight-bold" href="@Html.Raw(baseUrl)@href.TrimStart('/')">@item</a>
+            <div class="d-flex">
+                <nav aria-label="breadcrumb mb-3 mt-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item active" aria-current="folder">
+                            <a class="btn btn-sm btn-primary" title="Click to navigate here" href="@Html.Raw(baseUrl)target=/"><i class="fa-solid fa-house"></i></a>
+                        </li>
+                        @{
+                            var p = "";
+                            int counter = 0;
                         }
-                        else
+                        @foreach (var item in pathParts)
                         {
-                            <span>/</span> <a class="text-reset" href="@Html.Raw(baseUrl)@href">@item.TrimStart('/')</a>
+                            counter++;
+                            p += "/" + item;
+                            var href = $"target={p}";
+
+                            var itemName = counter == 3 && !string.IsNullOrEmpty(articleTitle) ? articleTitle : item;
+
+                            if (counter == pathParts.Count)
+                            {
+                                <li class="breadcrumb-item active" aria-current="folder">
+                                    <a class="btn btn-sm btn-primary" title="Click to navigate here" href="@Html.Raw(baseUrl)@href.TrimStart('/')">@itemName</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="breadcrumb-item active" aria-current="folder">
+                                    <a class="btn btn-sm btn-primary" title="Click to navigate here" href="@Html.Raw(baseUrl)@href">@itemName.TrimStart('/')</a>
+                                </li>
+                            }
                         }
-                    }
-                    <div id="bgroupCopyMove" class="btn-group" role="group" aria-label="Copy and move actions" style="display:none">
-                        <button type="button" class="btn btn-sm btn-success" title="Copy selected items to this folder." onclick="btnClick('copyHere')">Copy to here</button>
-                        <button type="button" class="btn btn-sm btn-success" title="Move selected items to this folder." onclick="btnClick('moveItems')">Move to here</button>
-                        <button type="button" class="btn btn-sm btn-primary" title="Cancel copy or move operation." onclick="btnClick('cancel')">Cancel</button>
-                    </div>
-                </div>
-            </nav>
+
+                        @if (pathPrefix.StartsWith(topDirectory))
+                        {
+                            <li class="breadcrumb-item active" aria-current="folder">
+                                <form id="frmNewFolder" class="d-flex" asp-action="NewFolder" method="post">
+                                    <input type="hidden" name="ParentFolder" id="ParentFolder" value="@pathPrefix" />
+                                    <input type="hidden" name="DirectoryOnly" id="DirectoryOnly" value="@directoryOnly" />
+                                    <input type="hidden" name="Container" id="DirectoryOnly" value="@container" />
+                                    <input class="form-control form-control-sm me-2" name="FolderName" id="FolderName" type="text" placeholder="New folder name" aria-label="New folder name" minlength="2" required />
+                                    <button class="btn btn-sm btn-primary" type="submit">Create</button>
+                                </form>
+                            </li>
+                        }
+                    </ol>
+                </nav>
+            </div>
         </div>
     </div>
 
@@ -166,25 +182,39 @@
         </div>
     }
 
+    @if (pathPrefix.StartsWith(topDirectory))
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <div id="bgroupCopyMove" class="btn-group" role="group" aria-label="Copy and move actions" style="display:none">
+                    <button type="button" class="btn btn-sm btn-success" title="Copy selected items to this folder." onclick="btnClick('copyItems')">Copy to here</button>
+                    <button type="button" class="btn btn-sm btn-success" title="Move selected items to this folder." onclick="btnClick('moveItems')">Move to here</button>
+                    <button type="button" class="btnShowSelected btn btn-sm btn-secondary" title="Show list of selected items" style="display:none">Show Selected</button>
+                    <button type="button" class="btn btn-sm btn-primary" title="Cancel copy or move operation." onclick="btnClick('cancel')">Cancel</button>
+                </div>
+            </div>
+        </div>
+    }
+
     <div class="row cpws-table-pager-row-top">
         <div class="col-md-4">
             <div class="btn-group" role="group" aria-label="File and folder actions">
                 @if (directoryOnly)
                 {
                     <button id="btnCancel" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('cancel')">Cancel</button>
-                    <button id="btnMoveItems" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('moveItems')" title="Move selected items" disabled>Move</button>
+                    <button id="btnMove" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('move')" disabled>Copy/Move</button>
                 }
                 else if (selectOne)
                 {
                     <button id="btnClear" type="button" class="btn btn-sm btn-primary" title="Clear list of selected items" style="display:none">Clear Selected</button>
-                    <button id="btnShowSelected" type="button" class="btn btn-sm btn-primary" title="Show list of selected items" style="display:none">Show Selected</button>
+                    <button type="button" class="btnShowSelected btn btn-sm btn-primary" title="Show list of selected items" style="display:none">Show Selected</button>
                 }
                 else if (!selectOne)
                 {
                     <button id="btnRename" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('rename')" disabled>Rename</button>
                     <button id="btnDelete" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('delete')" disabled>Delete</button>
                     <button id="btnMove" type="button" class="btn btn-sm btn-secondary" onclick="btnClick('move')" disabled>Copy/Move</button>
-                    <button id="btnShowSelected" type="button" class="btn btn-sm btn-primary" title="Show list of selected items" style="display:none">Show Selected</button>
+                    <button type="button" class="btnShowSelected btn btn-sm btn-primary" title="Show list of selected items" style="display:none">Show Selected</button>
                 }
             </div>
         </div>
@@ -192,16 +222,6 @@
             <partial name="~/Views/Shared/GridPager/_GridPager.cshtml" model="pagerModel"></partial>
         </div>
         <div class="col-md-4">
-            @if (pathPrefix.StartsWith(topDirectory))
-            {
-                <form id="frmNewFolder" class="d-flex" asp-action="NewFolder" method="post">
-                    <input type="hidden" name="ParentFolder" id="ParentFolder" value="@pathPrefix" />
-                    <input type="hidden" name="DirectoryOnly" id="DirectoryOnly" value="@directoryOnly" />
-                    <input type="hidden" name="Container" id="DirectoryOnly" value="@container" />
-                    <input class="form-control form-control-sm me-2" name="FolderName" id="FolderName" type="text" placeholder="New folder name" aria-label="New folder name" minlength="2" required />
-                    <button class="btn btn-sm btn-primary" type="submit">Create</button>
-                </form>
-            }
         </div>
     </div>
 
@@ -748,7 +768,7 @@
             clearSelection();
         });
 
-        $("#btnShowSelected").click(function () {
+        $(".btnShowSelected").click(function () {
 
             let data = sessionStorage.getItem("paths");
             let items = JSON.parse(data);
@@ -898,9 +918,6 @@
             $("#btnSelectFile").prop('disabled', false);
             replaceCssClass($("#btnSelectFile"), "btn-secondary", "btn-primary");
 
-            $("#btnMoveItems").prop('disabled', false);
-            replaceCssClass($("#btnMoveItems"), "btn-secondary", "btn-primary");
-
             $("#btnRename").prop('disabled', false);
             $("#btnRename").prop('title', "Click to rename.");
             replaceCssClass($("#btnRename"), "btn-secondary", "btn-primary");
@@ -912,9 +929,6 @@
 
             $("#btnRename").prop('disabled', true);
             replaceCssClass($("#btnRename"), "btn-primary", "btn-secondary");
-
-            $("#btnMoveItems").prop('disabled', true);
-            replaceCssClass($("#btnMoveItems"), "btn-primary", "btn-secondary");
 
         }
     }
@@ -994,9 +1008,9 @@
             case "move":
                 $("#checkFirstTitle").html("Move Items");
                 if (arrayLength == 1) {
-                    showModal("checkFirst", "WARNING: Are you sure you want to move this item?", "Move Items");
+                    showModal("checkFirst", "WARNING: Are you sure you want to copy or move this item?", "Move Items");
                 } else {
-                    showModal("checkFirst", "Are you sure you want to move " + arrayLength + " items?", "Move Items");
+                    showModal("checkFirst", "Are you sure you want to copy or move " + arrayLength + " items?", "Move Items");
                 }
 
                 next = function () {
@@ -1008,20 +1022,29 @@
                 };
 
                 break;
+            case "copyItems":
             case "moveItems":
 
-                var items = getItemsToMove();
+                const items = getItemsToMove();
 
-                var dest = paths[0];
+                const dest = "@pathPrefix";
 
-                var itemCount = items.length;
+                let itemCount = items.length;
 
-                showModal("checkFirst", "Are you sure you want to move item(s) to: <br />" + paths[0], "Move Items");
+                showModal("checkFirst", "Are you sure you want to move item(s) to: <br />" + dest, "Move Items");
+
+                let urlPath;
+
+                if (command === "moveItems") {
+                    urlPath = "@Url.Action("Move", controller)";
+                } else {
+                    urlPath = "@Url.Action("Copy", controller)";
+                }
 
                 next = function () {
                     setMode("");
                     showModal("busy", "Moving item(s)");
-                    $.post('@Url.Action("Move", controller)?container=@container',   // url
+                    $.post(urlPath + '?container=@container',
                         {
                             Destination: dest,
                             Items: items
