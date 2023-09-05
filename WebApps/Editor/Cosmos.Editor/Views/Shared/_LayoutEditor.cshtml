@@ -147,6 +147,8 @@
                         <div id="divPublihedTitleGroup" class="input-group input-group-sm mt-1 ms-3 me-3" style="display:none">
                             <div id="lblPublished" class="input-group-text" style="height:31px;">Published:</div>
                             <input autocomplete="off" class="form-control" name="tbPublished" id="tbPublished" placeholder="DRAFT (not published)" value="@((DateTimeOffset?)ViewData["Published"])" />
+                            <button class="btn btn-danger" title="Clicking this button publishes this page version immediately." type="button" id="btnPublishNow" onclick="bgEditClick('Publish')" style="display:none">Publish Now</button>
+                            <button class="btn btn-secondary" title="Clicking this button will make an editable draft of this page that is not published." type="button" id="btnDraftNow" onclick="bgEditClick('Draft')" style="display:none">Make Draft</button>
                         </div>
                     </li>
                     <li class="nav-item">
@@ -439,6 +441,9 @@
                     break;
                 case "Draft":
                     $("#tbPublished").val("");
+                    $("#btnPublishNow").show();
+                    $("#btnDraftNow").hide();
+                    $("#tbPublished").addClass("is-invalid");
                     $("#Published").val("");
                     $("#SaveAsNewVersion").val("true");
                     $("#frmSave").submit();
@@ -451,6 +456,9 @@
                     var now = new Date();
                     $("#tbPublished").val(now.toLocaleString());
                     $("#Published").val(now.toLocaleString());
+                    $("#tbPublished").removeClass("is-invalid");
+                    $("#btnPublishNow").hide();
+                    $("#btnDraftNow").show();
 
                     $("#SaveAsNewVersion").val("false");
                     $("#frmSave").submit();
@@ -511,7 +519,13 @@
                 var utcString = datetime.toUTCString();
                 $("#Published").val(utcString);
                 $("#btnPublish").html("Published");
+                $("#tbPublished").removeClass("is-invalid");
+                $("#btnPublishNow").hide();
+                $("#btnDraftNow").show();
             } else {
+                $("#tbPublished").addClass("is-invalid");
+                $("#btnPublishNow").show();
+                $("#btnDraftNow").hide();
                 $("#btnPublish").html("DRAFT");
                 $("#Published").val("");
             }
@@ -547,6 +561,15 @@
                 $("#Published").val($('#tbPublished').val());
                 $("#frmSave").submit();
             });
+
+            if ($("#Published").val() === null || $("#Published").val() === "") {
+                $("#tbPublished").addClass("is-invalid");
+                $("#btnPublishNow").show();
+                $("#btnDraftNow").hide();
+            } else {
+                $("#btnPublishNow").hide();
+                $("#btnDraftNow").show();
+            }
 
             $("#swAutoSave").click(function () {
                 if ($("#swAutoSave").is(":checked")) {
@@ -642,9 +665,15 @@
 
                     if (ui.item.published === null || ui.item.published === "") {
                         $("#pageStatus").html("Status: - DRAFT - ");
+                        $("#tbPublished").addClass("is-invalid");
+                        $("#btnPublishNow").show();
+                        $("#btnDraftNow").hide();
                     } else {
                         const date = new Date(ui.item.published);
                         $("#pageStatus").html("Publihed: " + date.toUTCString());
+                        $("#tbPublished").removeClass("is-invalid");
+                        $("#btnPublishNow").hide();
+                        $("#btnDraftNow").show();
                     }
 
                     var titleArray = ui.item.label.split('/');
