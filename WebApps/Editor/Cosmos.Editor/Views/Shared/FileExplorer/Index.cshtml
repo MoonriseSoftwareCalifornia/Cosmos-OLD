@@ -325,23 +325,28 @@
                             {
                                 <tr scope="row" style="height: auto !important">
                                     <td scope="row" style="width:30px;">
-                                        @if (selectOne && row.IsDirectory)
+                                        @if (row.Path.Trim('/') != "pub/articles")
                                         {
-                                            <div class="form-check">
-                                                <input class="form-check-input gridCheckBox" data-ccms-isdir='@row.IsDirectory' data-ccms-blob='@row.Path.Trim('/')' type="checkbox" disabled>
-                                                <label class="form-check-label">
-                                                    Select
-                                                </label>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <div class="form-check">
-                                                <input class="form-check-input gridCheckBox" data-ccms-isdir='@row.IsDirectory' data-ccms-blob='@row.Path.Trim('/')' type="checkbox">
-                                                <label class="form-check-label">
-                                                    Select
-                                                </label>
-                                            </div>
+                                            if (selectOne && row.IsDirectory)
+                                            {
+
+                                                <div class="form-check">
+                                                    <input class="form-check-input gridCheckBox" data-ccms-isdir='@row.IsDirectory' data-ccms-blob='@row.Path.Trim('/')' type="checkbox" disabled>
+                                                    <label class="form-check-label">
+                                                        Select
+                                                    </label>
+                                                </div>
+
+                                            }
+                                            else
+                                            {
+                                                <div class="form-check">
+                                                    <input class="form-check-input gridCheckBox" data-ccms-isdir='@row.IsDirectory' data-ccms-blob='@row.Path.Trim('/')' type="checkbox">
+                                                    <label class="form-check-label">
+                                                        Select
+                                                    </label>
+                                                </div>
+                                            }
                                         }
                                     </td>
                                     <td style="width:30px;">
