@@ -64,7 +64,10 @@ namespace Cosmos.Cms.Publisher.Controllers
                 else
                 {
                     article = await _articleLogic.GetByUrl(HttpContext.Request.Path, HttpContext.Request.Query["lang"], TimeSpan.FromSeconds(5), TimeSpan.FromSeconds(20)); // ?? await _articleLogic.GetByUrl(id, langCookie);
-                    Response.Headers.Expires = article.Expires.HasValue ? article.Expires.Value.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'") : DateTimeOffset.UtcNow.AddMinutes(30).ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
+                    if (article != null)
+                    {
+                        Response.Headers.Expires = article.Expires.HasValue ? article.Expires.Value.ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'") : DateTimeOffset.UtcNow.AddMinutes(30).ToString("ddd, dd MMM yyyy HH:mm:ss 'GMT'");
+                    }
                 }
 
                 if (article == null)

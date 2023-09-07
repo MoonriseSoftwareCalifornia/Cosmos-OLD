@@ -266,6 +266,7 @@
             var model = JSON.parse(data);
 
             const editorId = model.EditorId;
+            const ckeditor = findEditor(editorId);
             const userId = model.UserId;
             const offest = model.Offset;
             const command = model.Command;
@@ -282,7 +283,6 @@
 
                     // Prevent auto save
                     enableAutoSave = false;
-                    let ckeditor = findEditor(editorId);
                     ckeditor.data.set(model.Data);
                     // Renable auto save
                     enableAutoSave = true;
@@ -312,6 +312,7 @@
                     }
                     break;
                 case "SavePageProperties":
+                    ckeditor.data.set(model.Data);
                     savePageProperties(model);
                     break;
             }
@@ -749,7 +750,6 @@
         }).done(function (data) {
             setWorkingVersion(data);
             try {
-                model.Data = ""; // Not needed for this
                 signalRConnection.invoke("Notification", JSON.stringify(model));
             } catch (err) {
                 console.error(err);

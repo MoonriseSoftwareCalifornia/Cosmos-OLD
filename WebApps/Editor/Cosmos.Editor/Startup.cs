@@ -250,7 +250,7 @@ namespace Cosmos.Cms
 
             // End add SendGrid
 
-            // Add the BLOB and File Storage contexts for Cosmos WPS
+            // Add the BLOB and File Storage contexts for Cosmos
             services.AddCosmosStorageContext(Configuration);
 
             services.AddTransient<ArticleEditLogic>();

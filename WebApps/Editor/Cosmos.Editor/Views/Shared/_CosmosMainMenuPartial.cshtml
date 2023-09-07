@@ -7,6 +7,8 @@
     var assemblyName = Assembly.GetExecutingAssembly().GetName();
     var isEditor = false;
     var isAdministrator = false;
+    var isAuthor = false;
+    var isReviewer = false;
 
     if (User != null && User.IsInRole("Editors"))
     {
@@ -16,6 +18,16 @@
     if (User != null && User.IsInRole("Administrators"))
     {
         isAdministrator = true;
+    }
+
+    if (User != null && User.IsInRole("Authors"))
+    {
+        isAuthor = true;
+    }
+
+    if (User != null && User.IsInRole("Reviewers"))
+    {
+        isReviewer = true;
     }
 
     var assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
@@ -30,42 +42,45 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a id="btnManage" href="#" role="button" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        Menu
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-dark" id="ddManageMenu">
-                        <li>
-                            <a class="dropdown-item" title="List of pages on this website." href="/Editor/Index">Pages</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" title="Open files stored on this website." href="/FileManager/Index">File Manager</a>
-                        </li>
-                        @if (isAdministrator || isEditor)
-                        {
+                @if(User != null && User.Identity != null && (isAdministrator || isEditor || isAuthor || isReviewer))
+                {
+                    <li class="nav-item dropdown">
+                        <a id="btnManage" href="#" role="button" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Menu
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" id="ddManageMenu">
                             <li>
-                                <a class="dropdown-item" title="Manage page templates" href="/Templates/Index">Templates</a>
+                                <a class="dropdown-item" title="List of pages on this website." href="/Editor/Index">Pages</a>
                             </li>
                             <li>
-                                <a class="dropdown-item" title="Manage layouts" href="/Layouts/Index">Layouts</a>
+                                <a class="dropdown-item" title="Open files stored on this website." href="/FileManager/Index">File Manager</a>
                             </li>
-                        }
-                        <li>
-                            <a id="btnPublicWebsite" class="dropdown-item" title="Open public (publisher) website" href="" target="_blank">Public Website</a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li style="display:none">
-                            <a class="dropdown-item" title="Internal (non-public) file storage." href="/Code/Index">Internal Files</a>
-                        </li>
-                        @if (isAdministrator || isEditor)
-                        {
+                            @if (isAdministrator || isEditor)
+                            {
+                                <li>
+                                    <a class="dropdown-item" title="Manage page templates" href="/Templates/Index">Templates</a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" title="Manage layouts" href="/Layouts/Index">Layouts</a>
+                                </li>
+                            }
+                            <li>
+                                <a id="btnPublicWebsite" class="dropdown-item" title="Open public (publisher) website" href="" target="_blank">Public Website</a>
+                            </li>
                             <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item" title="Manage user accounts." href="/Users/Index">Users</a>
+                            <li style="display:none">
+                                <a class="dropdown-item" title="Internal (non-public) file storage." href="/Code/Index">Internal Files</a>
                             </li>
-                        }
-                    </ul>
-                </li>
+                            @if (isAdministrator || isEditor)
+                            {
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" title="Manage user accounts." href="/Users/Index">Users</a>
+                                </li>
+                            }
+                        </ul>
+                    </li>
+                }
                 @if (Model != null)
                 {
                     <li class="nav-item dropdown">
@@ -78,7 +93,7 @@
                         </ul>
                     </li>
                 }
-                <li class="nav-item"><span title="Cosmos WPS Version" class="nav-link text-mute">@assemblyVersion.ToString()</span></li>
+                <li class="nav-item"><span title="Cosmos Version" class="nav-link text-mute">@assemblyVersion.ToString()</span></li>
                 @if (Context.Request.Path.Equals("/home/preview", StringComparison.InvariantCultureIgnoreCase))
                 {
                     <li class="nav-item"><a class="btn btn-sm btn-primary mt-2" title="Close preview" href="javascript:closePreview()">Close Preview</a></li>

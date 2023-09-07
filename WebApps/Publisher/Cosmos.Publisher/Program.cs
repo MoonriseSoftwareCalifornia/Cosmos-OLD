@@ -73,7 +73,7 @@ else
 #pragma warning restore CS8604 // Possible null reference argument.
 
 
-// Add the BLOB and File Storage contexts for Cosmos WPS
+// Add the BLOB and File Storage contexts for Cosmos
 builder.Services.AddCosmosStorageContext(builder.Configuration);
 
 
