@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.Editor", "..\WebApps\Editor\Cosmos.Editor\Cosmos.Editor.csproj", "{A946B428-79CE-4AB6-8ACE-90548C08CB05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.Editor", "WebApps\Editor\Cosmos.Editor\Cosmos.Editor.csproj", "{A946B428-79CE-4AB6-8ACE-90548C08CB05}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.Publisher", "..\WebApps\Publisher\Cosmos.Publisher\Cosmos.Publisher.csproj", "{C2B576CD-42E5-4990-B1B1-532F8AF9C208}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.Publisher", "WebApps\Publisher\Cosmos.Publisher\Cosmos.Publisher.csproj", "{C2B576CD-42E5-4990-B1B1-532F8AF9C208}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.Common", "..\Libraries\Cosmos.Common\Cosmos.Common\Cosmos.Common.csproj", "{CE27ADCF-9036-4C54-B5DA-9C33ACF10494}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.Common", "Libraries\Cosmos.Common\Cosmos.Common\Cosmos.Common.csproj", "{CE27ADCF-9036-4C54-B5DA-9C33ACF10494}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.BlobService", "..\Libraries\Cosmos.BlobService\Cosmos.BlobService\Cosmos.BlobService.csproj", "{482A78FB-CA5B-4CAB-B0E0-AF347EE94814}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.BlobService", "Libraries\Cosmos.BlobService\Cosmos.BlobService\Cosmos.BlobService.csproj", "{482A78FB-CA5B-4CAB-B0E0-AF347EE94814}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.EmailServices", "..\Libraries\Cosmos.EmailServices\Cosmos.EmailServices.csproj", "{AD6EB319-F0FD-4C6C-9544-DE1B965424F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.EmailServices", "Libraries\Cosmos.EmailServices\Cosmos.EmailServices.csproj", "{AD6EB319-F0FD-4C6C-9544-DE1B965424F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

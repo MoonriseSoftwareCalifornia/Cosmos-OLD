@@ -83,7 +83,7 @@ namespace Cosmos.Cms
 
             // Name of the Cosmos database to use
             var cosmosIdentityDbName = Configuration.GetValue<string>("CosmosIdentityDbName");
-            if (string.IsNullOrEmpty(cosmosIdentityDbName) )
+            if (string.IsNullOrEmpty(cosmosIdentityDbName))
             {
                 cosmosIdentityDbName = "cosmoscms";
             }
@@ -172,13 +172,23 @@ namespace Cosmos.Cms
             var microsoftClientSecret = Configuration["Authentication_Microsoft_ClientSecret"];
             if (!string.IsNullOrEmpty(microsoftClientId) && !string.IsNullOrEmpty(microsoftClientSecret))
             {
-                services.AddAuthentication().AddMicrosoftAccount(options =>
+                //services.AddAuthentication().AddMicrosoftAccount(options =>
+                //{
+                //    options.ClientId = microsoftClientId;
+                //    options.ClientSecret = microsoftClientSecret;
+                //});
+
+                var domainName = "cosmoshosting";
+                var signUpSignInFlowName = "B2C_1_Susi";
+
+                services.AddAuthentication().AddAzureB2C(options =>
                 {
                     options.ClientId = microsoftClientId;
                     options.ClientSecret = microsoftClientSecret;
+                    options.AuthorizationEndpoint = $"https://{domainName}.b2clogin.com/{domainName}.onmicrosoft.com/oauth2/v2.0/authorize?p={signUpSignInFlowName}";
+                    options.TokenEndpoint = $"https://{domainName}.b2clogin.com/{domainName}.onmicrosoft.com/oauth2/v2.0/token?p={signUpSignInFlowName}";
                 });
             }
-            //services.AddMicrosoftIdentityWebAppAuthentication(Configuration, "AzureAdB2C");
 
             // Add IDistributed cache using Cosmos DB
             // This enables the editor to run in a web farm without needing

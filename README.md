@@ -1,10 +1,10 @@
-# Cosmos WPS Core
+# Cosmos CMS
 
-Cosmos WPS is a modern content management system that is "out of the box" fast, secure, open, and easy to use.  Its cloud-first design comes with built-in integration with Content Distribution Networks (CDN) and Web Application Firewalls (WAF), and supports regional replication redundancy.
+Cosmos CMS is a modern content management system that is "out of the box" fast, secure, open, and easy to use.  Its cloud-first design comes with built-in integration with Content Distribution Networks (CDN) and Web Application Firewalls (WAF), and supports regional replication redundancy.
 
 ## About
 
-Cosmos is a ["Decoupled" system](https://en.wikipedia.org/wiki/Headless_content_management_system#Decoupled_CMS), meaning content distribution is separated from content management. This provides significant performance and security benefits.
+Cosmos is a "headless" content management system of the ["Decoupled" variety](https://en.wikipedia.org/wiki/Headless_content_management_system#Decoupled_CMS), meaning content distribution is separated from content management. This provides significant performance and security benefits.
 
 Content distribution is handled by:
 
@@ -35,7 +35,6 @@ For web designers and engineers:
 * It also comes with DIFF tool that enables users to compare any two versions of a web page. This tool, combined with the HTML editor's "AutoSave" feature, makes it easy for users to create and manage content efficiently.
 
 For administrators:
-* Cosmos deploys easily with pre-built ARM templates.
 * Its tight integration with Azure allows it to scale up for high performance with multi-region “hot” replicas or scale down for less demanding scenarios and operate very inexpensively.
 * Cosmos is built with integration for Azure CDNs, Front Door and Web Application Firewall, and needs little to no configuration for each. 
 
@@ -45,6 +44,3 @@ For administrators:
 * The publisher
 * Code libraries
 
-## Questions? Ideas?
-
-Please post to our new [discussion board](https://github.com/MoonriseSoftwareCalifornia/Cosmos/discussions) if you have any questions or suggestions.
