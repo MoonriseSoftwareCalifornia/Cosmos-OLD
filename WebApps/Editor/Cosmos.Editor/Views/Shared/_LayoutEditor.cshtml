@@ -6,6 +6,7 @@
     var assemblyName = Assembly.GetExecutingAssembly().GetName();
     var title = (string)@ViewData["PageTitle"];
     var assemblyVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+    var isAuthor = User.IsInRole("Authors");
 }
 <!DOCTYPE HTML>
 <html>
@@ -80,9 +81,12 @@
                             <li id="btnSourceCode" style="display:none">
                                 <a class="dropdown-item" href="/Code/Index" title="Internal (non-public) file storage." target="_blank">Internal files</a>
                             </li>
-                            <li id="btnCcmsCodeEditor" style="display:none">
-                                <a class="dropdown-item" onclick="bgEditClick('Code')">Code editor <img src="/images/monaco-vscode-logo.png" height="20" /></a>
-                            </li>
+                            @if (isAuthor == false)
+                            {
+                                <li id="btnCcmsCodeEditor" style="display:none">
+                                    <a class="dropdown-item" onclick="bgEditClick('Code')">Code editor <img src="/images/monaco-vscode-logo.png" height="20" /></a>
+                                </li>
+                            }
                             <li id="btnCcmsHtmlEditor" style="display:none">
                                 <a class="dropdown-item" onclick="bgEditClick('Html')">Live editor <img src="/images/ckeditor-5-proj-logo.svg" height="20" /></a>
                             </li>
@@ -453,15 +457,19 @@
                     $("#frmSave").submit();
                     break;
                 case "Publish":
-                    var now = new Date();
-                    $("#tbPublished").val(now.toLocaleString());
-                    $("#Published").val(now.toLocaleString());
-                    $("#tbPublished").removeClass("is-invalid");
-                    $("#btnPublishNow").hide();
-                    $("#btnDraftNow").show();
+                    if (isAuthor) {
+                        alert("Only Editors and Administratos can publish changes.");
+                    } else {
+                        var now = new Date();
+                        $("#tbPublished").val(now.toLocaleString());
+                        $("#Published").val(now.toLocaleString());
+                        $("#tbPublished").removeClass("is-invalid");
+                        $("#btnPublishNow").hide();
+                        $("#btnDraftNow").show();
 
-                    $("#SaveAsNewVersion").val("false");
-                    $("#frmSave").submit();
+                        $("#SaveAsNewVersion").val("false");
+                        $("#frmSave").submit();
+                    }
                     break
                 case "Files":
                     var id = $("#ArticleNumber").val();
@@ -544,7 +552,7 @@
             else {
                 startDate = new Date(lastPublished);
             }
-
+                                             
             $('#tbPublished').daterangepicker({
                 autoUpdateInput: false,
                 timePicker: true,
@@ -557,10 +565,18 @@
             });
 
             $('#tbPublished').on('apply.daterangepicker', function (ev, picker) {
-                $('#tbPublished').val(picker.startDate.format('MM/DD/YYYY hh:mm A'));
-                $("#Published").val($('#tbPublished').val());
-                $("#frmSave").submit();
+                if (isAuthor) {
+                    alert("Only Editors and Administratos can publish changes.");
+                } else {
+                    $('#tbPublished').val(picker.startDate.format('MM/DD/YYYY hh:mm A'));
+                    $("#Published").val($('#tbPublished').val());
+                    $("#frmSave").submit();
+                }
             });
+
+            if (isAuthor) {
+                $("#tbPublished").prop("disabled", true);
+            }
 
             if ($("#Published").val() === null || $("#Published").val() === "") {
                 $("#tbPublished").addClass("is-invalid");

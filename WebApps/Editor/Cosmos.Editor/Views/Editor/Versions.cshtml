@@ -88,30 +88,30 @@
                                     </td>
                                     <td scope="row" style="width:260px">
                                         <div class="btn-group" role="group" aria-label="Version actions">
-                                            <a class='btn btn-sm btn-secondary' target='_blank' title='Preview' onclick='openPreview(@articleNumber, @row.VersionNumber)'><i class='fas fa-search'></i> Preview</a>
-                                            @if (lastVersion == row.VersionNumber)
+                                            <a class='btn btn-sm btn-secondary' title='Preview' onclick='openPreview(@articleNumber, @row.VersionNumber)'><i class='fas fa-search'></i> Preview</a>
+                                            @if (lastVersion == row.VersionNumber && isReviewer == false)
                                             {
-                                                @if ((isAuthor && row.Published != null) || (isReviewer))
-                                                {
-                                                    <span></span>
-                                                }
-                                                else
+                                                @if (isAuthor == false)
                                                 {
                                                     <a class='btn btn-sm btn-secondary' title='Edit with the code editor' href='/Editor/EditCode/@articleNumber'><img src="/images/monaco-vscode-logo.png" height="14" /> Code</a>
                                                 }
-                                                @if ((isAuthor && row.Published != null) || (isReviewer) || row.UsesHtmlEditor == false)
+                                                else
                                                 {
                                                     <span></span>
                                                 }
-                                                else
+                                                @if (row.UsesHtmlEditor)
                                                 {
                                                     <a class='btn btn-sm btn-secondary' title="Edit with the live (WYSIWYG) editor" href='/Editor/Edit/@articleNumber'><img src="/images/ckeditor-5-proj-logo.svg" height="18" /> Live</a>
                                                 }
+                                                else
+                                                {
+                                                    <span></span>
+                                                }
                                             }
-                                            @if (isReviewer)
+                                            @* @if (isReviewer)
                                             {
                                                 <a class='btn btn-sm btn-secondary' title='Export version' href='/Editor/ExportPage/@row.Id'><i class='fa-solid fa-cloud-arrow-down'></i></a>
-                                            }
+                                            } *@
                                         </div>
                                     </td>
                                     <td scope="row">

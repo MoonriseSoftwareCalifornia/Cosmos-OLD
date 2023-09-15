@@ -1359,15 +1359,11 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="id">Article Number (not ID)</param>
         /// <returns></returns>
-        [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
+        [Authorize(Roles = "Administrators, Editors")]
         public async Task<IActionResult> EditCode(int id)
         {
             var article = await _articleLogic.Get(id, null);
             if (article == null) return NotFound();
-
-            // Validate security for authors before going further
-            if (article.Published.HasValue && User.IsInRole("Authors"))
-                return Unauthorized();
 
             ViewData["Version"] = article.VersionNumber;
 

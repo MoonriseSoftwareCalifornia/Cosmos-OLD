@@ -34,6 +34,7 @@
             if (iframeWin.document.body) {
                 iframe.height = window.innerHeight - document.getElementById("ccmsNavMenu").clientHeight;
             }
+            loadDdEditMenu();
         };
         window.addEventListener('resize', function (event) { setupIframe(); }, true);
     </script>

@@ -10,6 +10,7 @@ using Cosmos.Cms.Services;
 using Cosmos.Common.Data;
 using Cosmos.Editor.Models;
 using Cosmos.EmailServices;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -21,10 +22,9 @@ using Microsoft.Extensions.Caching.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Identity.Web;
 using Newtonsoft.Json.Serialization;
 using System;
-using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -159,6 +159,7 @@ namespace Cosmos.Cms
 
             var googleClientId = Configuration["Authentication_Google_ClientId"];
             var googleClientSecret = Configuration["Authentication_Google_ClientSecret"];
+
             if (!string.IsNullOrEmpty(googleClientId) && !string.IsNullOrEmpty(googleClientSecret))
             {
                 services.AddAuthentication().AddGoogle(options =>
@@ -170,23 +171,24 @@ namespace Cosmos.Cms
             // Add Microsoft if keys are present
             var microsoftClientId = Configuration["Authentication_Microsoft_ClientId"];
             var microsoftClientSecret = Configuration["Authentication_Microsoft_ClientSecret"];
+            var tenantName = Configuration["Authentication_AzureB2C_TenantName"];
+            var susiUserFlow = Configuration["Authentication_AzureB2C_SusiUserFlow"];
+
             if (!string.IsNullOrEmpty(microsoftClientId) && !string.IsNullOrEmpty(microsoftClientSecret))
             {
-                //services.AddAuthentication().AddMicrosoftAccount(options =>
-                //{
-                //    options.ClientId = microsoftClientId;
-                //    options.ClientSecret = microsoftClientSecret;
-                //});
-
-                var domainName = "cosmoshosting";
-                var signUpSignInFlowName = "B2C_1_Susi";
-
-                services.AddAuthentication().AddAzureB2C(options =>
+                services.AddAuthentication().AddMicrosoftAccount(options =>
                 {
+                    options.Scope.Clear();
+                    options.Scope.Add("openid");
+                    options.ClaimActions.Clear();
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "emails");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "oid");
+
                     options.ClientId = microsoftClientId;
                     options.ClientSecret = microsoftClientSecret;
-                    options.AuthorizationEndpoint = $"https://{domainName}.b2clogin.com/{domainName}.onmicrosoft.com/oauth2/v2.0/authorize?p={signUpSignInFlowName}";
-                    options.TokenEndpoint = $"https://{domainName}.b2clogin.com/{domainName}.onmicrosoft.com/oauth2/v2.0/token?p={signUpSignInFlowName}";
+                    options.AuthorizationEndpoint = $"https://{tenantName}.b2clogin.com/{tenantName}.onmicrosoft.com/oauth2/v2.0/authorize?p={susiUserFlow}&response_type=id_token&prompt=login";
+                    options.TokenEndpoint = $"https://{tenantName}.b2clogin.com/{tenantName}.onmicrosoft.com/oauth2/v2.0/token?p={susiUserFlow}";
                 });
             }
 
@@ -255,7 +257,8 @@ namespace Cosmos.Cms
             var azureCommunicationConnection = Configuration.GetConnectionString("AzureCommunicationConnection");
             services.AddAzureCommunicationEmailSenderProvider(new AzureCommunicationEmailProviderOptions()
             {
-                ConnectionString = azureCommunicationConnection
+                ConnectionString = azureCommunicationConnection,
+                 DefaultFromEmailAddress = "DoNotReply@cosmosws.io"
             });
 
             // End add SendGrid
