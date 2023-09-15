@@ -1,4 +1,5 @@
 using AspNetCore.Identity.CosmosDb.Extensions;
+using Cosmos.EmailServices;
 using Azure.Identity;
 using Azure.ResourceManager;
 using Azure.Storage.Blobs;
@@ -9,7 +10,6 @@ using Cosmos.Cms.Hubs;
 using Cosmos.Cms.Services;
 using Cosmos.Common.Data;
 using Cosmos.Editor.Models;
-using Cosmos.EmailServices;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
@@ -255,11 +255,26 @@ namespace Cosmos.Cms
             // Add services
             //
             var azureCommunicationConnection = Configuration.GetConnectionString("AzureCommunicationConnection");
-            services.AddAzureCommunicationEmailSenderProvider(new AzureCommunicationEmailProviderOptions()
+
+            if (azureCommunicationConnection == null)
             {
-                ConnectionString = azureCommunicationConnection,
-                 DefaultFromEmailAddress = "DoNotReply@cosmosws.io"
-            });
+                // Email provider
+                var sendGridApiKey = Configuration.GetValue<string>("CosmosSendGridApiKey");
+                var adminEmail = "DoNotReply@cosmosws.io";
+                if (!string.IsNullOrEmpty(sendGridApiKey) && !string.IsNullOrEmpty(adminEmail))
+                {
+                    var sendGridOptions = new SendGridEmailProviderOptions(sendGridApiKey, adminEmail);
+                    services.AddSendGridEmailProvider(sendGridOptions);
+                }
+            }
+            else
+            {
+                services.AddAzureCommunicationEmailSenderProvider(new AzureCommunicationEmailProviderOptions()
+                {
+                    ConnectionString = azureCommunicationConnection,
+                    DefaultFromEmailAddress = "DoNotReply@cosmosws.io"
+                });
+            }
 
             // End add SendGrid
 

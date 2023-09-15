@@ -14,23 +14,10 @@ namespace Cosmos.EmailServices
         /// </summary>
         /// <param name="services"></param>
         /// <param name="sendGridOptions"></param>
-        public static void AddSendGridEmailProvider(this IServiceCollection services, SendGridEmailProviderOptions sendGridOptions)
+        public static void AddSendGridEmailProvider(this IServiceCollection services, SendGridEmailProviderOptions options)
         {
+            services.AddSingleton(Options.Create(options));
             services.AddTransient<IEmailSender, SendGridEmailSender>();
-
-            services.Configure<SendGridEmailProviderOptions>(
-                configureOptions: options =>
-                {
-                    options.ApiKey = sendGridOptions.ApiKey;
-                    options.Auth = sendGridOptions.Auth;
-                    options.UrlPath = sendGridOptions.UrlPath;
-                    options.DefaultFromEmailAddress = sendGridOptions.DefaultFromEmailAddress;
-                    options.HttpErrorAsException = sendGridOptions.HttpErrorAsException;
-                    options.ReliabilitySettings = sendGridOptions.ReliabilitySettings;
-                    options.RequestHeaders = sendGridOptions.RequestHeaders;
-                    options.SandboxMode = sendGridOptions.SandboxMode;
-                    options.Version = sendGridOptions.Version;
-                });
         }
 
         /// <summary>
@@ -41,10 +28,18 @@ namespace Cosmos.EmailServices
         public static void AddAzureCommunicationEmailSenderProvider(this IServiceCollection services, AzureCommunicationEmailProviderOptions options)
         {
             services.AddSingleton(Options.Create(options));
-
             services.AddTransient<IEmailSender, AzureCommunicationEmailSender>();
-
         }
 
+        /// <summary>
+        /// Add SMTP EMail Provider
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="sendGridOptions"></param>
+        public static void AddSmtpEmailProvider(this IServiceCollection services, SmtpEmailProviderOptions options)
+        {
+            services.AddSingleton(Options.Create(options));
+            services.AddTransient<IEmailSender, SmtpEmailSender>();
+        }
     }
 }

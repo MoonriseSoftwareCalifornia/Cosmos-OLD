@@ -44,10 +44,18 @@ namespace Cosmos.EmailServices
         private async Task Execute(string subject, string message, string email)
         {
             var client = new SmtpClient(_options.Value.Host, _options.Value.Port);
-            client.Credentials = new NetworkCredential(_options.Value.UserName, _options.Value.Password);
+
+            if (!string.IsNullOrEmpty(_options.Value.Password))
+            {
+                client.Credentials = new NetworkCredential(_options.Value.UserName, _options.Value.Password);
+                if (_options.Value.UsesSsl)
+                {
+                    client.EnableSsl = true;
+                }
+            }
 
             var msg = new MailMessage(_options.Value.DefaultFromEmailAddress, email, subject, message);
-
+            
             try
             {
                 await client.SendMailAsync(msg);

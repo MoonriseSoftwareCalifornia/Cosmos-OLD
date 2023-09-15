@@ -8,7 +8,7 @@
         /// <summary>
         /// From email address
         /// </summary>
-        public string? DefaultFromEmailAddress { get; set; }
+        public string DefaultFromEmailAddress { get; set; } = "donotreply@cosmosws.io";
         /// <summary>
         /// SMTP Host name
         /// </summary>
@@ -25,5 +25,11 @@
         /// SMTP Port
         /// </summary>
         public int Port { get; set; }
+
+        /// <summary>
+        /// Use SSL for communications?
+        /// </summary>
+        /// <remarks>Default is false because TLS is the default mode.</remarks>
+        public bool UsesSsl { get; set; } = false; // Uses TLS by default
     }
 }
