@@ -107,7 +107,10 @@
     var fieldId;
     var fieldName;
     var ccmsEditorIsLocked = false;
-
+    
+    // Current user
+    const ccms_editor_userid = "@this.Context.User.Identity.Name";
+    const isAuthor = @User.IsInRole("Authors").ToString().ToLower();
     const isReviewer = @User.IsInRole("Reviewers").ToString().ToLower();
     const hasModel = @((Model != null).ToString().ToLower());
 

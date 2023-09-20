@@ -210,18 +210,19 @@
 		<PackageReference Include="AspNetCore.Identity.CosmosDb" Version="2.1.4" />
 		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.3.2" />
 		<PackageReference Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.2.2" />
-		<PackageReference Include="Azure.Identity" Version="1.10.0" />
+		<PackageReference Include="Azure.Identity" Version="1.10.1" />
 		<PackageReference Include="Azure.ResourceManager" Version="1.7.0" />
 		<PackageReference Include="Azure.ResourceManager.Cdn" Version="1.1.0" />
 		<PackageReference Include="Azure.ResourceManager.FrontDoor" Version="1.1.0" />
 		<PackageReference Include="HtmlAgilityPack" Version="1.11.53" />
 		<PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="7.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="7.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.10" />
-		<PackageReference Include="Microsoft.Azure.SignalR" Version="1.21.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.10">
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.AzureADB2C.UI" Version="6.0.22" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="7.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.MicrosoftAccount" Version="7.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="7.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="7.0.11" />
+		<PackageReference Include="Microsoft.Azure.SignalR" Version="1.21.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.11">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -229,12 +230,12 @@
 		<PackageReference Include="Microsoft.Identity.Web" Version="2.13.4" />
 		<PackageReference Include="Microsoft.Identity.Web.UI" Version="2.13.4" />
 		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.9" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.10" />
 		<PackageReference Include="NUglify" Version="1.20.7" />
 		<PackageReference Include="PasswordGenerator" Version="2.1.0" />
 		<PackageReference Include="SixLabors.ImageSharp" Version="3.0.2" />
 		<PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.32.3" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.0.0" />
 		<PackageReference Include="System.Net.Http" Version="4.3.4" />
 	</ItemGroup>
 
@@ -251,6 +252,12 @@
 	  <Content Update="wwwroot\images\logos\primarylogowhite.png">
 	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 	  </Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Areas\MicrosoftIdentity\Data\" />
+	  <Folder Include="Areas\MicrosoftIdentity\Models\" />
+	  <Folder Include="Areas\MicrosoftIdentity\Views\" />
 	</ItemGroup>
 
 	<ProjectExtensions>

@@ -1,5 +1,4 @@
 using AspNetCore.Identity.CosmosDb.Extensions;
-using Cosmos.EmailServices;
 using Azure.Identity;
 using Azure.ResourceManager;
 using Azure.Storage.Blobs;
@@ -10,21 +9,18 @@ using Cosmos.Cms.Hubs;
 using Cosmos.Cms.Services;
 using Cosmos.Common.Data;
 using Cosmos.Editor.Models;
-using Microsoft.AspNetCore.Authentication;
+using Cosmos.EmailServices;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Azure.Cosmos.Fluent;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Serialization;
 using System;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -171,38 +167,27 @@ namespace Cosmos.Cms
             // Add Microsoft if keys are present
             var microsoftClientId = Configuration["Authentication_Microsoft_ClientId"];
             var microsoftClientSecret = Configuration["Authentication_Microsoft_ClientSecret"];
-            var tenantName = Configuration["Authentication_AzureB2C_TenantName"];
-            var susiUserFlow = Configuration["Authentication_AzureB2C_SusiUserFlow"];
 
-            if (!string.IsNullOrEmpty(microsoftClientId) && !string.IsNullOrEmpty(microsoftClientSecret))
+            services.AddAuthentication().AddMicrosoftAccount(options =>
             {
-                services.AddAuthentication().AddMicrosoftAccount(options =>
-                {
-                    options.Scope.Clear();
-                    options.Scope.Add("openid");
-                    options.ClaimActions.Clear();
-                    options.ClaimActions.MapJsonKey(ClaimTypes.Email, "emails");
-                    options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-                    options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "oid");
+                options.ClientId = microsoftClientId;
+                options.ClientSecret = microsoftClientSecret;
+            });
 
-                    options.ClientId = microsoftClientId;
-                    options.ClientSecret = microsoftClientSecret;
-                    options.AuthorizationEndpoint = $"https://{tenantName}.b2clogin.com/{tenantName}.onmicrosoft.com/oauth2/v2.0/authorize?p={susiUserFlow}&response_type=id_token&prompt=login";
-                    options.TokenEndpoint = $"https://{tenantName}.b2clogin.com/{tenantName}.onmicrosoft.com/oauth2/v2.0/token?p={susiUserFlow}";
-                });
-            }
+            // Configuration to sign-in users with Azure AD B2C
+            //services.AddMicrosoftIdentityWebAppAuthentication(Configuration, Constants.AzureAdB2C);
 
             // Add IDistributed cache using Cosmos DB
             // This enables the editor to run in a web farm without needing
             // the "sticky bit" set.
             // See: https://github.com/Azure/Microsoft.Extensions.Caching.Cosmos
-            services.AddCosmosCache((CosmosCacheOptions cacheOptions) =>
-            {
-                cacheOptions.ContainerName = "EditorCache";
-                cacheOptions.DatabaseName = cosmosIdentityDbName;
-                cacheOptions.ClientBuilder = new CosmosClientBuilder(connectionString);
-                cacheOptions.CreateIfNotExists = true;
-            });
+            //services.AddCosmosCache((CosmosCacheOptions cacheOptions) =>
+            //{
+            //    cacheOptions.ContainerName = "EditorCache";
+            //    cacheOptions.DatabaseName = cosmosIdentityDbName;
+            //    cacheOptions.ClientBuilder = new CosmosClientBuilder(connectionString);
+            //    cacheOptions.CreateIfNotExists = true;
+            //});
 
             // Add Azure Frontdoor connection here
             // First try and get the connection from a configuration variable

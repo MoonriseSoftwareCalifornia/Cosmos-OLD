@@ -119,6 +119,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         /// <returns></returns>
         public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
         {
+            var t = Request;
             returnUrl = returnUrl ?? Url.Content("~/");
             if (remoteError != null)
             {
