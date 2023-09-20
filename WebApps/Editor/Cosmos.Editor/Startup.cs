@@ -152,7 +152,6 @@ namespace Cosmos.Cms
 
             // SUPPORTED OAuth Providers
             // Add Google if keys are present
-
             var googleClientId = Configuration["Authentication_Google_ClientId"];
             var googleClientSecret = Configuration["Authentication_Google_ClientSecret"];
 
@@ -168,11 +167,14 @@ namespace Cosmos.Cms
             var microsoftClientId = Configuration["Authentication_Microsoft_ClientId"];
             var microsoftClientSecret = Configuration["Authentication_Microsoft_ClientSecret"];
 
-            services.AddAuthentication().AddMicrosoftAccount(options =>
+            if (!string.IsNullOrEmpty(microsoftClientId) && !string.IsNullOrEmpty(microsoftClientSecret))
             {
-                options.ClientId = microsoftClientId;
-                options.ClientSecret = microsoftClientSecret;
-            });
+                services.AddAuthentication().AddMicrosoftAccount(options =>
+                {
+                    options.ClientId = microsoftClientId;
+                    options.ClientSecret = microsoftClientSecret;
+                });
+            }
 
             // Configuration to sign-in users with Azure AD B2C
             //services.AddMicrosoftIdentityWebAppAuthentication(Configuration, Constants.AzureAdB2C);

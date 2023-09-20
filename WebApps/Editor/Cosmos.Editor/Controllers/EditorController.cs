@@ -1543,25 +1543,6 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Gets the last date this article was published.
-        /// </summary>
-        /// <param name="articleNumber"></param>
-        /// <returns></returns>
-        //private async Task<DateTimeOffset?> GetLastPublishingDate(int articleNumber)
-        //{
-        //    return await _dbContext.Articles.Where(a => a.ArticleNumber == articleNumber).MaxAsync(m => m.Published);
-        //}
-
-        /// <summary>
-        /// Search and replace for all published pages.
-        /// </summary>
-        /// <returns></returns>
-        //public IActionResult SearchAndReplace()
-        //{
-        //    return View();
-        //}
-
-        /// <summary>
         /// Performs a query to see what pages will have changes.
         /// </summary>
         /// <param name="model"></param>

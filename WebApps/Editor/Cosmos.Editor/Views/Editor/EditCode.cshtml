@@ -17,7 +17,7 @@
 
 </style>
 
-<nav class="code-tabs navbar">
+<nav id="navBar" class="code-tabs navbar" style="display:none">
     <ul class="nav nav-tabs " id="nav-tab">
         @{
             foreach (var field in fields)
@@ -30,7 +30,7 @@
         }
     </ul>
 </nav>
-<div id="editspace" class="m-editor-container"></div>
+<div id="editspace" class="m-editor-container" style="display:none"></div>
 <form id="frmSave" asp-action="EditCode">
     <input type="hidden" asp-for="Id" value="@Model.Id" />
     <input type="hidden" asp-for="SaveAsNewVersion" />
@@ -59,7 +59,7 @@
                 <h5 class="modal-title">Article Versions</h5>
             </div>
             <div class="modal-body">
-                @* @Html.AjaxGrid(Url.Action("Versions", "Editor", new { Id = Model.ArticleNumber }))*@
+                
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -429,6 +429,7 @@
         setWorkingVersion(@Model.VersionNumber);
 
         var fieldId = "@Model.EditingField";
+
         if (fieldId !== "") {
             var fieldInfo = editFields.find(o => o.FieldId === fieldId);
             createAndLoadEditor(fieldInfo.FieldName);
@@ -437,6 +438,8 @@
                 //ccmsSendSignal("NotifyRoomOfLock");
             }, 2000);
         }
+        $("#navBar").show();
+        $("#editspace").show();
 
         $("[data-ccms-fieldname]").click(function (event) {
             var name = $(event.target).attr("data-ccms-fieldname");

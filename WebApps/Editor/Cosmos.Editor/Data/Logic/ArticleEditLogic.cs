@@ -1314,7 +1314,6 @@ namespace Cosmos.Cms.Data.Logic
         /// </summary>
         /// <param name="article"></param>
         /// <param name="oldTitle"></param>
-        /// <param name="userId"></param>
         /// <returns></returns>
         /// <remarks>
         /// Upon title change:

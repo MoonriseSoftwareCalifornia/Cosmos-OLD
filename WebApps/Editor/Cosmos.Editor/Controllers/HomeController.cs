@@ -123,7 +123,6 @@ namespace Cosmos.Cms.Controllers
         /// <summary>
         /// Gets contents in an article folder
         /// </summary>
-        /// <param name="id">Article Number</param>
         /// <param name="path"></param>
         /// <returns></returns>
         public async Task<IActionResult> CCMS_GetArticleFolderContents(string path = "")
