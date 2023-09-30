@@ -1,7 +1,7 @@
 ﻿@model List<LayoutIndexViewModel>
 
 @{
-    ViewData["Title"] = "Website Layout Inventory";
+    ViewData["Title"] = "Website Design Inventory";
     var showFirstPageBtn = (bool)ViewData["ShowFirstPageBtn"];
     var showCreateFirstLayout = (bool)ViewData["ShowCreateFirstLayout"];
 
@@ -20,18 +20,18 @@
         {
             <div class="row">
                 <div class="col-md-6 text-light">
-                    <h3>Create a Layout</h3>
+                    <h3>Choose a website design bundle</h3>
                     <p>
-                        Your first step is to create a &quot;<a target="_blank" href="https://www.moonrise.net/cosmos/documentation/layouts">Layout</a>.&quot;
-                        A layout gives your website a common look and feel across all pages.
+                        Your first step is to choose a &quot;<a target="_blank" href="https://www.moonrise.net/cosmos/documentation/layouts">website design</a>.&quot;
+                        This gives your website a common look and feel across all pages, and each design may contain one or more page templates.
                     </p>
-                    <p>Note: You can edit your layout at any time.</p>
+                    <p>Note: You can edit your design at any time.</p>
                     <p>Please choose one option:</p>
                     <ul>
-                        <li><a class="text-light" asp-action="CommunityLayouts">Import a pre-built layout  <i class="fa-solid fa-circle-arrow-right"></i></a></li>
-                        <li><a class="text-light" asp-action="Create">Create your own layout <i class="fa-solid fa-circle-arrow-right"></i></a></li>
+                        <li><a class="text-light" asp-action="CommunityLayouts">Import a pre-built design  <i class="fa-solid fa-circle-arrow-right"></i></a></li>
+                        <li><a class="text-light" asp-action="Create">Create your own design <i class="fa-solid fa-circle-arrow-right"></i></a></li>
                     </ul>
-                    <a class="text-light" href="https://www.moonrise.net/cosmos/documentation/layouts" target="_blank">Open layout documentation.</a>
+                    <a class="text-light" href="https://www.moonrise.net/cosmos/documentation/layouts" target="_blank">Open design documentation.</a>
                 </div>
             </div>
         }
@@ -51,10 +51,10 @@
             <div class="row cpws-table-pager-row-top">
                 <div class="col-md-6">
                     <div class="btn-group" role="group" aria-label="Page Actions">
-                        <a class="btn btn-sm btn-primary" href="@Url.Action("Create")">New Layout</a>
-                        <a class="btn btn-sm btn-secondary" title="Export the default layout." href="@Url.Action("ExportLayout")">Export Blank</a>
-                        <a class="btn btn-sm btn-secondary" title="Export the default layout." href="@Url.Action("ExportLayout")">Export Default</a>
-                        <a class="btn btn-sm btn-secondary" title="Import one of the community layouts." href="@Url.Action("CommunityLayouts")">Import Layout <i class="fa-solid fa-circle-arrow-right"></i></a>
+                        <a class="btn btn-sm btn-primary" href="@Url.Action("Create")">New design</a>
+                        <a class="btn btn-sm btn-secondary" title="Export the default layout." href="@Url.Action("ExportLayout")">Export blank</a>
+                        <a class="btn btn-sm btn-secondary" title="Export the default layout." href="@Url.Action("ExportLayout")">Export default</a>
+                        <a class="btn btn-sm btn-secondary" title="Import one of the community layouts." href="@Url.Action("CommunityLayouts")">Import design <i class="fa-solid fa-circle-arrow-right"></i></a>
                         <a title="Return to page list" class="btn btn-sm btn-secondary" href="@Url.Action("Index", "Editor")">Page list <i class="fa-solid fa-circle-arrow-right"></i></a>
                     </div>
                 </div>
@@ -70,7 +70,7 @@
                                 <tr>
                                     <th scope="col"></th>
                                     <th scope="col">Actions</th>
-                                    <th scope="col">Layout Name</th>
+                                    <th scope="col">Design Name</th>
                                     <th scope="col">Notes</th>
                                     <th scope="col">Trash</th>
                                 </tr>
@@ -82,11 +82,11 @@
                                         <td scope="row">
                                             @if (row.IsDefault)
                                             {
-                                                <div class='btn btn-sm btn-success' title='Is now the default layout for this website.'><span class='fa fa-check-circle'></span> Default</div>
+                                                <div class='btn btn-sm btn-success' title='Is now the default design for this website.'><span class='fa fa-check-circle'></span> Default</div>
                                             }
                                             else
                                             {
-                                                <a href="@Url.Action("SetLayoutAsDefault", "Layouts")/@row.Id" title='Set this as the default layout.' class='btn btn-sm btn-secondary'><i class='fa-regular fa-circle'></i></a>
+                                                <a href="@Url.Action("SetLayoutAsDefault", "Layouts")/@row.Id" title='Set this as the default design.' class='btn btn-sm btn-secondary'><i class='fa-regular fa-circle'></i></a>
                                             }
                                         </td>
                                         <td scope="row">
@@ -94,7 +94,7 @@
                                                 <a class="btn btn-sm btn-secondary" target="_blank" href="@Url.Action("Preview", "Layouts", new { Id = row.Id})" title="Preview"><span class="fa fa-binoculars"></span></a>
                                                 <a class="btn btn-sm btn-secondary" href="@Url.Action("EditNotes", "Layouts", new { Id = row.Id})" title="Edit Notes"><span class="fa fa-clipboard"></span></a>
                                                 <a class="btn btn-sm btn-secondary" href="@Url.Action("EditCode", "Layouts", new { Id = row.Id})" title="Code editor"><img src="/images/monaco-vscode-logo.png" height="22" /></a>
-                                                <a class="btn btn-sm btn-secondary" href="@Url.Action("ExportLayout", "Layouts", new { Id = row.Id})" title="Export layout"><span class="fa-solid fa-cloud-arrow-down"></span></a>
+                                                <a class="btn btn-sm btn-secondary" href="@Url.Action("ExportLayout", "Layouts", new { Id = row.Id})" title="Export design"><span class="fa-solid fa-cloud-arrow-down"></span></a>
                                             </div>
                                         </td>
                                         <td style="min-width:30%;">
@@ -106,11 +106,11 @@
                                         <td>
                                             @if (row.IsDefault)
                                             {
-                                                <a class="btn btn-sm btn-secondary" title="Cannot delete default layout"> - </a>
+                                                <a class="btn btn-sm btn-secondary" title="Cannot delete default design"> - </a>
                                             }
                                             else
                                             {
-                                                <a class="btn btn-sm btn-secondary" href="@Url.Action("Delete", "Layouts", new { Id = row.Id })" title="Delete layout"><span class="fa fa-trash-can"></span></a>
+                                                <a class="btn btn-sm btn-secondary" href="@Url.Action("Delete", "Layouts", new { Id = row.Id })" title="Delete design"><span class="fa fa-trash-can"></span></a>
                                             }
                                         </td>
                                     </tr>

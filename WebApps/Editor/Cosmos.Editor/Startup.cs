@@ -10,6 +10,7 @@ using Cosmos.Cms.Services;
 using Cosmos.Common.Data;
 using Cosmos.Editor.Models;
 using Cosmos.EmailServices;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -19,6 +20,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Identity.Web;
 using Newtonsoft.Json.Serialization;
 using System;
 using System.Threading.Tasks;
@@ -176,21 +178,6 @@ namespace Cosmos.Cms
                 });
             }
 
-            // Configuration to sign-in users with Azure AD B2C
-            //services.AddMicrosoftIdentityWebAppAuthentication(Configuration, Constants.AzureAdB2C);
-
-            // Add IDistributed cache using Cosmos DB
-            // This enables the editor to run in a web farm without needing
-            // the "sticky bit" set.
-            // See: https://github.com/Azure/Microsoft.Extensions.Caching.Cosmos
-            //services.AddCosmosCache((CosmosCacheOptions cacheOptions) =>
-            //{
-            //    cacheOptions.ContainerName = "EditorCache";
-            //    cacheOptions.DatabaseName = cosmosIdentityDbName;
-            //    cacheOptions.ClientBuilder = new CosmosClientBuilder(connectionString);
-            //    cacheOptions.CreateIfNotExists = true;
-            //});
-
             // Add Azure Frontdoor connection here
             // First try and get the connection from a configuration variable
             var azureFrontdoorConnection = Configuration.GetValue<FrontdoorConnection>("FrontdoorConnection");
@@ -291,6 +278,7 @@ namespace Cosmos.Cms
             services.AddControllersWithViews();
 
             services.AddRazorPages();
+
 
             services.AddMvc()
                 .AddNewtonsoftJson(options =>
