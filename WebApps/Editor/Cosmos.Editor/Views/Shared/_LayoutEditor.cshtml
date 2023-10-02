@@ -361,7 +361,7 @@
         const pickPageModal = new bootstrap.Modal(document.getElementById('pickPageModal'));
         const modalSelectFile = new bootstrap.Modal(document.getElementById('modalSelectFile'));
         const modalFileMgr = new bootstrap.Modal(document.getElementById('modalFileMgr'));
-        const toast = new bootstrap.Toast(document.getElementById('liveToast'));
+
         const fileBaseUrl = "@(options.Value.SiteSettings.BlobPublicUrl.TrimEnd('/'))";
         const errorModal = new bootstrap.Modal(document.getElementById('modalSavingError'));
 
@@ -497,6 +497,7 @@
 
         function saveFirst() {
             saveChanges();
+            next();
         }
 
         function doNotSave() {
@@ -798,11 +799,6 @@
         // Displays a 3 second message in a bootstrap toast.
         function toastMsg(message) {
 
-            $("#liveToastMsg").html(message);
-            toast.show();
-            setTimeout(function () {
-                toast.hide();
-            }, 2000);
         }
 
         function saving() {

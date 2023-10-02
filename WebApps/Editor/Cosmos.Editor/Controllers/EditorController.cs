@@ -229,18 +229,21 @@ namespace Cosmos.Cms.Controllers
             ViewData["pageSize"] = pageSize;
             ViewData["articleNumber"] = id;
 
-            var query = _dbContext.Articles.Where(w => w.ArticleNumber == id)
-                .Select(s => new ArticleVersionViewModel()
-                {
-                    Id = s.Id,
-                    Published = s.Published,
-                    Title = s.Title,
-                    Updated = s.Updated,
-                    VersionNumber = s.VersionNumber,
-                    Expires = s.Expires,
-                    UserId = s.UserId,
-                    UsesHtmlEditor = s.Content.ToLower().Contains(" contenteditable=") || s.Content.ToLower().Contains(" data-ccms-ceid=")
-                }).AsQueryable();
+            var articleNumber = id.Value;
+
+            var query = _dbContext.Articles.Where(w => w.ArticleNumber == articleNumber).Select(s => new ArticleVersionViewModel
+            {
+                Id = s.Id,
+                Published = s.Published,
+                Title = s.Title,
+                Updated = s.Updated,
+                VersionNumber = s.VersionNumber,
+                Expires = s.Expires,
+                UserId = s.UserId,
+                UsesHtmlEditor = s.Content != null && s.Content != "" && (s.Content.ToLower().Contains(" contenteditable=") || s.Content.ToLower().Contains(" data-ccms-ceid="))
+            }).AsQueryable();
+
+            var test = await query.ToListAsync();
 
             ViewData["RowCount"] = await _dbContext.Articles.Where(w => w.ArticleNumber == id).CountAsync();
             ViewData["LastVersion"] = await _dbContext.Articles.Where(w => w.ArticleNumber == id).MaxAsync(m => m.VersionNumber);
@@ -295,7 +298,11 @@ namespace Cosmos.Cms.Controllers
             ViewData["ArticleTitle"] = article.Title;
             ViewData["ArticleId"] = id.Value;
 
-            return View(await query.Skip(pageNo * pageSize).Take(pageSize).ToListAsync());
+            var skip = pageNo * pageSize;
+
+            var data = await query.Skip(skip).Take(pageSize).ToListAsync();
+
+            return View(data);
         }
 
         /// <summary>

@@ -395,10 +395,10 @@ namespace Cosmos.Cms.Controllers
         /// <summary>
         /// Gets the children of a given page path.
         /// </summary>
-        /// <param name="page">UrlPath</param>
+        /// <param name="page">URL path to paren</param>
         /// <param name="pageNo"></param>
         /// <param name="pageSize"></param>
-        /// <param name="orderByPub"></param>
+        /// <param name="orderByPub">Order by publishing date</param>
         /// <returns></returns>
         [EnableCors("AllCors")]
         public async Task<IActionResult> GetTOC(

@@ -41,6 +41,8 @@
     var fieldId;
     var ccmsEditorIsLocked = false;
 
+    let isAuthor = false;
+
     $("#frmSave").submit(function (e) {
         e.preventDefault();
         saveChanges(null, null);
