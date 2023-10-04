@@ -195,8 +195,6 @@
                         .create(elementOrData, editorConfig)
                         .then(editor => {
                             
-                            editor.
-
                             const imageUploadEditing = editor.plugins.get('ImageUploadEditing');
                             imageUploadEditing.on('uploadComplete', (evt, { data, imageElement }) => {
                                 parent.ccms_setBannerImage(data.url);
