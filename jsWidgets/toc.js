@@ -93,4 +93,13 @@ document.addEventListener("DOMContentLoaded", function(){
     xhr.send();
 });
 
+//
+// This method gets the table of contents data
+//
+function getTableOfContents(page, pageNo, pageSize, orderByPub) {
+    
+}
+
+
+
 

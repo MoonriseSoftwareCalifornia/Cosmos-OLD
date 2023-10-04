@@ -12,6 +12,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 
 namespace Cosmos.Common.Data.Logic
 {
@@ -91,11 +92,34 @@ namespace Cosmos.Common.Data.Logic
 
             // Regex example (?i)(^[cosmos]*)(\/[^\/]*){1}$
 
-            var dcount = "{" + (prefix.Count(c => c == '/')) + "}";
-            var epath = prefix.TrimStart('/').Replace("/", "\\/");
-            var pattern = $"(?i)(^[{epath}]*)(\\/[^\\/]*){dcount}$";
+            IQueryable<TableOfContentsItem> query;
 
-            var query = (from t in DbContext.Pages
+            if (string.IsNullOrEmpty(prefix))
+            {
+                query = (from t in DbContext.Pages
+                         where t.Published <= DateTimeOffset.UtcNow &&
+                           t.StatusCode != (int)StatusCodeEnum.Redirect
+                         && t.UrlPath.Contains("/") == false && t.UrlPath != "root"
+                         select new TableOfContentsItem
+                         {
+                             UrlPath = t.UrlPath,
+                             Title = t.Title,
+                             Published = t.Published.Value,
+                             Updated = t.Updated,
+                             BannerImage = t.BannerImage,
+                             AuthorInfo = t.AuthorInfo
+                         });
+            }
+            else
+            {
+
+                var count = prefix.Count(c => c == '/');
+
+                var dcount = "{" + count + "}";
+                var epath = prefix.TrimStart('/').Replace("/", "\\/");
+                var pattern = $"(?i)(^[{epath}]*)(\\/[^\\/]*){dcount}$";
+
+                query = (from t in DbContext.Pages
                          where t.Published <= DateTimeOffset.UtcNow &&
                          t.StatusCode != (int)StatusCodeEnum.Redirect
                          && Regex.IsMatch(t.UrlPath, pattern)
@@ -108,6 +132,7 @@ namespace Cosmos.Common.Data.Logic
                              BannerImage = t.BannerImage,
                              AuthorInfo = t.AuthorInfo
                          });
+            }
 
 
             if (orderByPublishedDate)
