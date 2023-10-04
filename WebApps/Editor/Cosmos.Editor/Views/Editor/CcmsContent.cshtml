@@ -36,7 +36,7 @@
     *@
     @Html.Raw(Model.FooterJavaScript)
 
-    <script src="/lib/ckeditor/build_20230707.01/ckeditor.js"></script>
+    <script src="/lib/ckeditor/build_20231004.01/ckeditor.js"></script>
     <script>
 
         // Create editors
@@ -63,7 +63,48 @@
 
             // Editor configuration
             const config = {
-                toolbar: {},
+                blockToolbar: [
+                    'pageLink',
+                    'fileLink',
+                    'link',
+                    '|',
+                    'insertImage',
+                    'imageInsert',
+                    'mediaEmbed',
+                    '|',
+                    'vsCodeEditor',
+                    'findAndReplace',
+                    'codeBlock',
+                    '|',
+                    'heading',
+                    '|',
+                    'bold',
+                    'italic',
+                    'fontColor',
+                    'underline',
+                    'fontSize',
+                    'bulletedList',
+                    'numberedList',
+                    '|',
+                    'outdent',
+                    'indent',
+                    'alignment',
+                    '|',
+                    'undo',
+                    'redo',
+                    'horizontalLine',
+                    'highlight',
+                    'blockQuote',
+                    'insertTable',
+                    'removeFormat'
+                ],
+                toolbar: {
+                    items: [
+                        'bold',
+                        'italic',
+                        'link'
+                    ]
+                },
                 licenseKey: '',
                 autosave: {
                     waitingTime: 3500, // in ms
@@ -115,6 +156,34 @@
                             }
                         }
                     }
+                },
+                htmlSupport: {
+                    allow: [
+                        {
+                            name: "div",
+                            attributes: true,
+                            classes: true,
+                            styles: true
+                        },
+                        {
+                            name: "span",
+                            attributes: true,
+                            classes: true,
+                            styles: true
+                        },
+                        {
+                            name: "a",
+                            attributes: true,
+                            classes: true,
+                            styles: true
+                        },
+                        {
+                            name: "hr",
+                            attributes: true,
+                            classes: true,
+                            styles: true
+                        }
+                    ]
                 }
             };
 
@@ -126,6 +195,8 @@
                         .create(elementOrData, editorConfig)
                         .then(editor => {
                             
+                            editor.
+
                             const imageUploadEditing = editor.plugins.get('ImageUploadEditing');
                             imageUploadEditing.on('uploadComplete', (evt, { data, imageElement }) => {
                                 parent.ccms_setBannerImage(data.url);
