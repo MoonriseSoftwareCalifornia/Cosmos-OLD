@@ -122,6 +122,7 @@ namespace Cosmos.Common.Data.Logic
                 query = (from t in DbContext.Pages
                          where t.Published <= DateTimeOffset.UtcNow &&
                          t.StatusCode != (int)StatusCodeEnum.Redirect
+                         && t.UrlPath.StartsWith(epath)
                          && Regex.IsMatch(t.UrlPath, pattern)
                          select new TableOfContentsItem
                          {
