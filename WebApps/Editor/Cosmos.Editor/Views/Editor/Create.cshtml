@@ -69,7 +69,6 @@
                                 <th scope="col" style="min-width:200px;">Edit With</th>
                                 <th scope="col">Title</th>
                                 <th scope="col">Description</th>
-                                <th scope="col">Trash</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -110,9 +109,6 @@
                                     </td>
                                     <td scope="row">
                                         @Html.Raw(row.Description)
-                                    </td>
-                                    <td scope="row">
-                                        <button type='button' onclick="selectId('@row.Id')" class='btn btn-sm btn-secondary' data-bs-toggle='modal' data-bs-target='#delConfModal'><i title='Send to trash' class='fa-solid fa-trash'></i></button>
                                     </td>
                                 </tr>
                             }
