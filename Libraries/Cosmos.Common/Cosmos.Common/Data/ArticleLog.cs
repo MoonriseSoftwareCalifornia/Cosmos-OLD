@@ -1,48 +1,49 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="ArticleLog.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Common.Data
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+
     /// <summary>
-    ///     Article activity log entry
+    ///     Article activity log entry.
     /// </summary>
     public class ArticleLog
     {
         /// <summary>
-        ///     Identity key of the entity
+        ///     Gets or sets identity key of the entity.
         /// </summary>
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         /// <summary>
-        ///     User ID of the person who triggered the activity
+        ///     Gets or sets user ID of the person who triggered the activity.
         /// </summary>
-
         public string IdentityUserId { get; set; }
 
         /// <summary>
-        ///     ID of the Article associated with this event.
+        ///     Gets or sets iD of the Article associated with this event.
         /// </summary>
         public Guid ArticleId { get; set; }
 
         /// <summary>
-        /// Title of the article
+        /// Gets or sets title of the article.
         /// </summary>
         public string ArticleTitle { get; set; }
 
         /// <summary>
-        ///     Notes regarding what happened.
+        ///     Gets or sets notes regarding what happened.
         /// </summary>
         public string ActivityNotes { get; set; }
 
         /// <summary>
-        ///     Date and Time (UTC by default)
+        ///     Gets or sets date and Time (UTC by default).
         /// </summary>
         public DateTimeOffset DateTimeStamp { get; set; } = DateTimeOffset.UtcNow;
-
-        #region NAVIGATION
-
-
-        #endregion
     }
 }

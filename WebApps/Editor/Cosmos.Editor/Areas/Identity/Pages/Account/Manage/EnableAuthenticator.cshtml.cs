@@ -1,17 +1,24 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+﻿// <copyright file="EnableAuthenticator.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.Linq;
+    using System.Text;
+    using System.Text.Encodings.Web;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
-    /// Enable authenticator page model
+    /// Enable authenticator page model.
     /// </summary>
     public class EnableAuthenticatorModel : PageModel
     {
@@ -19,8 +26,9 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
         private readonly ILogger<EnableAuthenticatorModel> _logger;
         private readonly UrlEncoder _urlEncoder;
         private readonly UserManager<IdentityUser> _userManager;
+
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="logger"></param>
@@ -34,47 +42,63 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
             _logger = logger;
             _urlEncoder = urlEncoder;
         }
+
         /// <summary>
-        /// Shared key
+        /// Gets or sets shared key.
         /// </summary>
         public string SharedKey { get; set; }
+
         /// <summary>
-        /// Authenticator URI
+        /// Gets or sets authenticator URI.
         /// </summary>
         public string AuthenticatorUri { get; set; }
+
         /// <summary>
-        /// Recovery codes
+        /// Gets or sets recovery codes.
         /// </summary>
-        [TempData] public string[] RecoveryCodes { get; set; }
+        [TempData]
+        public string[] RecoveryCodes { get; set; }
+
         /// <summary>
-        /// Status message
+        /// Gets or sets status message.
         /// </summary>
-        [TempData] public string StatusMessage { get; set; }
+        [TempData]
+        public string StatusMessage { get; set; }
+
         /// <summary>
-        /// Page input model
+        /// Gets or sets page input model.
         /// </summary>
-        [BindProperty] public InputModel Input { get; set; }
+        [BindProperty]
+        public InputModel Input { get; set; }
+
         /// <summary>
-        /// Get method handler
+        /// Get method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             await LoadSharedKeyAndQrCodeUriAsync(user);
 
             return Page();
         }
+
         /// <summary>
-        /// Post method handler
+        /// Post method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -110,11 +134,12 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
 
             return RedirectToPage("./TwoFactorAuthentication");
         }
+
         /// <summary>
-        /// Load shared key and QR code URI method
+        /// Load shared key and QR code URI method.
         /// </summary>
         /// <param name="user"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task LoadSharedKeyAndQrCodeUriAsync(IdentityUser user)
         {
             // Load the authenticator key & QR code URI to display on the form
@@ -141,7 +166,10 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
                 currentPosition += 4;
             }
 
-            if (currentPosition < unformattedKey.Length) result.Append(unformattedKey.Substring(currentPosition));
+            if (currentPosition < unformattedKey.Length)
+            {
+                result.Append(unformattedKey.Substring(currentPosition));
+            }
 
             return result.ToString().ToLowerInvariant();
         }
@@ -154,13 +182,14 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
                 _urlEncoder.Encode(email),
                 unformattedKey);
         }
+
         /// <summary>
-        /// Page input model
+        /// Page input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Code
+            /// Gets or sets code.
             /// </summary>
             [Required]
             [StringLength(7, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.",

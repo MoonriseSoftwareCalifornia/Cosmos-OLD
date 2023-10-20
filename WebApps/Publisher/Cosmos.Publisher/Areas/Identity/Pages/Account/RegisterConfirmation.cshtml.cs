@@ -1,70 +1,84 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Threading.Tasks;
+﻿// <copyright file="RegisterConfirmation.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account
 {
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+
     /// <summary>
-    /// Registration confirmation page model
+    /// Registration confirmation page model.
     /// </summary>
     [AllowAnonymous]
     public class RegisterConfirmationModel : PageModel
     {
-        private readonly IEmailSender _sender;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<IdentityUser> userManager;
+
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="RegisterConfirmationModel"/> class.
         /// </summary>
-        /// <param name="userManager"></param>
-        /// <param name="sender"></param>
-        public RegisterConfirmationModel(UserManager<IdentityUser> userManager, IEmailSender sender)
+        /// <param name="userManager">User manager.</param>
+        public RegisterConfirmationModel(UserManager<IdentityUser> userManager)
         {
-            _userManager = userManager;
-            _sender = sender;
+            this.userManager = userManager;
         }
+
         /// <summary>
-        /// Email address
+        /// Gets or sets email address.
         /// </summary>
         public string Email { get; set; }
+
         /// <summary>
-        /// Should display confirmation account link
+        /// Gets or sets a value indicating whether should display confirmation account link.
         /// </summary>
         public bool DisplayConfirmAccountLink { get; set; }
+
         /// <summary>
-        /// Email confirmation URL
+        /// Gets or sets email confirmation URL.
         /// </summary>
         public string EmailConfirmationUrl { get; set; }
+
         /// <summary>
-        /// GET method handler
+        /// GET method handler.
         /// </summary>
-        /// <param name="email"></param>
-        /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <param name="email">User email.</param>
+        /// <param name="returnUrl">Return URL to pass along.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetAsync(string email, string returnUrl = null)
         {
-            if (email == null) return RedirectToPage("/Index");
+            if (email == null)
+            {
+                return RedirectToPage("/Index");
+            }
 
-            var user = await _userManager.FindByEmailAsync(email);
-            if (user == null) return NotFound($"Unable to load user with email '{email}'.");
+            var user = await userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with email '{email}'.");
+            }
 
             Email = email;
+
             // Once you add a real email sender, you should remove this code that lets you confirm the account
-            //DisplayConfirmAccountLink = true;
-            //if (DisplayConfirmAccountLink)
-            //{
-            //    var userId = await _userManager.GetUserIdAsync(user);
-            //    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            // DisplayConfirmAccountLink = true;
+            // if (DisplayConfirmAccountLink)
+            // {
+            //    var userId = await userManager.GetUserIdAsync(user);
+            //    var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
             //    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
             //    EmailConfirmationUrl = Url.Page(
             //        "/Account/ConfirmEmail",
             //        pageHandler: null,
             //        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
             //        protocol: Request.Scheme);
-            //}
-
+            // }
             return Page();
         }
     }

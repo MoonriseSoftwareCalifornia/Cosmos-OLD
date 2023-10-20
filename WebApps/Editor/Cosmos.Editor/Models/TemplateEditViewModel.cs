@@ -1,27 +1,36 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="TemplateEditViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Models
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+
     /// <summary>
-    /// Edit template title and description
+    /// Edit template title and description.
     /// </summary>
     public class TemplateEditViewModel
     {
         /// <summary>
-        /// Template ID
+        /// Gets or sets template ID.
         /// </summary>
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
+
         /// <summary>
-        /// Template title
+        /// Gets or sets template title.
         /// </summary>
         [Display(Name = "Template Title")]
         [StringLength(128)]
         [Required(AllowEmptyStrings = false)]
         public string Title { get; set; }
+
         /// <summary>
-        /// Template description
+        /// Gets or sets template description.
         /// </summary>
         [Required(AllowEmptyStrings = false)]
         [Display(Name = "Description/Notes")]

@@ -1,20 +1,27 @@
-﻿using Cosmos.Cms.Common.Services.Configurations;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+﻿// <copyright file="ForgotPassword.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.Text;
+    using System.Text.Encodings.Web;
+    using System.Threading.Tasks;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Identity.UI.Services;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.AspNetCore.WebUtilities;
+    using Microsoft.Extensions.Options;
+
     /// <summary>
-    /// Forgot password page model
+    /// Forgot password page model.
     /// </summary>
     [AllowAnonymous]
     public class ForgotPasswordModel : PageModel
@@ -24,7 +31,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         private readonly UserManager<IdentityUser> _userManager;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="emailSender"></param>
@@ -38,13 +45,13 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Gets or sets input model.
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        /// On get method handler
+        /// On get method handler.
         /// </summary>
         /// <param name="returnUrl"></param>
         /// <returns></returns>
@@ -54,17 +61,19 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// On post method handler
+        /// On post method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostAsync()
         {
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByEmailAsync(Input.Email);
                 if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
+                {
                     // Don't reveal that the user does not exist or is not confirmed
                     return RedirectToPage("./ForgotPasswordConfirmation");
+                }
 
                 // For more information on how to enable account confirmation and password reset please 
                 // visit https://go.microsoft.com/fwlink/?LinkID=532713
@@ -88,12 +97,12 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Email address
+            /// Gets or sets email address.
             /// </summary>
             [Required]
             [EmailAddress]

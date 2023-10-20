@@ -1,20 +1,28 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿// <copyright file="Index.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+
     /// <summary>
-    /// Manage account index page model
+    /// Manage account index page model.
     /// </summary>
     public class IndexModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
+
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
@@ -25,23 +33,29 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
             _userManager = userManager;
             _signInManager = signInManager;
         }
+
         /// <summary>
-        /// User name
+        /// Gets or sets user name.
         /// </summary>
         public string Username { get; set; }
+
         /// <summary>
-        /// Status message
+        /// Gets or sets status message.
         /// </summary>
-        [TempData] public string StatusMessage { get; set; }
+        [TempData]
+        public string StatusMessage { get; set; }
+
         /// <summary>
-        /// Page input model
+        /// Gets or sets page input model.
         /// </summary>
-        [BindProperty] public InputModel Input { get; set; }
+        [BindProperty]
+        public InputModel Input { get; set; }
+
         /// <summary>
-        /// Load user method
+        /// Load user method.
         /// </summary>
         /// <param name="user"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task LoadAsync(IdentityUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
@@ -54,26 +68,34 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
                 PhoneNumber = phoneNumber
             };
         }
+
         /// <summary>
-        /// GET method handler
+        /// GET method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             await LoadAsync(user);
             return Page();
         }
+
         /// <summary>
-        /// POST method handler
+        /// POST method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -96,13 +118,14 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
+
         /// <summary>
-        /// Page input model
+        /// Page input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Phone number
+            /// Gets or sets phone number.
             /// </summary>
             [Phone]
             [Display(Name = "Phone number")]

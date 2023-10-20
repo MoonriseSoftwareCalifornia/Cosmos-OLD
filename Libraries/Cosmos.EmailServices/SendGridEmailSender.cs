@@ -1,78 +1,90 @@
-﻿using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+﻿// <copyright file="SendGridEmailSender.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.EmailServices
 {
+    using Microsoft.AspNetCore.Identity.UI.Services;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+    using SendGrid;
+    using SendGrid.Helpers.Mail;
 
     /// <summary>
-    ///     SendGrid Email sender service
+    ///     SendGrid Email sender service.
     /// </summary>
     public class SendGridEmailSender : IEmailSender
     {
-        private readonly IOptions<SendGridEmailProviderOptions> _options;
-        private readonly ILogger<SendGridEmailSender> _logger;
+        private readonly IOptions<SendGridEmailProviderOptions> options;
+        private readonly ILogger<SendGridEmailSender> logger;
 
         /// <summary>
-        ///     Constructor
+        /// Initializes a new instance of the <see cref="SendGridEmailSender"/> class.
         /// </summary>
-        /// <param name="options"></param>
+        /// <param name="options">SendGrid options.</param>
+        /// <param name="logger">Logger.</param>
         public SendGridEmailSender(IOptions<SendGridEmailProviderOptions> options, ILogger<SendGridEmailSender> logger)
         {
-            _options = options;
-            _logger = logger;
+            this.options = options;
+            this.logger = logger;
         }
 
         /// <summary>
-        /// Indicates if client is in SendGrid <see href="https://docs.sendgrid.com/for-developers/sending-email/sandbox-mode">sandbox</see> mode.
+        /// Gets a value indicating whether indicates if client is in SendGrid <see href="https://docs.sendgrid.com/for-developers/sending-email/sandbox-mode">sandbox</see> mode.
         /// </summary>
-        public bool SandboxMode { get { return _options.Value.SandboxMode; } }
+        public bool SandboxMode
+        {
+            get { return options.Value.SandboxMode; }
+        }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the <see cref="Response"/> object.
+        /// </summary>
         public Response? Response { get; private set; }
 
         /// <summary>
-        ///     Send email method
+        ///     Send email method.
         /// </summary>
-        /// <param name="emailTo"></param>
-        /// <param name="subject"></param>
-        /// <param name="message"></param>
-        /// <param name="emailFrom"></param>
-        /// <returns></returns>
+        /// <param name="emailTo">To email address.</param>
+        /// <param name="subject">Email subject.</param>
+        /// <param name="message">Email message.</param>
+        /// <param name="emailFrom">From email message.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public Task SendEmailAsync(string emailTo, string subject, string message, string? emailFrom = null)
         {
             return Execute(subject, message, emailTo, emailFrom);
         }
 
         /// <summary>
-        /// IEmailSender send email method
+        /// IEmailSender send email method.
         /// </summary>
-        /// <param name="emailTo"></param>
-        /// <param name="subject"></param>
-        /// <param name="htmlMessage"></param>
-        /// <returns></returns>
+        /// <param name="emailTo">To email address.</param>
+        /// <param name="subject">Email subject.</param>
+        /// <param name="htmlMessage">Email message in HTML format.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public Task SendEmailAsync(string emailTo, string subject, string htmlMessage)
         {
             return Execute(subject, htmlMessage, emailTo, null);
         }
 
         /// <summary>
-        ///     Execute send email method
+        ///     Execute send email method.
         /// </summary>
-        /// <param name="subject"></param>
-        /// <param name="message"></param>
-        /// <param name="emailTo"></param>
-        /// <param name="emailFrom"></param>
-        /// <returns></returns>
+        /// <param name="subject">Email subject.</param>
+        /// <param name="message">Email message.</param>
+        /// <param name="emailTo">To email address.</param>
+        /// <param name="emailFrom">From email address.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private Task Execute(string subject, string message, string emailTo, string? emailFrom = null)
         {
-            var client = new SendGridClient(_options.Value);
+            var client = new SendGridClient(options.Value);
 
             var msg = new SendGridMessage
             {
-                From = new EmailAddress(emailFrom ?? _options.Value.DefaultFromEmailAddress),
+                From = new EmailAddress(emailFrom ?? options.Value.DefaultFromEmailAddress),
                 Subject = subject,
                 PlainTextContent = message,
                 HtmlContent = message
@@ -84,7 +96,7 @@ namespace Cosmos.EmailServices
             msg.SetClickTracking(true, true);
 
             // Set the Sandbox mode if on.
-            if (_options.Value.SandboxMode)
+            if (options.Value.SandboxMode)
             {
                 msg.SetSandBoxMode(true);
             }
@@ -93,21 +105,20 @@ namespace Cosmos.EmailServices
             {
                 Response = client.SendEmailAsync(msg).Result;
 
-                if (Response.IsSuccessStatusCode && _options.Value.LogSuccesses)
+                if (Response.IsSuccessStatusCode && options.Value.LogSuccesses)
                 {
-                    _logger.LogInformation($"Email successfully sent to: {emailTo}; Subject: {subject};");
+                    logger.LogInformation($"Email successfully sent to: {emailTo}; Subject: {subject};");
                 }
 
-                if (!Response.IsSuccessStatusCode && _options.Value.LogErrors)
+                if (!Response.IsSuccessStatusCode && options.Value.LogErrors)
                 {
-                    _logger.LogError(new Exception($"SendGrid status code: {Response.StatusCode}"), Response.Headers.ToString());
+                    logger.LogError(new Exception($"SendGrid status code: {Response.StatusCode}"), Response.Headers.ToString());
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, e.Message);
+                logger.LogError(e, e.Message);
             }
-
 
             return Task.CompletedTask;
         }

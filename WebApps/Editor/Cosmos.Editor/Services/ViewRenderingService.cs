@@ -1,19 +1,26 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Microsoft.AspNetCore.Routing;
-using System;
-using System.IO;
-using System.Threading.Tasks;
+﻿// <copyright file="ViewRenderingService.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Services
 {
+    using System;
+    using System.IO;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.Abstractions;
+    using Microsoft.AspNetCore.Mvc.ModelBinding;
+    using Microsoft.AspNetCore.Mvc.Razor;
+    using Microsoft.AspNetCore.Mvc.Rendering;
+    using Microsoft.AspNetCore.Mvc.ViewFeatures;
+    using Microsoft.AspNetCore.Routing;
+
     /// <summary>
-    /// View render service interface
+    /// View render service interface.
     /// </summary>
     /// <remarks>
     /// Credits for this work go to the members of the thread found on
@@ -22,16 +29,16 @@ namespace Cosmos.Cms.Services
     public interface IViewRenderService
     {
         /// <summary>
-        /// Render view as a string
+        /// Render view as a string.
         /// </summary>
         /// <param name="viewName"></param>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         Task<string> RenderToStringAsync(string viewName, object model);
     }
 
     /// <summary>
-    /// View rendering service
+    /// View rendering service.
     /// </summary>
     /// <remarks>
     /// Credits for this work go to the members of the thread found on
@@ -44,7 +51,7 @@ namespace Cosmos.Cms.Services
         private readonly IServiceProvider _serviceProvider;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="razorViewEngine"></param>
         /// <param name="tempDataProvider"></param>
@@ -59,11 +66,11 @@ namespace Cosmos.Cms.Services
         }
 
         /// <summary>
-        /// Render view as a string
+        /// Render view as a string.
         /// </summary>
         /// <param name="viewPath"></param>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         public async Task<string> RenderToStringAsync(string viewPath, object model)
         {

@@ -1,74 +1,77 @@
-﻿using Cosmos.Cms.Common.Services.Configurations;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+﻿// <copyright file="ForgotPassword.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.Text;
+    using System.Text.Encodings.Web;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Identity.UI.Services;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.AspNetCore.WebUtilities;
+
     /// <summary>
-    /// Forgot password page model
+    /// Forgot password page model.
     /// </summary>
     [AllowAnonymous]
     public class ForgotPasswordModel : PageModel
     {
-        private readonly IEmailSender _emailSender;
-        private readonly IOptions<SiteSettings> _options;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly IEmailSender emailSender;
+        private readonly UserManager<IdentityUser> userManager;
 
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="ForgotPasswordModel"/> class.
         /// </summary>
-        /// <param name="userManager"></param>
-        /// <param name="emailSender"></param>
-        /// <param name="options"></param>
-        public ForgotPasswordModel(UserManager<IdentityUser> userManager, IEmailSender emailSender,
-            IOptions<SiteSettings> options)
+        /// <param name="userManager">User manager.</param>
+        /// <param name="emailSender">Email sender.</param>
+        public ForgotPasswordModel(UserManager<IdentityUser> userManager, IEmailSender emailSender)
         {
-            _userManager = userManager;
-            _emailSender = emailSender;
-            _options = options;
+            this.userManager = userManager;
+            this.emailSender = emailSender;
         }
 
         /// <summary>
-        /// Input model
+        /// Gets or sets input model.
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        /// On get method handler
+        /// On get method handler.
         /// </summary>
-        /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <param name="returnUrl">Return URL to pass along.</param>
+        /// <returns>Returns an <see cref="IActionResult"/>.</returns>
         public IActionResult OnGetAsync(string returnUrl = null)
         {
             return Page();
         }
 
         /// <summary>
-        /// On post method handler
+        /// On post method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostAsync()
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByEmailAsync(Input.Email);
-                if (user == null || !await _userManager.IsEmailConfirmedAsync(user))
+                var user = await userManager.FindByEmailAsync(Input.Email);
+                if (user == null || !await userManager.IsEmailConfirmedAsync(user))
+                {
                     // Don't reveal that the user does not exist or is not confirmed
                     return RedirectToPage("./ForgotPasswordConfirmation");
+                }
 
                 // For more information on how to enable account confirmation and password reset please 
                 // visit https://go.microsoft.com/fwlink/?LinkID=532713
-                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var code = await userManager.GeneratePasswordResetTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                 var callbackUrl = Url.Page(
                     "/Account/ResetPassword",
@@ -76,7 +79,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                     new { area = "Identity", code },
                     Request.Scheme);
 
-                await _emailSender.SendEmailAsync(
+                await emailSender.SendEmailAsync(
                     Input.Email,
                     "Reset Password",
                     $"Please reset your password by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
@@ -88,12 +91,12 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Email address
+            /// Gets or sets email address.
             /// </summary>
             [Required]
             [EmailAddress]

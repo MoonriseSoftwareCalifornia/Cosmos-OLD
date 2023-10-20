@@ -1,15 +1,22 @@
-﻿using Cosmos.Cms.Models;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
-using System.IO;
+﻿// <copyright file="ThumbnailCreator.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Services
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Drawing.Drawing2D;
+    using System.Drawing.Imaging;
+    using System.IO;
+    using Cosmos.Cms.Models;
+
     /// <summary>
-    /// Image thumbnail creator
+    /// Image thumbnail creator.
     /// </summary>
     public class ThumbnailCreator
     {
@@ -23,7 +30,7 @@ namespace Cosmos.Cms.Services
         private readonly ImageResizer resizer;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         public ThumbnailCreator()
         {
@@ -31,7 +38,7 @@ namespace Cosmos.Cms.Services
         }
 
         /// <summary>
-        /// Create thumbnail
+        /// Create thumbnail.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="desiredSize"></param>
@@ -64,7 +71,7 @@ namespace Cosmos.Cms.Services
         }
 
         /// <summary>
-        /// Create filkl
+        /// Create filkl.
         /// </summary>
         /// <param name="source"></param>
         /// <param name="desiredSize"></param>
@@ -97,7 +104,6 @@ namespace Cosmos.Cms.Services
             }
         }
 
-
         private Image FixedSize(Image imgPhoto, int Width, int Height, bool needToFill)
         {
             var sourceWidth = imgPhoto.Width;
@@ -116,9 +122,13 @@ namespace Cosmos.Cms.Services
             if (!needToFill)
             {
                 if (nPercentH < nPercentW)
+                {
                     nPercent = nPercentH;
+                }
                 else
+                {
                     nPercent = nPercentW;
+                }
             }
             else
             {
@@ -137,7 +147,9 @@ namespace Cosmos.Cms.Services
             }
 
             if (nPercent > 1)
+            {
                 nPercent = 1;
+            }
 
             var destWidth = (int)Math.Round(sourceWidth * nPercent);
             var destHeight = (int)Math.Round(sourceHeight * nPercent);

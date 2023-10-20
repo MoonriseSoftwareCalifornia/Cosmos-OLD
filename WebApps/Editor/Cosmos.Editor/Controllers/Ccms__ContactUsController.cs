@@ -1,20 +1,26 @@
-﻿
-using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Data.Logic;
-using Cosmos.Common.Models;
-using Cosmos.EmailServices;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
+﻿// <copyright file="Ccms__ContactUsController.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Editor.Controllers
 {
+    using System;
+    using System.Threading.Tasks;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Cms.Data.Logic;
+    using Cosmos.Common.Models;
+    using Cosmos.EmailServices;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Identity.UI.Services;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+
     /// <summary>
-    /// Contact Us Controller
+    /// Contact Us Controller.
     /// </summary>
     public class Ccms__ContactUsController : Controller
     {
@@ -25,7 +31,7 @@ namespace Cosmos.Editor.Controllers
         private readonly IOptions<CosmosConfig> _cosmosOptions;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="cosmosOptions"></param>
         /// <param name="logger"></param>
@@ -47,9 +53,9 @@ namespace Cosmos.Editor.Controllers
         }
 
         /// <summary>
-        /// Contact us email form
+        /// Contact us email form.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Index()
         {
             var user = await _userManager.GetUserAsync(User);
@@ -60,16 +66,14 @@ namespace Cosmos.Editor.Controllers
             });
         }
 
-
         /// <summary>
-        /// Send Email Message
+        /// Send Email Message.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Index(EmailMessageViewModel model)
         {
-
             if (ModelState.IsValid)
             {
                 try
@@ -89,6 +93,5 @@ namespace Cosmos.Editor.Controllers
 
             return View(model);
         }
-
     }
 }

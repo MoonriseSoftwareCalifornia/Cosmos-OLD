@@ -1,15 +1,22 @@
-﻿using HtmlAgilityPack;
-using System;
+﻿// <copyright file="HtmlUtilities.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Services
 {
+    using System;
+    using HtmlAgilityPack;
+
     /// <summary>
-    /// Html Utilities
+    /// Html Utilities.
     /// </summary>
     public class HtmlUtilities
     {
         /// <summary>
-        /// Is an absolute Uri
+        /// Is an absolute Uri.
         /// </summary>
         /// <param name="url"></param>
         /// <returns></returns>
@@ -31,8 +38,9 @@ namespace Cosmos.Cms.Services
                 return false;
             }
         }
+
         /// <summary>
-        /// Changes relative Uri's to absolute
+        /// Changes relative Uri's to absolute.
         /// </summary>
         /// <param name="html"></param>
         /// <param name="absoluteUrl"></param>
@@ -42,11 +50,19 @@ namespace Cosmos.Cms.Services
         public string RelativeToAbsoluteUrls(string html, Uri absoluteUrl, bool isLayoutBodyElement)
         {
             if (string.IsNullOrEmpty(html))
-                return "";
+            {
+                return string.Empty;
+            }
+
             if (absoluteUrl == null)
+            {
                 return html;
+            }
+
             if (absoluteUrl.IsAbsoluteUri == false)
+            {
                 throw new ArgumentException($"{absoluteUrl.ToString()} is not an absolute Uri.");
+            }
 
             var htmlDoc = new HtmlAgilityPack.HtmlDocument();
             htmlDoc.LoadHtml(html);
@@ -57,6 +73,7 @@ namespace Cosmos.Cms.Services
                 {
                     node.Attributes.Add("ccms-layout", "true");
                 }
+
                 RelativeToAbsoluteNoUrls(node, absoluteUrl);
             }
 
@@ -74,6 +91,7 @@ namespace Cosmos.Cms.Services
                     att.Value = new Uri(absoluteUrl, att.Value).ToString();
                 }
             }
+
             if (node.Attributes.Contains("src"))
             {
                 HtmlAttribute att = node.Attributes["src"];
@@ -89,6 +107,5 @@ namespace Cosmos.Cms.Services
                 RelativeToAbsoluteNoUrls(child, absoluteUrl);
             }
         }
-
     }
 }

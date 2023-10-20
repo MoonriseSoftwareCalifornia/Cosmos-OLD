@@ -1,16 +1,23 @@
-﻿using Cosmos.BlobService;
-using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Common;
-using Cosmos.Common.Data;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
+﻿// <copyright file="PubController.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Publisher.Controllers
 {
+    using System;
+    using System.Threading.Tasks;
+    using Cosmos.BlobService;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Common;
+    using Cosmos.Common.Data;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Options;
+
     /// <summary>
-    /// Secure file access controller and proxy
+    /// Secure file access controller and proxy.
     /// </summary>
     public class PubController : Controller
     {
@@ -19,7 +26,7 @@ namespace Cosmos.Publisher.Controllers
         private readonly StorageContext _storageContext;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="options"></param>
         /// <param name="dbContext"></param>
@@ -32,12 +39,11 @@ namespace Cosmos.Publisher.Controllers
         }
 
         /// <summary>
-        /// Gets a file and validates user authentication
+        /// Gets a file and validates user authentication.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Index()
         {
-
             if (_options.Value.SiteSettings.PublisherRequiresAuthentication)
             {
                 // If the user is not logged in, have them login first.
@@ -59,7 +65,6 @@ namespace Cosmos.Publisher.Controllers
 
                     if (int.TryParse(id, out var articleNumber))
                     {
-
                         if (!await CosmosUtilities.AuthUser(_dbContext, User, articleNumber))
                         {
                             return Unauthorized();
@@ -75,6 +80,5 @@ namespace Cosmos.Publisher.Controllers
 
             return File(await client.OpenReadAsync(), properties.Value.ContentType);
         }
-
     }
 }

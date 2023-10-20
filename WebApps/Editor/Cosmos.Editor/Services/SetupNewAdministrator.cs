@@ -1,20 +1,24 @@
-﻿using Cosmos.Cms.Data;
-using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
-using System;
-using System.Linq;
-using Microsoft.Azure.Cosmos.Linq;
-using Cosmos.Cms.Common.Services.Configurations;
-using Microsoft.Extensions.Options;
+﻿// <copyright file="SetupNewAdministrator.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Editor.Services
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Cosmos.Cms.Data;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.Azure.Cosmos.Linq;
+
     /// <summary>
-    /// Creates a new administrator
+    /// Creates a new administrator.
     /// </summary>
     public static class SetupNewAdministrator
     {
-
         /// <summary>
         /// Ensures the required roles exist, and, add the first user as an administrator.
         /// </summary>
@@ -24,7 +28,6 @@ namespace Cosmos.Editor.Services
         /// <returns>True if a new administrator was created.</returns>
         public static async Task<bool> Ensure_RolesAndAdmin_Exists(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager, IdentityUser user)
         {
-
             foreach (var role in RequiredIdentityRoles.Roles)
             {
                 if (!await roleManager.RoleExistsAsync(role))
@@ -51,7 +54,6 @@ namespace Cosmos.Editor.Services
 
                 if (result.Succeeded)
                 {
-
                     var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
 
                     var confirmResult = await userManager.ConfirmEmailAsync(user, code);
@@ -75,8 +77,5 @@ namespace Cosmos.Editor.Services
 
             return false;
         }
-
     }
-
-
 }

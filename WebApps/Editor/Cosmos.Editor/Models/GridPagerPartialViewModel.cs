@@ -1,14 +1,21 @@
-﻿using System;
+﻿// <copyright file="GridPagerPartialViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Models
 {
+    using System;
+
     /// <summary>
-    /// Grid pager partial view model
+    /// Grid pager partial view model.
     /// </summary>
     public class GridPagerPartialViewModel
     {
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="pageNumber"></param>
         /// <param name="rowCount"></param>
@@ -40,60 +47,69 @@ namespace Cosmos.Cms.Models
             SelectOne = selectOne;
             ShowThumbnails = showThumbnails;
         }
+
         /// <summary>
-        /// Total number of rows
+        /// Gets total number of rows.
         /// </summary>
         public int RowCount { get; }
 
         /// <summary>
-        /// Current page number (zero index)
+        /// Gets current page number (zero index).
         /// </summary>
         public int PageNumber { get; }
 
         /// <summary>
-        /// Number of rows in a page
+        /// Gets number of rows in a page.
         /// </summary>
         public int PageSize { get; }
+
         /// <summary>
-        /// Previous page
+        /// Gets previous page.
         /// </summary>
         public int PreviousPage { get; }
+
         /// <summary>
-        /// Next page
+        /// Gets next page.
         /// </summary>
         public int NextPage { get; }
+
         /// <summary>
-        /// Last page
+        /// Gets last page.
         /// </summary>
         public int LastPage { get; }
+
         /// <summary>
-        /// Page count
+        /// Gets page count.
         /// </summary>
         public int PageCount { get; }
+
         /// <summary>
-        /// Sort order
+        /// Gets sort order.
         /// </summary>
         public string SortOrder { get; }
+
         /// <summary>
-        /// Current sort item
+        /// Gets current sort item.
         /// </summary>
         public string CurrentSort { get; }
 
         /// <summary>
-        /// Get method URL
+        /// Gets get method URL.
         /// </summary>
         public string GetUrl { get; }
 
         /// <summary>
-        /// Filter value
+        /// Gets filter value.
         /// </summary>
         public string Filter { get; }
+
         /// <summary>
-        /// Only allow one file to be selected at a time
+        /// Gets a value indicating whether only allow one file to be selected at a time.
         /// </summary>
         public bool SelectOne { get; }
+
         /// <summary>
-        /// Show image thumbnails
+        /// Gets a value indicating whether show image thumbnails.
         /// </summary>
         public bool ShowThumbnails { get; }
     }

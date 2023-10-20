@@ -1,26 +1,34 @@
-﻿namespace Cosmos.Cms.Models
+﻿// <copyright file="NewFolderViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
+
+namespace Cosmos.Cms.Models
 {
     /// <summary>
-    /// New folder view model
+    /// New folder view model.
     /// </summary>
     public class NewFolderViewModel
     {
         /// <summary>
-        /// The parent folder where new folder is created as a child
+        /// Gets or sets the parent folder where new folder is created as a child.
         /// </summary>
         public string ParentFolder { get; set; }
 
         /// <summary>
-        /// New folder name
+        /// Gets or sets new folder name.
         /// </summary>
         public string FolderName { get; set; }
 
         /// <summary>
-        /// Directory only mode for file browser
+        /// Gets or sets a value indicating whether directory only mode for file browser.
         /// </summary>
         public bool DirectoryOnly { get; set; }
+
         /// <summary>
-        /// Directory only mode for file browser
+        /// Gets or sets directory only mode for file browser.
         /// </summary>
         public string Container { get; set; } = "$web";
     }

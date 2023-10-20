@@ -1,96 +1,106 @@
-﻿using Cosmos.Common.Data;
-using Cosmos.Cms.Common.Services.Configurations;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// <copyright file="Login.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account
 {
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Cosmos.Common.Data;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
-    /// Login page model
+    /// Login page model.
     /// </summary>
     [AllowAnonymous]
     public class LoginModel : PageModel
     {
-        private readonly ILogger<LoginModel> _logger;
-        private readonly IOptions<SiteSettings> _options;
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly ApplicationDbContext _dbContext;
+        private readonly ILogger<LoginModel> logger;
+        private readonly SignInManager<IdentityUser> signInManager;
+        private readonly UserManager<IdentityUser> userManager;
+        private readonly ApplicationDbContext dbContext;
 
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="LoginModel"/> class.
         /// </summary>
-        /// <param name="signInManager"></param>
-        /// <param name="logger"></param>
-        /// <param name="userManager"></param>
-        /// <param name="options"></param>
-        /// <param name="dbContext"></param>
-        public LoginModel(SignInManager<IdentityUser> signInManager,
+        /// <param name="signInManager">Sign in manager.</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="userManager">User manager.</param>
+        /// <param name="dbContext">DB Context.</param>
+        public LoginModel(
+            SignInManager<IdentityUser> signInManager,
             ILogger<LoginModel> logger,
-            UserManager<IdentityUser> userManager, IOptions<SiteSettings> options, ApplicationDbContext dbContext)
+            UserManager<IdentityUser> userManager,
+            ApplicationDbContext dbContext)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _logger = logger;
-            _options = options;
-            _dbContext = dbContext;
+            this.userManager = userManager;
+            this.signInManager = signInManager;
+            this.logger = logger;
+            this.dbContext = dbContext;
         }
 
         /// <summary>
-        /// Input model
+        /// Gets or sets input model.
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        /// External logins
+        /// Gets or sets external logins.
         /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         /// <summary>
-        /// Page URL
+        /// Gets or sets page URL.
         /// </summary>
         public string ReturnUrl { get; set; }
 
         /// <summary>
-        /// Error message
+        /// Gets or sets error message.
         /// </summary>
         [TempData]
         public string ErrorMessage { get; set; }
 
         /// <summary>
-        /// On get method handler
+        /// On get method handler.
         /// </summary>
-        /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <param name="returnUrl">Return URL to pass along.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
 
-            if (!string.IsNullOrEmpty(ErrorMessage)) ModelState.AddModelError(string.Empty, ErrorMessage);
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ModelState.AddModelError(string.Empty, ErrorMessage);
+            }
 
-            if (User.Identity.IsAuthenticated) return RedirectToAction(returnUrl);
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction(returnUrl);
+            }
 
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             ReturnUrl = returnUrl.Replace("http:", "https:");
 
             // If there are no users yet, go strait to the register page.
-            await _dbContext.Database.EnsureCreatedAsync();
+            await dbContext.Database.EnsureCreatedAsync();
 
-            if (_userManager.Users.Count() == 0)
+            if (userManager.Users.Count() == 0)
             {
                 return RedirectToPage("Register");
             }
@@ -98,37 +108,39 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
             {
                 return Page();
             }
-
         }
 
         /// <summary>
-        /// On post method handler
+        /// On post method handler.
         /// </summary>
-        /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <param name="returnUrl">Return URL to pass along.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/Home/CcmsContentIndex?target=root");
 
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            ExternalLogins = (await signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
             if (ModelState.IsValid)
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result =
-                    await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, false);
+                    await signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, false);
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User logged in.");
+                    logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }
 
                 if (result.RequiresTwoFactor)
+                {
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, Input.RememberMe });
+                }
+
                 if (result.IsLockedOut)
                 {
-                    _logger.LogWarning("User account locked out.");
+                    logger.LogWarning("User account locked out.");
                     return RedirectToPage("./Lockout");
                 }
 
@@ -141,26 +153,26 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Email address
+            /// Gets or sets email address.
             /// </summary>
             [Required]
             [EmailAddress]
             public string Email { get; set; }
 
             /// <summary>
-            /// Password
+            /// Gets or sets password.
             /// </summary>
             [Required]
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
             /// <summary>
-            /// Remember me
+            /// Gets or sets a value indicating whether remember me.
             /// </summary>
             [Display(Name = "Remember me?")]
             public bool RememberMe { get; set; }

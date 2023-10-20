@@ -1,27 +1,31 @@
-﻿using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Data;
-using Cosmos.Editor.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+﻿// <copyright file="ExternalLogin.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Text;
+    using System.Text.Encodings.Web;
+    using System.Threading.Tasks;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Editor.Services;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Identity.UI.Services;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.AspNetCore.WebUtilities;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+
     /// <summary>
-    /// External login page model
+    /// External login page model.
     /// </summary>
     [AllowAnonymous]
     public class ExternalLoginModel : PageModel
@@ -34,7 +38,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         private readonly IOptions<SiteSettings> _options;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="signInManager"></param>
         /// <param name="userManager"></param>
@@ -59,28 +63,29 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Gets or sets input model.
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        /// Provider display name
+        /// Gets or sets provider display name.
         /// </summary>
         public string ProviderDisplayName { get; set; }
 
         /// <summary>
-        /// Return url
+        /// Gets or sets return url.
         /// </summary>
         public string ReturnUrl { get; set; }
 
         /// <summary>
-        /// Error message
+        /// Gets or sets error message.
         /// </summary>
-        [TempData] public string ErrorMessage { get; set; }
+        [TempData]
+        public string ErrorMessage { get; set; }
 
         /// <summary>
-        /// On get method handler
+        /// On get method handler.
         /// </summary>
         /// <returns></returns>
         public IActionResult OnGetAsync()
@@ -89,7 +94,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// On post method handler
+        /// On post method handler.
         /// </summary>
         /// <param name="provider"></param>
         /// <param name="returnUrl"></param>
@@ -106,17 +111,19 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
 
             if (!string.IsNullOrEmpty(challenge.Properties.RedirectUri) &&
                 challenge.Properties.RedirectUri.StartsWith("http:"))
+            {
                 challenge.Properties.RedirectUri = challenge.Properties.RedirectUri.Replace("http:", "https:");
+            }
 
             return challenge;
         }
 
         /// <summary>
-        /// On get callback method handler
+        /// On get callback method handler.
         /// </summary>
         /// <param name="returnUrl"></param>
         /// <param name="remoteError"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null, string remoteError = null)
         {
             var t = Request;
@@ -144,7 +151,10 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                 return LocalRedirect(returnUrl);
             }
 
-            if (result.IsLockedOut) return RedirectToPage("./Lockout");
+            if (result.IsLockedOut)
+            {
+                return RedirectToPage("./Lockout");
+            }
 
             // If the user does not have an account, then ask the user to create an account.
             ReturnUrl = returnUrl;
@@ -158,22 +168,22 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
 
                 var user = await _userManager.FindByEmailAsync(Input.Email);
 
-
                 var newAdministrator = await SetupNewAdministrator.Ensure_RolesAndAdmin_Exists(_roleManager, _userManager, user);
 
-
                 if (user != null && await _userManager.IsEmailConfirmedAsync(user) == false)
+                {
                     ViewData["ShowResendConfirmEmail"] = true;
+                }
             }
 
             return Page();
         }
 
         /// <summary>
-        /// On post confirmation handler
+        /// On post confirmation handler.
         /// </summary>
         /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
@@ -198,7 +208,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
 
                         var newAdministrator = await SetupNewAdministrator.Ensure_RolesAndAdmin_Exists(_roleManager, _userManager, user);
-                        
+
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -216,7 +226,9 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
 
                             // If account confirmation is required, we need to show the link if we don't have a real email sender
                             if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                            {
                                 return RedirectToPage("./RegisterConfirmation", new { Input.Email });
+                            }
                         }
 
                         await _signInManager.SignInAsync(user, false, info.LoginProvider);
@@ -226,9 +238,17 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                 }
 
                 if (result.Errors.Any(a => a.Code == "DuplicateUserName"))
+                {
                     if (await _userManager.IsEmailConfirmedAsync(user) == false)
+                    {
                         ViewData["ShowResendConfirmEmail"] = true;
-                foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
+
+                foreach (var error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
             }
 
             ProviderDisplayName = info.ProviderDisplayName;
@@ -237,12 +257,12 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Email address
+            /// Gets or sets email address.
             /// </summary>
             [Required]
             [EmailAddress]

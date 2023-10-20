@@ -1,27 +1,34 @@
-﻿using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Data.Logic;
-using Cosmos.Cms.Services;
-using Cosmos.Common.Data;
-using Cosmos.Common.Models;
-using HtmlAgilityPack;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
+﻿// <copyright file="BaseController.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Web;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Cms.Data.Logic;
+    using Cosmos.Cms.Services;
+    using Cosmos.Common.Data;
+    using Cosmos.Common.Models;
+    using HtmlAgilityPack;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.ModelBinding;
+    using Microsoft.AspNetCore.Mvc.Rendering;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Options;
+
     /// <summary>
-    /// Base controller
+    /// Base controller.
     /// </summary>
     public abstract class BaseController : Controller
     {
@@ -31,9 +38,9 @@ namespace Cosmos.Cms.Controllers
         private readonly IOptions<CosmosConfig> _options;
 
         /// <summary>
-        /// Gets the user ID of the currently logged in user
+        /// Gets the user ID of the currently logged in user.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected async Task<string> GetUserId()
         {
             // Get the user's ID for logging.
@@ -42,9 +49,9 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Gets the user Email address of the currently logged in user
+        /// Gets the user Email address of the currently logged in user.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         protected async Task<string> GetUserEmail()
         {
             // Get the user's ID for logging.
@@ -53,7 +60,7 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        ///     Constructor
+        ///     Constructor.
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="userManager"></param>
@@ -75,7 +82,7 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="fieldName"></param>
         /// <param name="inputHtml"></param>
-        /// <returns>HTML content</returns>
+        /// <returns>HTML content.</returns>
         /// <remarks>
         ///     <para>
         ///         The purpose of this method is to validate HTML prior to be saved to the database.
@@ -88,10 +95,9 @@ namespace Cosmos.Cms.Controllers
             {
                 var contentHtmlDocument = new HtmlDocument();
                 contentHtmlDocument.LoadHtml(HttpUtility.HtmlDecode(inputHtml));
-                //if (contentHtmlDocument.ParseErrors.Any())
+                // if (contentHtmlDocument.ParseErrors.Any())
                 //    foreach (var error in contentHtmlDocument.ParseErrors)
                 //        modelState.AddModelError(fieldName, error.Reason);
-
                 return contentHtmlDocument.ParsedText.Trim();
             }
 
@@ -99,9 +105,9 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        ///     Get Layout List Items
+        ///     Get Layout List Items.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         internal async Task<List<SelectListItem>> BaseGetLayoutListItems()
         {
             var layouts = await _dbContext.Layouts.Select(s => new SelectListItem
@@ -109,7 +115,10 @@ namespace Cosmos.Cms.Controllers
                 Value = s.Id.ToString(),
                 Text = s.LayoutName
             }).ToListAsync();
-            if (layouts != null) return layouts;
+            if (layouts != null)
+            {
+                return layouts;
+            }
 
             var layoutViewModel = new LayoutViewModel();
 
@@ -124,18 +133,24 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Minifies HTML
+        /// Minifies HTML.
         /// </summary>
         /// <param name="input"></param>
         /// <remarks>If the content can't be minified because of errors, it will echo back the input.</remarks>
         /// <returns></returns>
         internal string MinifyHtml(string input)
         {
-            if (string.IsNullOrEmpty(input) || string.IsNullOrWhiteSpace(input)) return input;
+            if (string.IsNullOrEmpty(input) || string.IsNullOrWhiteSpace(input))
+            {
+                return input;
+            }
 
             var result = NUglify.Uglify.Html(input);
 
-            if (result.HasErrors) return input;
+            if (result.HasErrors)
+            {
+                return input;
+            }
 
             return result.Code;
         }
@@ -156,29 +171,31 @@ namespace Cosmos.Cms.Controllers
         ///// Updates date time stamps of all published articles
         ///// </summary>
         ///// <returns></returns>
-        //public virtual async Task<JsonResult> UpdateTimeStamps()
-        //{
+        // public virtual async Task<JsonResult> UpdateTimeStamps()
+        // {
         //    var result = await _articleEditLogic.UpdateDateTimeStamps();
         //    return Json(result);
-        //}
+        // }
 
         /// <summary>
-        /// Strips Byte Order Marks
+        /// Strips Byte Order Marks.
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
         internal string StripBOM(string data)
         {
             // See: https://danielwertheim.se/utf-8-bom-adventures-in-c/
-
-            if (string.IsNullOrEmpty(data) || string.IsNullOrWhiteSpace(data)) return data;
+            if (string.IsNullOrEmpty(data) || string.IsNullOrWhiteSpace(data))
+            {
+                return data;
+            }
 
             // Get rid of Zero Length strings
             var rows = data.Split("\r\n");
             var builder = new StringBuilder();
             foreach (var row in rows)
             {
-                if (row.Trim().Equals("") == false)
+                if (row.Trim().Equals(string.Empty) == false)
                 {
                     builder.AppendLine(row);
                 }
@@ -208,8 +225,11 @@ namespace Cosmos.Cms.Controllers
         {
             string BOMMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
             if (data.StartsWith(BOMMarkUtf8, StringComparison.OrdinalIgnoreCase))
+            {
                 data = data.Remove(0, BOMMarkUtf8.Length);
-            return data.Replace("\0", "");
+            }
+
+            return data.Replace("\0", string.Empty);
         }
 
         #region SIGNAL METHODS
@@ -217,7 +237,7 @@ namespace Cosmos.Cms.Controllers
         #region SIGNAL LOGIC IS SPLIT UP TO FACILITY UNIT TESTING
 
         /// <summary>
-        /// Returns model state errors as serialization
+        /// Returns model state errors as serialization.
         /// </summary>
         /// <param name="modelState"></param>
         /// <returns></returns>

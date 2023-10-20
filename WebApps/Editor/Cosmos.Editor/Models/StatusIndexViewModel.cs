@@ -1,51 +1,58 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="StatusIndexViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Models
 {
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+
     /// <summary>
-    /// Status Index View Model
+    /// Status Index View Model.
     /// </summary>
     public class StatusIndexViewModel
     {
         /// <summary>
-        /// Resource statuses
+        /// Gets or sets resource statuses.
         /// </summary>
         public List<StatusIndexItem> Items { get; set; }
     }
 
     /// <summary>
-    /// Resouce Item Status
+    /// Resouce Item Status.
     /// </summary>
     public class StatusIndexItem
     {
         /// <summary>
-        /// Resource type.
+        /// Gets or sets resource type.
         /// </summary>
         [Display(Name = "Resource Type")]
         public ResourceType ResourceType { get; set; }
 
         /// <summary>
-        /// Identifier of the resource.
+        /// Gets or sets identifier of the resource.
         /// </summary>
         [Display(Name = "Identifier")]
         public string Identifier { get; set; }
 
         /// <summary>
-        /// Resource is operational.
+        /// Gets or sets a value indicating whether resource is operational.
         /// </summary>
         [Display(Name = "Status")]
         public bool IsValid { get; set; }
 
         /// <summary>
-        /// Any messages, informational, error or otherwise.
+        /// Gets or sets any messages, informational, error or otherwise.
         /// </summary>
         [Display(Name = "Messages")]
         public string Messages { get; set; }
     }
 
     /// <summary>
-    /// Cloud Resource Type
+    /// Cloud Resource Type.
     /// </summary>
     public enum ResourceType
     {
@@ -53,22 +60,25 @@ namespace Cosmos.Cms.Models
         /// SQL Database
         /// </summary>
         SqlDatabase = 0,
+
         /// <summary>
         /// BLOB Storage
         /// </summary>
         BlobStorage = 1,
+
         /// <summary>
         /// Redis Cache
         /// </summary>
         RedisCache = 2,
+
         /// <summary>
         /// Content Distribution Network
         /// </summary>
         Cdn = 3,
+
         /// <summary>
         /// Cosmos editor
         /// </summary>
         CosmosEditor = 4
     }
-
 }

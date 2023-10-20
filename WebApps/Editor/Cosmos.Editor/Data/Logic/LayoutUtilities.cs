@@ -1,38 +1,48 @@
-﻿using Cosmos.Common.Data;
-using Cosmos.Common.Data.Logic;
-using HtmlAgilityPack;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="LayoutUtilities.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Data.Logic
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.Linq;
+    using System.Net.Http;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Cosmos.Common.Data;
+    using Cosmos.Common.Data.Logic;
+    using HtmlAgilityPack;
+    using Newtonsoft.Json;
+
     /// <summary>
-    /// Loads external layouts and associated page templates into Comsos CMS
+    /// Loads external layouts and associated page templates into Comsos CMS.
     /// </summary>
     /// <remarks>Layouts are loaded from here: <see href="https://cosmos-layouts.moonrise.net"/>.</remarks>
     public class LayoutUtilities
     {
         /// <summary>
-        /// Default online catalog location
+        /// Default online catalog location.
         /// </summary>
         private const string COSMOSLAYOUTSREPO = "https://cosmos-layouts.moonrise.net";
 
         private string ParseAttributes(HtmlAttributeCollection collection)
         {
             if (collection == null)
+            {
                 return string.Empty;
+            }
 
             var builder = new StringBuilder();
             foreach (var attribute in collection)
             {
                 builder.Append($"{attribute.Name}=\"{attribute.Value}\" ");
             }
+
             return builder.ToString().Trim();
         }
 
@@ -48,10 +58,10 @@ namespace Cosmos.Cms.Data.Logic
         }
 
         /// <summary>
-        /// Get template pages for a layout
+        /// Get template pages for a layout.
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<List<Page>> GetPageTemplates(string id)
         {
             using var client = new HttpClient();
@@ -60,9 +70,8 @@ namespace Cosmos.Cms.Data.Logic
             return root.Pages.OrderBy(o => o.Title).ToList();
         }
 
-
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         public LayoutUtilities()
         {
@@ -71,20 +80,20 @@ namespace Cosmos.Cms.Data.Logic
         }
 
         /// <summary>
-        /// Default layout ID
+        /// Gets or sets default layout ID.
         /// </summary>
         /// <remarks>Default is the Bootstrap 5 Starter Template (bs5-strt).</remarks>
         public string DefaultLayoutId { get; set; } = "bs5-strt";
 
         /// <summary>
-        /// Catalog of layouts
+        /// Gets catalog of layouts.
         /// </summary>
         public Root CommunityCatalog { get; private set; }
 
         /// <summary>
-        /// Loads the default community layout
+        /// Loads the default community layout.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <remarks>This is used when setting up Cosmos.</remarks>
         public async Task<Layout> GetDefaultCommunityLayout()
         {
@@ -92,11 +101,11 @@ namespace Cosmos.Cms.Data.Logic
         }
 
         /// <summary>
-        /// Gets a specified layout
+        /// Gets a specified layout.
         /// </summary>
         /// <param name="layoutId"></param>
         /// <param name="isDefault"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<Layout> GetCommunityLayout(string layoutId, bool isDefault)
         {
             var item = CommunityCatalog.LayoutCatalog.FirstOrDefault(f => f.Id == layoutId);
@@ -144,10 +153,10 @@ namespace Cosmos.Cms.Data.Logic
         }
 
         /// <summary>
-        /// Gets a page template
+        /// Gets a page template.
         /// </summary>
         /// <param name="communityLayoutId"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<List<Template>> GetCommunityTemplatePages(string communityLayoutId = "")
         {
             var tempates = new List<Template>();
@@ -186,9 +195,9 @@ namespace Cosmos.Cms.Data.Logic
         }
 
         /// <summary>
-        /// Gets all the layouts in the community catalog
+        /// Gets all the layouts in the community catalog.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<List<Layout>> GetAllCommunityLayouts()
         {
             var layoutIds = CommunityCatalog.LayoutCatalog.Select(s => s.Id).ToList();
@@ -221,6 +230,7 @@ namespace Cosmos.Cms.Data.Logic
             {
                 bodyHeader.Remove();
             }
+
             if (bodyFooter != null)
             {
                 bodyFooter.Remove();
@@ -232,14 +242,12 @@ namespace Cosmos.Cms.Data.Logic
             object model = null;
             if (typeof(T) == typeof(Template))
             {
-
                 model = new Template()
                 {
                     Content = body.InnerHtml,
                     Description = string.Empty,
                     Title = string.Empty
                 };
-
             }
             else if (typeof(T) == typeof(Article))
             {
@@ -260,74 +268,77 @@ namespace Cosmos.Cms.Data.Logic
     }
 
     /// <summary>
-    /// Template page
+    /// Template page.
     /// </summary>
     public class Page
     {
         /// <summary>
-        /// Template page title
+        /// Gets or sets template page title.
         /// </summary>
         public string Title { get; set; }
+
         /// <summary>
-        /// Type is either home or content
+        /// Gets or sets type is either home or content.
         /// </summary>
         public string Type { get; set; }
+
         /// <summary>
-        /// Description of this page
+        /// Gets or sets description of this page.
         /// </summary>
         public string Description { get; set; }
+
         /// <summary>
-        /// Path where page is located
+        /// Gets or sets path where page is located.
         /// </summary>
         public string Path { get; set; }
     }
 
     /// <summary>
-    /// Layout catalog item
+    /// Layout catalog item.
     /// </summary>
     public class LayoutCatalogItem
     {
         /// <summary>
-        /// Unique ID of the layout
+        /// Gets or sets unique ID of the layout.
         /// </summary>
         [Key]
         public string Id { get; set; }
+
         /// <summary>
-        /// Layout name
+        /// Gets or sets layout name.
         /// </summary>
         public string Name { get; set; }
+
         /// <summary>
-        /// Description or notes regarding layout
+        /// Gets or sets description or notes regarding layout.
         /// </summary>
         public string Description { get; set; }
+
         /// <summary>
-        /// License for this layout
+        /// Gets or sets license for this layout.
         /// </summary>
         public string License { get; set; }
     }
 
     /// <summary>
-    /// Catalog feed root
+    /// Catalog feed root.
     /// </summary>
     public class Root
     {
         /// <summary>
-        /// Layout catalog
+        /// Gets or sets layout catalog.
         /// </summary>
         public List<LayoutCatalogItem> LayoutCatalog { get; set; }
     }
 
     /// <summary>
-    /// Pages used with layout
+    /// Pages used with layout.
     /// </summary>
     public class PageRoot
     {
-
         /// <summary>
-        /// Template pages that can be used with this layout
+        /// Gets or sets template pages that can be used with this layout.
         /// </summary>
         public List<Page> Pages { get; set; }
     }
-
-
 }

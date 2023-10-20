@@ -1,68 +1,63 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="ProxyConfig.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Common.Services.Configurations
 {
-    /// <summary>
-    ///     Simple proxy service config
-    /// </summary>
-    public class SimpleProxyConfigs
-    {
-        /// <summary>
-        ///     Array of configurations
-        /// </summary>
-        [Display(Name = "Proxy configuration(s)")]
-        public ProxyConfig[] Configs { get; set; }
-    }
+    using System.ComponentModel.DataAnnotations;
 
     /// <summary>
-    ///     Proxy configuration
+    ///     Proxy configuration.
     /// </summary>
     public class ProxyConfig
     {
         /// <summary>
-        ///     Name of the connection
+        ///     Gets or sets name of the connection.
         /// </summary>
         [Display(Name = "Connection name")]
         public string Name { get; set; }
 
         /// <summary>
-        ///     Method (i.e. GET or POST)
+        ///     Gets or sets method (i.e. GET or POST).
         /// </summary>
         [Display(Name = "Method (i.e. GET or POST)")]
         public string Method { get; set; }
 
         /// <summary>
-        ///     URL end point
+        ///     Gets or sets uRL end point.
         /// </summary>
         [Display(Name = "URL end point")]
         public string UriEndpoint { get; set; }
 
         /// <summary>
-        ///     GET string or POST data
+        ///     Gets or sets gET string or POST data.
         /// </summary>
         [Display(Name = "GET or POST data")]
         public string Data { get; set; }
 
         /// <summary>
-        ///     User name to use when accessing end point.
+        ///     Gets or sets user name to use when accessing end point.
         /// </summary>
         [Display(Name = "User name")]
-        public string UserName { get; set; } = "";
+        public string UserName { get; set; } = string.Empty;
 
         /// <summary>
-        ///     Password to use when accessing end point.
+        ///     Gets or sets password to use when accessing end point.
         /// </summary>
         [Display(Name = "Password")]
-        public string Password { get; set; } = "";
+        public string Password { get; set; } = string.Empty;
 
         /// <summary>
-        ///     Content type
+        ///     Gets or sets content type.
         /// </summary>
         [Display(Name = "Content type")]
         public string ContentType { get; set; } = "application/x-www-form-urlencoded";
 
         /// <summary>
-        ///     RBAC roles allowed to use end point
+        ///     Gets or sets rBAC roles allowed to use end point.
         /// </summary>
         /// <remarks>
         ///     <para>

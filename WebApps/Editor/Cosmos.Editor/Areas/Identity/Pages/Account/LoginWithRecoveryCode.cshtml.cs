@@ -1,16 +1,23 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿// <copyright file="LoginWithRecoveryCode.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
-    /// Login with recovery code model
+    /// Login with recovery code model.
     /// </summary>
     [AllowAnonymous]
     public class LoginWithRecoveryCodeModel : PageModel
@@ -19,7 +26,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         private readonly SignInManager<IdentityUser> _signInManager;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="signInManager"></param>
         /// <param name="logger"></param>
@@ -31,27 +38,30 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Gets or sets input model.
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        /// Return URL
+        /// Gets or sets return URL.
         /// </summary>
         public string ReturnUrl { get; set; }
 
         /// <summary>
-        /// On get method handler
+        /// On get method handler.
         /// </summary>
         /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
             // Ensure the user has gone through the username & password screen first
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-            if (user == null) throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            if (user == null)
+            {
+                throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            }
 
             ReturnUrl = returnUrl;
 
@@ -59,17 +69,23 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// On post method handler
+        /// On post method handler.
         /// </summary>
         /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            if (!ModelState.IsValid) return Page();
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
 
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-            if (user == null) throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            if (user == null)
+            {
+                throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            }
 
             var recoveryCode = Input.RecoveryCode.Replace(" ", string.Empty);
 
@@ -93,12 +109,12 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Recovery code
+            /// Gets or sets recovery code.
             /// </summary>
             [BindProperty]
             [Required]

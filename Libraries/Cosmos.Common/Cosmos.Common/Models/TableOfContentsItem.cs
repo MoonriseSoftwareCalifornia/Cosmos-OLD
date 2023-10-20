@@ -1,59 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// <copyright file="TableOfContentsItem.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Common.Models
 {
-    public class TableOfContents
-    {
-        /// <summary>
-        /// Current page number
-        /// </summary>
-        public int PageNo { get; set; }
-        /// <summary>
-        /// Page size
-        /// </summary>
-        public int PageSize { get; set; }
-        /// <summary>
-        /// Total number of items.
-        /// </summary>
-        public int TotalCount { get; set; }
-        /// <summary>
-        /// Items in the current page
-        /// </summary>
-        public List<TableOfContentsItem> Items { get; set; }
-    }
+    using System;
+    using System.Collections.Generic;
 
     /// <summary>
-    /// Table of Contents (TOC) Item
+    /// Table of Contents (TOC) Item.
     /// </summary>
     public class TableOfContentsItem
     {
         /// <summary>
-        /// URL Path to page
+        /// Gets or sets uRL Path to page.
         /// </summary>
         public string UrlPath { get; set; }
 
         /// <summary>
-        /// Title of page
+        /// Gets or sets title of page.
         /// </summary>
         public string Title { get; set; }
 
         /// <summary>
-        /// Published date and time
+        /// Gets or sets published date and time.
         /// </summary>
         public DateTimeOffset Published { get; set; }
 
         /// <summary>
-        /// When last updated
+        /// Gets or sets when last updated.
         /// </summary>
         public DateTimeOffset Updated { get; set; }
 
         /// <summary>
-        /// Banner or preview image
+        /// Gets or sets banner or preview image.
         /// </summary>
         public string BannerImage { get; set; }
+
         /// <summary>
-        /// Author name
+        /// Gets or sets author name.
         /// </summary>
         public string AuthorInfo { get; set; }
     }

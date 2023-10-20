@@ -1,14 +1,21 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿// <copyright file="ChangePassword.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
-    /// Change password page
+    /// Change password page.
     /// </summary>
     public class ChangePasswordModel : PageModel
     {
@@ -17,7 +24,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<IdentityUser> _userManager;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
@@ -33,47 +40,64 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
         }
 
         /// <summary>
-        /// Input model
+        /// Gets or sets input model.
         /// </summary>
-        [BindProperty] public InputModel Input { get; set; }
+        [BindProperty]
+        public InputModel Input { get; set; }
 
         /// <summary>
-        /// Status message
+        /// Gets or sets status message.
         /// </summary>
-        [TempData] public string StatusMessage { get; set; }
+        [TempData]
+        public string StatusMessage { get; set; }
 
         /// <summary>
-        /// Get method handler
+        /// Get method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             var hasPassword = await _userManager.HasPasswordAsync(user);
-            if (!hasPassword) return RedirectToPage("./SetPassword");
+            if (!hasPassword)
+            {
+                return RedirectToPage("./SetPassword");
+            }
 
             return Page();
         }
 
         /// <summary>
-        /// Handles post method
+        /// Handles post method.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid) return Page();
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
 
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             var changePasswordResult =
                 await _userManager.ChangePasswordAsync(user, Input.OldPassword, Input.NewPassword);
             if (!changePasswordResult.Succeeded)
             {
                 foreach (var error in changePasswordResult.Errors)
+                {
                     ModelState.AddModelError(string.Empty, error.Description);
+                }
+
                 return Page();
             }
 
@@ -85,12 +109,12 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
         }
 
         /// <summary>
-        /// Page input model
+        /// Page input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Old password
+            /// Gets or sets old password.
             /// </summary>
             [Required]
             [DataType(DataType.Password)]
@@ -98,7 +122,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
             public string OldPassword { get; set; }
 
             /// <summary>
-            /// New password
+            /// Gets or sets new password.
             /// </summary>
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.",
@@ -108,7 +132,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
             public string NewPassword { get; set; }
 
             /// <summary>
-            /// Retype to confirm new password
+            /// Gets or sets retype to confirm new password.
             /// </summary>
             [DataType(DataType.Password)]
             [Display(Name = "Confirm new password")]

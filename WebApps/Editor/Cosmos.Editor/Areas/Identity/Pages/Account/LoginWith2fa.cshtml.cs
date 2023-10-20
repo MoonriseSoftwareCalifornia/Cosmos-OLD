@@ -1,16 +1,23 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using System;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+﻿// <copyright file="LoginWith2fa.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
-    /// Login with two factor authentication page model
+    /// Login with two factor authentication page model.
     /// </summary>
     [AllowAnonymous]
     public class LoginWith2faModel : PageModel
@@ -19,7 +26,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         private readonly SignInManager<IdentityUser> _signInManager;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="signInManager"></param>
         /// <param name="logger"></param>
@@ -30,34 +37,37 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Gets or sets input model.
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        /// Remember me
+        /// Gets or sets a value indicating whether remember me.
         /// </summary>
         public bool RememberMe { get; set; }
 
         /// <summary>
-        /// Return to URL
+        /// Gets or sets return to URL.
         /// </summary>
         public string ReturnUrl { get; set; }
 
         /// <summary>
-        /// On get method handler
+        /// On get method handler.
         /// </summary>
         /// <param name="rememberMe"></param>
         /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public async Task<IActionResult> OnGetAsync(bool rememberMe, string returnUrl = null)
         {
             // Ensure the user has gone through the username & password screen first
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
-            if (user == null) throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            if (user == null)
+            {
+                throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            }
 
             ReturnUrl = returnUrl;
             RememberMe = rememberMe;
@@ -66,20 +76,26 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// On post method handler
+        /// On post method handler.
         /// </summary>
         /// <param name="rememberMe"></param>
         /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="InvalidOperationException"></exception>
         public async Task<IActionResult> OnPostAsync(bool rememberMe, string returnUrl = null)
         {
-            if (!ModelState.IsValid) return Page();
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
 
             returnUrl = returnUrl ?? Url.Content("~/");
 
             var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-            if (user == null) throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            if (user == null)
+            {
+                throw new InvalidOperationException("Unable to load two-factor authentication user.");
+            }
 
             var authenticatorCode = Input.TwoFactorCode.Replace(" ", string.Empty).Replace("-", string.Empty);
 
@@ -105,12 +121,12 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Two factor code
+            /// Gets or sets two factor code.
             /// </summary>
             [Required]
             [StringLength(7, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.",
@@ -118,8 +134,9 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
             [DataType(DataType.Text)]
             [Display(Name = "Authenticator code")]
             public string TwoFactorCode { get; set; }
+
             /// <summary>
-            /// Sets remember me cookie
+            /// Gets or sets a value indicating whether sets remember me cookie.
             /// </summary>
             [Display(Name = "Remember this machine")]
             public bool RememberMachine { get; set; }

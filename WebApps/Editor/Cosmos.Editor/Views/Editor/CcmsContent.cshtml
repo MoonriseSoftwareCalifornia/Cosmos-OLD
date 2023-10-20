@@ -92,6 +92,14 @@
 
                 watchdog.create(inlineElement, {
                     initialData: inlineElement.innerHTML,
+                    autosave: {
+                        waitingTime: 2800, // in ms
+                        save(editor) {
+                            if (parent.enableAutoSave === true) {
+                                return parent.cosmosSignalOthers(editor, "save");
+                            }
+                        }
+                    },
                     blockToolbar: [
                         'pageLink',
                         'fileLink',

@@ -1,140 +1,162 @@
-﻿using Cosmos.Common.Models;
-using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Common.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Web;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
+﻿// <copyright file="ArticleLogic.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Common.Data.Logic
 {
+    using System;
+    using System.Linq;
+    using System.Text;
+    using System.Text.RegularExpressions;
+    using System.Threading.Tasks;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Common.Data;
+    using Cosmos.Common.Models;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Caching.Distributed;
+    using Microsoft.Extensions.Caching.Memory;
+    using Microsoft.Extensions.Options;
+    using Newtonsoft.Json;
+
     /// <summary>
     ///     Main logic behind getting and maintaining web site articles.
     /// </summary>
     /// <remarks>An article is the "content" behind a web page.</remarks>
     public class ArticleLogic
     {
-        private readonly bool _isEditor;
-        private readonly IMemoryCache _memoryCache;
+        private readonly bool isEditor;
+        private readonly IMemoryCache memoryCache;
 
         /// <summary>
-        ///     Publisher Constructor
+        /// Initializes a new instance of the <see cref="ArticleLogic"/> class.
         /// </summary>
-        /// <param name="dbContext"></param>
-        /// <param name="distributedCache"></param>
-        /// <param name="config"></param>
-        /// <param name="logger"></param>
-        /// <param name="memoryCache">Memory cache used only by Publishers</param>
-        /// <param name="isEditor">Is in edit mode or not (by passess redis if set to true)</param>
-        /// <param name="memoryCacheMaxSeconds">Maximum seconds to store item in memory cache.</param>
-        public ArticleLogic(ApplicationDbContext dbContext,
-            IOptions<CosmosConfig> config,
-            IMemoryCache memoryCache,
-            bool isEditor = false)
+        /// <param name="dbContext">Database context.</param>
+        /// <param name="config">Cosmos configuration.</param>
+        /// <param name="memoryCache">Memory cache used only by Publishers.</param>
+        /// <param name="isEditor">Is in edit mode or not (by passess redis if set to true).</param>
+        public ArticleLogic(ApplicationDbContext dbContext, IOptions<CosmosConfig> config, IMemoryCache memoryCache, bool isEditor = false)
         {
-            _memoryCache = memoryCache;
+            this.memoryCache = memoryCache;
             DbContext = dbContext;
             CosmosOptions = config;
-            _isEditor = isEditor;
+            this.isEditor = isEditor;
         }
 
-        //private readonly bool _editorMode;
-
         /// <summary>
-        ///     Database Content
-        /// </summary>
-        protected ApplicationDbContext DbContext { get; }
-
-        /// <summary>
-        ///     Site customization config
-        /// </summary>
-        protected IOptions<CosmosConfig> CosmosOptions { get; }
-
-        /// <summary>
-        /// Provides cache hit information
+        /// Gets provides cache hit information.
         /// </summary>
         public string[] CacheResult { get; internal set; }
 
         /// <summary>
-        /// Gets the list of child pages for a given page URL
+        ///     Gets database Content.
         /// </summary>
-        /// <param name="prefix">Page url</param>
-        /// <param name="pageNo">Zero based index (page 1 is index 0)</param>
+        protected ApplicationDbContext DbContext { get; }
+
+        /// <summary>
+        ///     Gets site customization config.
+        /// </summary>
+        protected IOptions<CosmosConfig> CosmosOptions { get; }
+
+        /// <summary>
+        /// Determines if a publisher can serve requests.
+        /// </summary>
+        /// <returns>Indicates the publisher is healthy using a <see cref="bool"/>.</returns>
+        public static bool GetPublisherHealth() => true;
+
+        /// <summary>
+        ///     Serializes an object using <see cref="Newtonsoft.Json.JsonConvert.SerializeObject(object)" />
+        ///     and <see cref="System.Text.Encoding.UTF32" />.
+        /// </summary>
+        /// <param name="obj">Object to serialize into a byte array.</param>
+        /// <returns>Returns a <see cref="byte"/> array.</returns>
+        public static byte[] Serialize(object obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            return Encoding.UTF32.GetBytes(JsonConvert.SerializeObject(obj));
+        }
+
+        /// <summary>
+        ///     Deserializes an object using <see cref="Newtonsoft.Json.JsonConvert.DeserializeObject(string)" />
+        ///     and <see cref="System.Text.Encoding.UTF32" />.
+        /// </summary>
+        /// <param name="bytes">Byte array.</param>
+        /// <typeparam name="T">The generic type to convert the bytes to.</typeparam>
+        /// <returns>Returns the bytes as an object.</returns>
+        public static T Deserialize<T>(byte[] bytes)
+        {
+            var data = Encoding.UTF32.GetString(bytes);
+            return JsonConvert.DeserializeObject<T>(data);
+        }
+
+        /// <summary>
+        /// Gets the list of child pages for a given page URL.
+        /// </summary>
+        /// <param name="prefix">Page url.</param>
+        /// <param name="pageNo">Zero based index (page 1 is index 0).</param>
         /// <param name="pageSize">Number of records in a page.</param>
-        /// <param name="orderByPublishedDate">Order by when was published (most recent on top)</param>
-        /// <returns></returns>
+        /// <param name="orderByPublishedDate">Order by when was published (most recent on top).</param>
+        /// <returns>Returns a <see cref="TableOfContents"/>.</returns>
         public async Task<TableOfContents> GetTOC(string prefix, int pageNo = 0, int pageSize = 10, bool orderByPublishedDate = false)
         {
             if (string.IsNullOrEmpty(prefix) || string.IsNullOrWhiteSpace(prefix) || prefix.Equals("/"))
             {
-                prefix = "";
+                prefix = string.Empty;
             }
             else
             {
                 prefix = "/" + (System.Web.HttpUtility.UrlDecode(prefix.ToLower().Replace("%20", "_").Replace(" ", "_")) + "/").Trim('/');
             }
+
             var skip = pageNo * pageSize;
-
-            //var query = DbContext.Articles.Select(s =>
-            //new TOCItem { UrlPath = s.UrlPath, Title = s.Title, Published = s.Published.Value, Updated = s.Updated })
-            //    .Where(a => a.Published <= DateTime.UtcNow &&
-            //            EF.Functions.Like(a.Title, prefix + "%") &&
-            //            (EF.Functions.Like(a.Title, prefix + "%/%") == false)).Distinct();
-
-
-            // Regex example (?i)(^[cosmos]*)(\/[^\/]*){1}$
 
             IQueryable<TableOfContentsItem> query;
 
             if (string.IsNullOrEmpty(prefix))
             {
-                query = (from t in DbContext.Pages
-                         where t.Published <= DateTimeOffset.UtcNow &&
-                           t.StatusCode != (int)StatusCodeEnum.Redirect
-                         && t.UrlPath.Contains("/") == false && t.UrlPath != "root"
-                         select new TableOfContentsItem
-                         {
-                             UrlPath = t.UrlPath,
-                             Title = t.Title,
-                             Published = t.Published.Value,
-                             Updated = t.Updated,
-                             BannerImage = t.BannerImage,
-                             AuthorInfo = t.AuthorInfo
-                         });
+                query = from t in DbContext.Pages
+                        where t.Published <= DateTimeOffset.UtcNow &&
+                          t.StatusCode != (int)StatusCodeEnum.Redirect
+                        && t.UrlPath.Contains("/") == false && t.UrlPath != "root"
+                        select new TableOfContentsItem
+                        {
+                            UrlPath = t.UrlPath,
+                            Title = t.Title,
+                            Published = t.Published.Value,
+                            Updated = t.Updated,
+                            BannerImage = t.BannerImage,
+                            AuthorInfo = t.AuthorInfo
+                        };
             }
             else
             {
-
                 var count = prefix.Count(c => c == '/');
 
                 var dcount = "{" + count + "}";
                 var epath = prefix.TrimStart('/').Replace("/", "\\/");
                 var pattern = $"(?i)(^[{epath}]*)(\\/[^\\/]*){dcount}$";
 
-                query = (from t in DbContext.Pages
-                         where t.Published <= DateTimeOffset.UtcNow &&
-                         t.StatusCode != (int)StatusCodeEnum.Redirect
-                         && t.UrlPath.StartsWith(epath)
-                         && Regex.IsMatch(t.UrlPath, pattern)
-                         select new TableOfContentsItem
-                         {
-                             UrlPath = t.UrlPath,
-                             Title = t.Title,
-                             Published = t.Published.Value,
-                             Updated = t.Updated,
-                             BannerImage = t.BannerImage,
-                             AuthorInfo = t.AuthorInfo
-                         });
+                query = from t in DbContext.Pages
+                        where t.Published <= DateTimeOffset.UtcNow &&
+                        t.StatusCode != (int)StatusCodeEnum.Redirect
+                        && t.UrlPath.StartsWith(epath)
+                        && Regex.IsMatch(t.UrlPath, pattern)
+                        select new TableOfContentsItem
+                        {
+                            UrlPath = t.UrlPath,
+                            Title = t.Title,
+                            Published = t.Published.Value,
+                            Updated = t.Updated,
+                            BannerImage = t.BannerImage,
+                            AuthorInfo = t.AuthorInfo
+                        };
             }
-
 
             if (orderByPublishedDate)
             {
@@ -147,27 +169,26 @@ namespace Cosmos.Common.Data.Logic
 
             var results = await query.ToListAsync();
 
-            var model = new TableOfContents();
-            model.TotalCount = results.Count;
-            model.PageNo = pageNo;
-            model.PageSize = pageSize;
-            model.Items = results.Skip(skip).Take(pageSize).ToList();
+            var model = new TableOfContents
+            {
+                TotalCount = results.Count,
+                PageNo = pageNo,
+                PageSize = pageSize,
+                Items = results.Skip(skip).Take(pageSize).ToList()
+            };
 
             return model;
         }
 
-        #region GET ARTICLE METHODS
-
         /// <summary>
         ///     Gets the current *published* version of an article.  Gets the home page if ID is null.
         /// </summary>
-        /// <param name="urlPath">URL Encoded path</param>
+        /// <param name="urlPath">URL Encoded path.</param>
         /// <param name="lang">Language to return content as.</param>
-        /// <param name="publishedOnly">Only retrieve latest published version</param>
-        /// <param name="onlyActive">Only retrieve active status</param>
-        /// <param name="forceUseRedis">Force use of distributed cache</param>
+        /// <param name="cacheSpan">Length of time for cache to exist.</param>
+        /// <param name="layoutCache">Layout cache duration.</param>
         /// <returns>
-        ///     <see cref="ArticleViewModel" />
+        ///     <see cref="ArticleViewModel" />.
         /// </returns>
         /// <remarks>
         ///     <para>
@@ -178,8 +199,7 @@ namespace Cosmos.Common.Data.Logic
         ///       <item>SQL Database</item>
         ///     </list>
         ///     <para>
-        ///         Returns <see cref="ArticleViewModel" />. For more details on what is returned, see <see cref="GetArticle" />
-        ///         and <see cref="BuildArticleViewModel" />.
+        ///         Returns <see cref="ArticleViewModel" />.
         ///     </para>
         ///     <para>NOTE: Cannot access articles that have been deleted.</para>
         /// </remarks>
@@ -187,21 +207,25 @@ namespace Cosmos.Common.Data.Logic
         {
             urlPath = urlPath?.ToLower().Trim(new char[] { ' ', '/' });
             if (string.IsNullOrEmpty(urlPath) || urlPath.Trim() == "/")
+            {
                 urlPath = "root";
+            }
 
-            if (_memoryCache == null || cacheSpan == null)
+            if (memoryCache == null || cacheSpan == null)
             {
                 var entity = await DbContext.Pages.WithPartitionKey(urlPath)
                .Where(a => a.Published <= DateTimeOffset.UtcNow)
                .OrderByDescending(o => o.VersionNumber).FirstOrDefaultAsync();
 
                 if (entity == null)
+                {
                     return null;
+                }
 
                 return await BuildArticleViewModel(entity, lang);
             }
 
-            _memoryCache.TryGetValue($"{urlPath}-{lang}", out ArticleViewModel model);
+            memoryCache.TryGetValue($"{urlPath}-{lang}", out ArticleViewModel model);
 
             if (model == null)
             {
@@ -210,25 +234,54 @@ namespace Cosmos.Common.Data.Logic
                    .OrderByDescending(o => o.VersionNumber).FirstOrDefaultAsync();
 
                 if (data == null)
+                {
                     return null;
+                }
 
                 model = await BuildArticleViewModel(data, lang, layoutCache);
 
-                _memoryCache.Set($"{urlPath}-{lang}", model, cacheSpan.Value);
+                memoryCache.Set($"{urlPath}-{lang}", model, cacheSpan.Value);
             }
 
             return model;
-
         }
 
-        #endregion
+        /// <summary>
+        ///     Gets the default layout, including navigation menu.
+        /// </summary><param name="layoutCache">Length of time to cache layout.</param>
+        /// <returns>Returns a <see cref="LayoutViewModel"/>.</returns>
+        /// <remarks>
+        ///     <para>
+        ///         Inserts a Bootstrap style nav bar where this '&lt;!--{COSMOS-UL-NAV}--&gt;' is placed in the
+        ///         <see cref="LayoutViewModel.HtmlHeader" />.
+        ///     </para>
+        /// </remarks>
+        public async Task<LayoutViewModel> GetDefaultLayout(TimeSpan? layoutCache = null)
+        {
+            if (memoryCache == null || layoutCache == null)
+            {
+                var entity = await DbContext.Layouts.AsNoTracking().FirstOrDefaultAsync(a => a.IsDefault);
+                return new LayoutViewModel(entity);
+            }
 
-        #region PRIVATE METHODS
+            memoryCache.TryGetValue("defLayout", out LayoutViewModel model);
+
+            if (model == null)
+            {
+                var entity = await DbContext.Layouts.FirstOrDefaultAsync(a => a.IsDefault);
+                DbContext.Entry(entity).State = EntityState.Detached;
+                model = new LayoutViewModel(entity);
+                memoryCache.Set("defLayout", model, layoutCache.Value);
+            }
+
+            return model;
+        }
+
         /// <summary>
         ///     This method creates an <see cref="ArticleViewModel" /> ready for display and edit.
         /// </summary>
-        /// <param name="article"></param>
-        /// <param name="lang"></param>
+        /// <param name="article">Article entity.</param>
+        /// <param name="lang">Language acronym.</param>
         /// <returns>
         ///     <para>Returns <see cref="ArticleViewModel" /> that includes:</para>
         ///     <list type="bullet">
@@ -248,12 +301,12 @@ namespace Cosmos.Common.Data.Logic
             {
                 ArticleNumber = article.ArticleNumber,
                 LanguageCode = lang,
-                LanguageName = "",
+                LanguageName = string.Empty,
                 CacheDuration = 10,
                 Content = article.Content,
                 StatusCode = (StatusCodeEnum)article.StatusCode,
                 Id = article.Id,
-                Published = article.Published.HasValue ? article.Published.Value : null,
+                Published = article.Published ?? null,
                 Title = article.Title,
                 UrlPath = article.UrlPath,
                 Updated = article.Updated,
@@ -261,9 +314,9 @@ namespace Cosmos.Common.Data.Logic
                 HeadJavaScript = article.HeaderJavaScript,
                 FooterJavaScript = article.FooterJavaScript,
                 Layout = await GetDefaultLayout(),
-                ReadWriteMode = _isEditor,
+                ReadWriteMode = isEditor,
                 RoleList = article.RoleList,
-                Expires = article.Expires.HasValue ? article.Expires.Value : null,
+                Expires = article.Expires ?? null,
                 BannerImage = article.BannerImage,
                 AuthorInfo = JsonConvert.SerializeObject(authorInfo).Replace("\"", "'"),
                 ArticlePermissions = article.ArticlePermissions
@@ -273,8 +326,9 @@ namespace Cosmos.Common.Data.Logic
         /// <summary>
         ///     This method creates an <see cref="ArticleViewModel" /> ready for display and edit.
         /// </summary>
-        /// <param name="article"></param>
-        /// <param name="lang"></param>
+        /// <param name="article">Published page.</param>
+        /// <param name="lang">Language code.</param>
+        /// <param name="layoutCache">Layout cache duration.</param>
         /// <returns>
         ///     <para>Returns <see cref="ArticleViewModel" /> that includes:</para>
         ///     <list type="bullet">
@@ -288,18 +342,17 @@ namespace Cosmos.Common.Data.Logic
         /// </returns>
         protected async Task<ArticleViewModel> BuildArticleViewModel(PublishedPage article, string lang, TimeSpan? layoutCache = null)
         {
-
             return new ArticleViewModel
             {
                 ArticleNumber = article.ArticleNumber,
                 BannerImage = article.BannerImage,
                 LanguageCode = lang,
-                LanguageName = "",
+                LanguageName = string.Empty,
                 CacheDuration = 10,
                 Content = article.Content,
                 StatusCode = (StatusCodeEnum)article.StatusCode,
                 Id = article.Id,
-                Published = article.Published.HasValue ? article.Published.Value : null,
+                Published = article.Published ?? null,
                 Title = article.Title,
                 UrlPath = article.UrlPath,
                 Updated = article.Updated,
@@ -307,85 +360,12 @@ namespace Cosmos.Common.Data.Logic
                 HeadJavaScript = article.HeaderJavaScript,
                 FooterJavaScript = article.FooterJavaScript,
                 Layout = await GetDefaultLayout(layoutCache),
-                ReadWriteMode = _isEditor,
+                ReadWriteMode = isEditor,
                 RoleList = article.RoleList,
-                Expires = article.Expires.HasValue ? article.Expires.Value : null,
+                Expires = article.Expires ?? null,
                 AuthorInfo = article.AuthorInfo,
                 ArticlePermissions = article.ArticlePermissions
             };
-        }
-
-        /// <summary>
-        ///     Gets the default layout, including navigation menu.
-        /// </summary>
-        /// <param name="lang"></param>
-        /// <param name="includeMenu"></param>
-        /// <returns></returns>
-        /// <remarks>
-        ///     <para>
-        ///         Inserts a Bootstrap style nav bar where this '&lt;!--{COSMOS-UL-NAV}--&gt;' is placed in the
-        ///         <see cref="LayoutViewModel.HtmlHeader" />
-        ///     </para>
-        /// </remarks>
-        public async Task<LayoutViewModel> GetDefaultLayout(TimeSpan? layoutCache = null)
-        {
-            if (_memoryCache == null || layoutCache == null)
-            {
-                var entity = await DbContext.Layouts.AsNoTracking().FirstOrDefaultAsync(a => a.IsDefault);
-                return new LayoutViewModel(entity);
-            }
-
-            _memoryCache.TryGetValue("defLayout", out LayoutViewModel model);
-
-            if (model == null)
-            {
-                var entity = await DbContext.Layouts.FirstOrDefaultAsync(a => a.IsDefault);
-                DbContext.Entry(entity).State = EntityState.Detached;
-                model = new LayoutViewModel(entity);
-                _memoryCache.Set("defLayout", model, layoutCache.Value);
-            }
-
-            return model;
-        }
-
-
-        #endregion
-
-        #region CACHE FUNCTIONS
-
-        /// <summary>
-        ///     Serializes an object using <see cref="Newtonsoft.Json.JsonConvert.SerializeObject(object)" />
-        ///     and <see cref="System.Text.Encoding.UTF32" />.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <returns></returns>
-        public static byte[] Serialize(object obj)
-        {
-            if (obj == null) return null;
-            return Encoding.UTF32.GetBytes(JsonConvert.SerializeObject(obj));
-        }
-
-        /// <summary>
-        ///     Deserializes an object using <see cref="Newtonsoft.Json.JsonConvert.DeserializeObject(string)" />
-        ///     and <see cref="System.Text.Encoding.UTF32" />.
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <returns></returns>
-        public static T Deserialize<T>(byte[] bytes)
-        {
-            var data = Encoding.UTF32.GetString(bytes);
-            return JsonConvert.DeserializeObject<T>(data);
-        }
-
-        #endregion
-
-        /// <summary>
-        /// Determines if a publisher can serve requests.
-        /// </summary>
-        /// <returns></returns>
-        public bool GetPublisherHealth()
-        {
-            return true;
         }
     }
 }

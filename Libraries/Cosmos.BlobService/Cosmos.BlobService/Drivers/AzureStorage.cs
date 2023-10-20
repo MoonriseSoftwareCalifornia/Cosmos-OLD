@@ -1,42 +1,52 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Azure;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs.Specialized;
-using Cosmos.BlobService.Config;
-using Cosmos.BlobService.Models;
+﻿// <copyright file="AzureStorage.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.BlobService.Drivers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Azure;
+    using Azure.Storage.Blobs;
+    using Azure.Storage.Blobs.Models;
+    using Azure.Storage.Blobs.Specialized;
+    using Cosmos.BlobService.Config;
+    using Cosmos.BlobService.Models;
+
     /// <summary>
-    ///     Azure blob storage driver
+    ///     Azure blob storage driver.
     /// </summary>
     public sealed class AzureStorage : ICosmosStorage
     {
+        private readonly string containerName;
+        private readonly BlobServiceClient blobServiceClient;
+
         /// <summary>
-        ///     Constructor
+        /// Initializes a new instance of the <see cref="AzureStorage"/> class.
         /// </summary>
-        /// <param name="config"></param>
-        /// <param name="containerName"></param>
+        /// <param name="config">Storage configuration as a <see cref="AzureStorageConfig"/>.</param>
+        /// <param name="containerName">Name of container (default is $web).</param>
         public AzureStorage(AzureStorageConfig config, string containerName = "$web")
         {
-            _containerName = containerName;
-            _blobServiceClient = new BlobServiceClient(config.AzureBlobStorageConnectionString);
+            this.containerName = containerName;
+            blobServiceClient = new BlobServiceClient(config.AzureBlobStorageConnectionString);
         }
 
         /// <summary>
-        /// Gets the amount of bytes consumed in a storage account container
+        /// Gets the amount of bytes consumed in a storage account container.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns the number of bytes consumed for the container as a <see cref="long"/>.</returns>
         public async Task<long> GetBytesConsumed()
         {
-            var info = await _blobServiceClient.GetAccountInfoAsync();
-            var container = _blobServiceClient.GetBlobContainerClient(_containerName);
+            var info = await blobServiceClient.GetAccountInfoAsync();
+            var container = blobServiceClient.GetBlobContainerClient(containerName);
             long bytesConsumed = 0;
             var blobs = container.GetBlobsAsync().AsPages();
 
@@ -49,56 +59,56 @@ namespace Cosmos.BlobService.Drivers
         }
 
         /// <summary>
-        ///     Appends byte array to blob
+        ///     Appends byte array to an existing blob.
         /// </summary>
-        /// <param name="data"></param>
-        /// <param name="fileMetaData"></param>
-        /// <param name="uploadDateTime"></param>
-        /// <returns></returns>
+        /// <param name="data">Bytes to append.</param>
+        /// <param name="fileMetaData">'Chunk' metadata being appended as a <see cref="FileUploadMetaData"/>.</param>
+        /// <param name="uploadDateTime">Date and time uploaded as a <see cref="DateTimeOffset"/>.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <remarks>
+        /// Existing blobs will be overwritten if they already exists, otherwise a new blob is created.
+        /// </remarks>
         public async Task AppendBlobAsync(byte[] data, FileUploadMetaData fileMetaData, DateTimeOffset uploadDateTime)
         {
             var appendClient = GetAppendBlobClient(fileMetaData.RelativePath);
 
-
             if (fileMetaData.ChunkIndex == 0)
             {
-                //await DeleteIfExistsAsync(fileMetaData.RelativePath);
                 await appendClient.DeleteIfExistsAsync();
 
                 var headers = new BlobHttpHeaders
                 {
-                    // Set the MIME ContentType every time the properties 
-                    // are updated or the field will be cleared
+                    // Set the MIME ContentType every time the properties are updated or the field will be cleared.
                     ContentType = Utilities.GetContentType(fileMetaData)
                 };
 
                 await appendClient.CreateIfNotExistsAsync(headers);
 
-                var dictionaryObject = new Dictionary<string, string>();
-                dictionaryObject.Add("ccmsuploaduid", fileMetaData.UploadUid);
-                dictionaryObject.Add("ccmssize", fileMetaData.TotalFileSize.ToString());
-                dictionaryObject.Add("ccmsdatetime", uploadDateTime.UtcDateTime.Ticks.ToString());
+                var dictionaryObject = new Dictionary<string, string>
+                {
+                    { "ccmsuploaduid", fileMetaData.UploadUid },
+                    { "ccmssize", fileMetaData.TotalFileSize.ToString() },
+                    { "ccmsdatetime", uploadDateTime.UtcDateTime.Ticks.ToString() }
+                };
 
                 _ = await appendClient.SetMetadataAsync(dictionaryObject);
             }
 
-
-            //
             // AWS Multi part upload requires parts or chunks to be 5MB, which
             // are too big for Azure append blobs, so buffer the upload size here.
-            //
-
             await using Stream loadMemoryStream = new MemoryStream(data);
 
             loadMemoryStream.Position = 0;
             int bytesRead;
-            var buffer = new byte[2621440]; // 2.5 MB 
+            var buffer = new byte[2621440]; // 2.5 MB.
             while ((bytesRead = loadMemoryStream.Read(buffer, 0, buffer.Length)) > 0)
             {
-                //Stream stream = new MemoryStream(buffer);
+                // Stream stream = new MemoryStream(buffer);
                 var newArray = new Span<byte>(buffer, 0, bytesRead).ToArray();
-                Stream stream = new MemoryStream(newArray);
-                stream.Position = 0;
+                Stream stream = new MemoryStream(newArray)
+                {
+                    Position = 0
+                };
                 await appendClient.AppendBlockAsync(stream);
             }
 
@@ -112,8 +122,8 @@ namespace Cosmos.BlobService.Drivers
         /// <summary>
         ///     Determines if a blob exists.
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">Path to blob.</param>
+        /// <returns>Returns a <see cref="bool"/> indicating it exists or not.</returns>
         public async Task<bool> BlobExistsAsync(string path)
         {
             var blob = await GetBlobAsync(path);
@@ -124,8 +134,8 @@ namespace Cosmos.BlobService.Drivers
         /// <summary>
         ///     Copies a single blob and returns it's <see cref="BlobClient" />.
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="destination"></param>
+        /// <param name="source">Path to the blob to copy.</param>
+        /// <param name="destination">Path to where the blob should be copied.</param>
         /// <returns>The destination or new <see cref="BlobClient" />.</returns>
         /// <remarks>
         ///     Tip: After operation, check the returned blob object to see if it exists.
@@ -136,7 +146,7 @@ namespace Cosmos.BlobService.Drivers
             destination = destination.TrimStart('/');
 
             var containerClient =
-                _blobServiceClient.GetBlobContainerClient(_containerName);
+                blobServiceClient.GetBlobContainerClient(containerName);
             var sourceBlob = containerClient.GetBlobClient(source);
             if (await sourceBlob.ExistsAsync())
             {
@@ -157,17 +167,16 @@ namespace Cosmos.BlobService.Drivers
         /// <summary>
         ///     Creates a folder if it does not yet exists.
         /// </summary>
-        /// <param name="path">Full path to folder to create</param>
-        /// <returns></returns>
+        /// <param name="path">Path to folder to create.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// <exception cref="Exception">Folder creation failure.</exception>
         public async Task CreateFolderAsync(string path)
         {
-            //
             // Blob storage does not have a folder object, just blobs with paths.
             // Therefore, to create an illusion of a folder, we have to create a blob
             // that will be in the folder.  For example:
             // 
-            // To create folder /pictures 
+            // To create folder /pictures
             //
             // You have to pub a blob here /pictures/folder.subxx
             //
@@ -188,15 +197,15 @@ namespace Cosmos.BlobService.Drivers
         }
 
         /// <summary>
-        ///     Gets a list of blobs by path
+        ///     Gets a list of blobs by path.
         /// </summary>
-        /// <param name="path"></param>
-        /// <param name="filter"></param>
-        /// <returns></returns>
+        /// <param name="path">Path to get blob names from.</param>
+        /// <param name="filter">Search filter (optional).</param>
+        /// <returns>Returns the names as a <see cref="string"/> list.</returns>
         public async Task<List<string>> GetBlobNamesByPath(string path, string[] filter = null)
         {
             var containerClient =
-                _blobServiceClient.GetBlobContainerClient(_containerName);
+                blobServiceClient.GetBlobContainerClient(containerName);
 
             var pageable = containerClient.GetBlobsAsync(prefix: path).AsPages();
 
@@ -212,17 +221,20 @@ namespace Cosmos.BlobService.Drivers
         /// <summary>
         ///     Deletes a folder and all its contents.
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public async Task<int> DeleteFolderAsync(string target)
+        /// <param name="path">Path to doomed folder.</param>
+        /// <returns>Returns the number of deleted obhects as an <see cref="int"/>.</returns>
+        public async Task<int> DeleteFolderAsync(string path)
         {
-            var blobs = await GetBlobItemsByPath(target);
+            var blobs = await GetBlobItemsByPath(path);
             var containerClient =
-                _blobServiceClient.GetBlobContainerClient(_containerName);
+                blobServiceClient.GetBlobContainerClient(containerName);
 
             var responses = new List<Response<bool>>();
 
-            foreach (var blob in blobs) responses.Add(await containerClient.DeleteBlobIfExistsAsync(blob.Name));
+            foreach (var blob in blobs)
+            {
+                responses.Add(await containerClient.DeleteBlobIfExistsAsync(blob.Name));
+            }
 
             return responses.Count(r => r.Value);
         }
@@ -230,22 +242,22 @@ namespace Cosmos.BlobService.Drivers
         /// <summary>
         ///     Deletes a file (blob).
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public async Task DeleteIfExistsAsync(string target)
+        /// <param name="path">Path to doomed blob.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        public async Task DeleteIfExistsAsync(string path)
         {
             var containerClient =
-                _blobServiceClient.GetBlobContainerClient(_containerName);
-            await containerClient.DeleteBlobIfExistsAsync(target, DeleteSnapshotsOption.IncludeSnapshots);
+                blobServiceClient.GetBlobContainerClient(containerName);
+            await containerClient.DeleteBlobIfExistsAsync(path, DeleteSnapshotsOption.IncludeSnapshots);
         }
 
         /// <summary>
-        /// Enables the static website and sets default CORS rule
+        /// Enables the static website and sets default CORS rule.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task EnableStaticWebsite()
         {
-            BlobServiceProperties properties = await _blobServiceClient.GetPropertiesAsync();
+            BlobServiceProperties properties = await blobServiceClient.GetPropertiesAsync();
 
             if (!properties.StaticWebsite.Enabled)
             {
@@ -253,32 +265,40 @@ namespace Cosmos.BlobService.Drivers
 
                 if (properties.Cors == null)
                 {
-                    var corsRule = new BlobCorsRule();
-                    corsRule.AllowedMethods = "GET,HEAD,OPTIONS";
-                    corsRule.AllowedOrigins = "*";
-                    corsRule.AllowedHeaders = "*";
-                    corsRule.ExposedHeaders = "*";
+                    var corsRule = new BlobCorsRule
+                    {
+                        AllowedMethods = "GET,HEAD,OPTIONS",
+                        AllowedOrigins = "*",
+                        AllowedHeaders = "*",
+                        ExposedHeaders = "*"
+                    };
                     properties.Cors = new List<BlobCorsRule>() { corsRule };
                 }
 
-                _blobServiceClient.SetProperties(properties);
+                blobServiceClient.SetProperties(properties);
             }
         }
 
         /// <summary>
-        ///     Gets a client for a blob.
+        ///     Gets a <see cref="BlobClient"/> for a blob.
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public async Task<BlobClient> GetBlobAsync(string target)
+        /// <param name="path">Path to blob.</param>
+        /// <returns>Returns a <see cref="BlobClient"/>.</returns>
+        public async Task<BlobClient> GetBlobAsync(string path)
         {
-            if (string.IsNullOrEmpty(target)) return null;
+            if (string.IsNullOrEmpty(path))
+            {
+                return null;
+            }
 
-            target = target.TrimStart('/');
+            path = path.TrimStart('/');
             var containerClient =
-                _blobServiceClient.GetBlobContainerClient(_containerName);
+                blobServiceClient.GetBlobContainerClient(containerName);
 
-            if (await containerClient.ExistsAsync()) return containerClient.GetBlobClient(target);
+            if (await containerClient.ExistsAsync())
+            {
+                return containerClient.GetBlobClient(path);
+            }
 
             return null;
         }
@@ -286,28 +306,31 @@ namespace Cosmos.BlobService.Drivers
         /// <summary>
         /// Get blob itmes by path.
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public async Task<List<BlobItem>> GetBlobItemsByPath(string target)
+        /// <param name="path">Path where to get items from.</param>
+        /// <returns>Returns the items as <see cref="BlobItem"/> <see cref="List{T}"/>.</returns>
+        public async Task<List<BlobItem>> GetBlobItemsByPath(string path)
         {
             var results = new List<BlobItem>();
             var containerClient =
-                _blobServiceClient.GetBlobContainerClient(_containerName);
-            var items = containerClient.GetBlobsAsync(prefix: target);
+                blobServiceClient.GetBlobContainerClient(containerName);
+            var items = containerClient.GetBlobsAsync(prefix: path);
 
-            await foreach (var item in items) results.Add(item);
+            await foreach (var item in items)
+            {
+                results.Add(item);
+            }
 
             return results;
         }
 
         /// <summary>
-        /// Gets metadata for a blob
+        /// Gets metadata for a blob.
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public async Task<FileMetadata> GetFileMetadataAsync(string target)
+        /// <param name="path">Path to file from which to get metadata.</param>
+        /// <returns>Returns metadata as a <see cref="FileMetadata"/>.</returns>
+        public async Task<FileMetadata> GetFileMetadataAsync(string path)
         {
-            var blobClient = await GetBlobAsync(target);
+            var blobClient = await GetBlobAsync(path);
             var properties = await blobClient.GetPropertiesAsync();
             _ = long.TryParse(properties.Value.Metadata["ccmsuploaduid"], out var mark);
             return new FileMetadata()
@@ -321,29 +344,31 @@ namespace Cosmos.BlobService.Drivers
             };
         }
 
+        /// <inheritdoc/>
         public Task<List<FileMetadata>> GetInventory()
         {
             throw new NotImplementedException();
         }
 
         /// <summary>
-        ///     Gets files and subfolders for a given path
+        ///     Gets files and subfolders for a given path.
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">Path from which to get objects from.</param>
+        /// <returns>Returns objects as a <see cref="BlobHierarchyItem"/> <see cref="List{T}"/>.</returns>
         public async Task<List<BlobHierarchyItem>> GetObjectsAsync(string path)
         {
-            if (path == "/") path = "";
+            if (path == "/")
+            {
+                path = string.Empty;
+            }
 
-            if (!string.IsNullOrEmpty(path)) path = path.TrimStart('/');
+            if (!string.IsNullOrEmpty(path))
+            {
+                path = path.TrimStart('/');
+            }
 
-            var containerClient =
-                _blobServiceClient.GetBlobContainerClient(_containerName);
-
-
-            var resultSegment = containerClient.GetBlobsByHierarchyAsync(prefix: path, delimiter: "/")
-                .AsPages();
-
+            var containerClient = blobServiceClient.GetBlobContainerClient(containerName);
+            var resultSegment = containerClient.GetBlobsByHierarchyAsync(prefix: path, delimiter: "/").AsPages();
             var results = new List<BlobHierarchyItem>();
 
             await foreach (var blobPage in resultSegment)
@@ -357,111 +382,62 @@ namespace Cosmos.BlobService.Drivers
         /// <summary>
         /// Opens a read stream to download the blob.
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public async Task<Stream> GetStreamAsync(string target)
+        /// <param name="path">Path to blob from which to open.</param>
+        /// <returns>Returns data as a <see cref="Stream"/>.</returns>
+        public async Task<Stream> GetStreamAsync(string path)
         {
             var containerClient =
-                _blobServiceClient.GetBlobContainerClient(_containerName);
+                blobServiceClient.GetBlobContainerClient(containerName);
 
-            var blobClient = containerClient.GetAppendBlobClient(target);
+            var blobClient = containerClient.GetAppendBlobClient(path);
 
             return await blobClient.OpenReadAsync(new BlobOpenReadOptions(false));
         }
 
         /// <summary>
-        /// Uploads file to a stream
+        /// Uploads file to a stream.
         /// </summary>
-        /// <param name="readStream"></param>
-        /// <param name="fileMetaData"></param>
-        /// <param name="uploadDateTime"></param>
-        /// <returns></returns>
+        /// <param name="readStream">Data stream to upload.</param>
+        /// <param name="fileMetaData">File and chunk metadata.</param>
+        /// <param name="uploadDateTime">Chunk upload date and time.</param>
+        /// <returns>Indicates success as a <see cref="bool"/>.</returns>
         public async Task<bool> UploadStreamAsync(Stream readStream, FileUploadMetaData fileMetaData, DateTimeOffset uploadDateTime)
         {
-
             var appendClient = GetAppendBlobClient(fileMetaData.RelativePath);
             await appendClient.DeleteIfExistsAsync();
 
-
-            //BlobProperties properties = await appendClient.GetPropertiesAsync();
-
             var headers = new BlobHttpHeaders
             {
-                // Set the MIME ContentType every time the properties 
-                // are updated or the field will be cleared
+                // Set the MIME ContentType every time the properties
+                // are updated or the field will be cleared.
                 ContentType = Utilities.GetContentType(fileMetaData)
             };
             await appendClient.CreateIfNotExistsAsync(headers);
 
-            var dictionaryObject = new Dictionary<string, string>();
-            dictionaryObject.Add("ccmsuploaduid", fileMetaData.UploadUid);
-            dictionaryObject.Add("ccmssize", fileMetaData.TotalFileSize.ToString());
-            dictionaryObject.Add("ccmsdatetime", uploadDateTime.UtcDateTime.Ticks.ToString());
+            var dictionaryObject = new Dictionary<string, string>
+            {
+                { "ccmsuploaduid", fileMetaData.UploadUid },
+                { "ccmssize", fileMetaData.TotalFileSize.ToString() },
+                { "ccmsdatetime", uploadDateTime.UtcDateTime.Ticks.ToString() }
+            };
 
             _ = await appendClient.SetMetadataAsync(dictionaryObject);
-
             var writeStream = await appendClient.OpenWriteAsync(false);
-
             await readStream.CopyToAsync(writeStream);
-
             return true;
         }
-
-        #region PRIVATE FIELDS AND METHODS
-
-        private readonly string _containerName;
-        private readonly BlobServiceClient _blobServiceClient;
 
         /// <summary>
         ///     Gets an append blob client, used for chunk uploads.
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
-        public AppendBlobClient GetAppendBlobClient(string target)
+        /// <param name="path">Path to blob from which to open with client.</param>
+        /// <returns>Returns the <see cref="AppendBlobClient"/>.</returns>
+        public AppendBlobClient GetAppendBlobClient(string path)
         {
             var containerClient =
-                _blobServiceClient.GetBlobContainerClient(_containerName);
+                blobServiceClient.GetBlobContainerClient(containerName);
 
-            return containerClient.GetAppendBlobClient(target);
+            return containerClient.GetAppendBlobClient(path);
         }
-
-
-        //private async Task<List<BlobItem>> ListBlobsHierarchicalListing(string startsWith, int? segmentSize,
-        //    BlobContainerClient container = null)
-        //{
-        //    var blobItemList = new List<BlobItem>();
-
-        //    // If the container is given, we are likely reusing one in a search.
-        //    // Otherwise if null, get the default container.
-        //    container ??= _blobServiceClient.GetBlobContainerClient("$web");
-
-        //    // Call the listing operation and return pages of the specified size.
-        //    var resultSegment = container.GetBlobsByHierarchyAsync(prefix: startsWith, delimiter: "/")
-        //        .AsPages(default, segmentSize);
-
-        //    // Enumerate the blobs returned for each page.
-        //    await foreach (var blobPage in resultSegment)
-        //        // A hierarchical listing may return both virtual directories and blobs.
-        //        foreach (var blobHierarchyItem in blobPage.Values)
-        //            if (blobHierarchyItem.IsPrefix)
-        //            {
-        //                // Write out the prefix of the virtual directory.
-        //                //Console.WriteLine("Virtual directory prefix: {0}", blobHierarchyItem.Prefix);
-
-        //                // Call recursively with the prefix to traverse the virtual directory.
-        //                blobItemList.AddRange(
-        //                    await ListBlobsHierarchicalListing(blobHierarchyItem.Prefix, null, container));
-        //            }
-        //            else
-        //            {
-        //                // Write out the name of the blob.
-        //                blobItemList.Add(blobHierarchyItem.Blob);
-        //            }
-
-        //    // Return the blob list here.
-        //    return blobItemList;
-        //}
-
-        #endregion
     }
 }

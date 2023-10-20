@@ -9,14 +9,16 @@
 		<Description>This package contains all the common methods and objects used by the Cosmos CMS editor website, and by any website service the role of a publishing website.</Description>
 		<Copyright>Eric Kauffman</Copyright>
 		<RepositoryType>Class Library</RepositoryType>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<SignAssembly>false</SignAssembly>
 		<AnalysisLevel>5.0</AnalysisLevel>
 		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-		<Version>7.5.7.9</Version>
-		<AssemblyVersion>7.5.7.9</AssemblyVersion>
-		<FileVersion>7.5.7.9</FileVersion>
+		<PackageIcon>B2C_BrandIcon_Black.png</PackageIcon>
+		<Version>7.5.8.1</Version>
+		<AssemblyVersion>7.5.8.1</AssemblyVersion>
+		<FileVersion>7.5.8.1</FileVersion>
 		<UserSecretsId>498e495c-d772-4d44-870d-92009f01de57</UserSecretsId>
 		<PackageProjectUrl>https://www.cosmoswps.com</PackageProjectUrl>
 		<NeutralLanguage></NeutralLanguage>
@@ -41,6 +43,8 @@
 
 	<PropertyGroup>
 		<DisableImplicitAspNetCoreAnalyzers>true</DisableImplicitAspNetCoreAnalyzers>
+		<Title>Cosmos CMS Common Objects</Title>
+		<PackageReadmeFile></PackageReadmeFile>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -55,20 +59,52 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Content Remove="C:\Users\toiya\.nuget\packages\aspnetcore.identity.cosmosdb\2.1.4\contentFiles\any\net7.0\_res\icons\nuget-icon.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="B2C_BrandIcon_Black.png" />
 		<None Remove="nuget.config" />
+		<None Remove="stylecop.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <AdditionalFiles Include="stylecop.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Include="B2C_BrandIcon_Black.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="readme.md">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
 	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="AspNetCore.Identity.CosmosDb" Version="2.1.4" />
 		<PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.2.2" />
-		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="7.0.11" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.11" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.11" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="7.0.12" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="7.0.12" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.12" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="7.0.12" />
+		<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Cosmos.BlobService\Cosmos.BlobService\Cosmos.BlobService.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="readme.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 

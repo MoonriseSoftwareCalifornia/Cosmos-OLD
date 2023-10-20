@@ -1,15 +1,21 @@
-﻿using System.Collections.Generic;
+﻿// <copyright file="RequiredIdentityRoles.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Data
 {
+    using System.Collections.Generic;
+
     /// <summary>
-    /// Required roles for Cosmos
+    /// Required roles for Cosmos.
     /// </summary>
     public static class RequiredIdentityRoles
     {
-
         /// <summary>
-        /// List of roles required for Cosmos to work
+        /// Gets list of roles required for Cosmos to work.
         /// </summary>
         public static List<string> Roles
         {
@@ -27,19 +33,22 @@ namespace Cosmos.Cms.Data
         }
 
         /// <summary>
-        /// Administrators role
+        /// Administrators role.
         /// </summary>
         public const string Administrators = "Administrators";
+
         /// <summary>
-        /// Authors
+        /// Authors.
         /// </summary>
         public const string Authors = "Authors";
+
         /// <summary>
-        /// Editors
+        /// Editors.
         /// </summary>
         public const string Editors = "Editors";
+
         /// <summary>
-        /// Reviewers
+        /// Reviewers.
         /// </summary>
         public const string Reviewers = "Reviewers";
     }

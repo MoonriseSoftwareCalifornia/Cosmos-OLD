@@ -1,26 +1,32 @@
-﻿using Cosmos.Cms.Data;
-using Cosmos.Common.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="HtmlEditorViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Models
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+    using Cosmos.Cms.Data;
+    using Cosmos.Common.Models;
+    using Microsoft.AspNetCore.Mvc;
+
     /// <summary>
     ///     Article edit model returned when an article has been saved.
     /// </summary>
     public class HtmlEditorViewModel
     {
-
         /// <summary>
-        ///     Constructor
+        ///     Constructor.
         /// </summary>
         public HtmlEditorViewModel()
         {
         }
 
         /// <summary>
-        ///     Constructor
+        ///     Constructor.
         /// </summary>
         /// <param name="model"></param>
         public HtmlEditorViewModel(ArticleViewModel model)
@@ -38,36 +44,36 @@ namespace Cosmos.Cms.Models
         }
 
         /// <summary>
-        ///     Entity key for the article
+        ///     Gets or sets entity key for the article.
         /// </summary>
         [Key]
         public Guid Id { get; set; }
 
         /// <summary>
-        /// When saving, save as new version
+        /// Gets or sets a value indicating whether when saving, save as new version.
         /// </summary>
         public bool SaveAsNewVersion { get; set; } = false;
 
         /// <summary>
-        ///     Article number
+        ///     Gets or sets article number.
         /// </summary>
         public int ArticleNumber { get; set; }
 
         /// <summary>
-        ///     Url of this page
+        ///     Gets or sets url of this page.
         /// </summary>
         [MaxLength(128)]
         [StringLength(128)]
         public string UrlPath { get; set; }
 
         /// <summary>
-        ///     Version number of this article
+        ///     Gets or sets version number of this article.
         /// </summary>
         [Display(Name = "Article version")]
         public int VersionNumber { get; set; }
 
         /// <summary>
-        ///     Article title
+        ///     Gets or sets article title.
         /// </summary>
         [MaxLength(80)]
         [StringLength(80)]
@@ -77,19 +83,19 @@ namespace Cosmos.Cms.Models
         public string Title { get; set; }
 
         /// <summary>
-        ///     HTML Content of the page
+        ///     Gets or sets hTML Content of the page.
         /// </summary>
         [DataType(DataType.Html)]
         public string Content { get; set; }
 
         /// <summary>
-        ///     Roles allowed to view this page.
+        ///     Gets or sets roles allowed to view this page.
         /// </summary>
         /// <remarks>If this value is null, it assumes page can be viewed anonymously.</remarks>
         public string RoleList { get; set; }
 
         /// <summary>
-        ///     Date and time of when this was published
+        ///     Gets or sets date and time of when this was published.
         /// </summary>
         [Display(Name = "Publish on date/time (PST):")]
         [DataType(DataType.DateTime)]
@@ -97,7 +103,7 @@ namespace Cosmos.Cms.Models
         public DateTimeOffset? Published { get; set; }
 
         /// <summary>
-        ///     Date and time of when this was updated
+        ///     Gets or sets date and time of when this was updated.
         /// </summary>
         [Display(Name = "Publish on date/time (PST):")]
         [DataType(DataType.DateTime)]
@@ -105,12 +111,12 @@ namespace Cosmos.Cms.Models
         public DateTimeOffset? Updated { get; set; }
 
         /// <summary>
-        /// Article banner image
+        /// Gets article banner image.
         /// </summary>
         public string BannerImage { get; private set; }
 
         /// <summary>
-        /// Update existing version
+        /// Gets or sets a value indicating whether update existing version.
         /// </summary>
         public bool UpdateExisting { get; set; } = true;
     }

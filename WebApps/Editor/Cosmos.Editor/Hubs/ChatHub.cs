@@ -1,22 +1,29 @@
-﻿using Cosmos.BlobService;
-using Cosmos.Cms.Data.Logic;
-using Cosmos.Cms.Models;
-using Cosmos.Common.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="ChatHub.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Hubs
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Cosmos.BlobService;
+    using Cosmos.Cms.Data.Logic;
+    using Cosmos.Cms.Models;
+    using Cosmos.Common.Data;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.SignalR;
+    using Microsoft.EntityFrameworkCore;
+    using Newtonsoft.Json;
+
     /// <summary>
-    /// Chat hub
+    /// Chat hub.
     /// </summary>
     [Authorize]
     public class ChatHub : Hub
@@ -26,7 +33,7 @@ namespace Cosmos.Cms.Hubs
         private readonly StorageContext _storageContext;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="dbContext"></param>
         /// <param name="articleLogic"></param>
@@ -41,11 +48,11 @@ namespace Cosmos.Cms.Hubs
         #region CHAT METHODS
 
         /// <summary>
-        /// Chat send method
+        /// Chat send method.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="message"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task Send(object sender, string message)
         {
             // Broadcast the message to all clients except the sender
@@ -56,7 +63,7 @@ namespace Cosmos.Cms.Hubs
         /// Send or broadcast message.
         /// </summary>
         /// <param name="sender"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task SendTyping(object sender)
         {
             // Broadcast the typing notification to all clients except the sender
@@ -67,7 +74,7 @@ namespace Cosmos.Cms.Hubs
         /// Signals that the user has stopped typing in the chat window.
         /// </summary>
         /// <param name="sender"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task StopTyping(object sender)
         {
             // Broadcast the typing notification to all clients except the sender
@@ -81,9 +88,9 @@ namespace Cosmos.Cms.Hubs
         /// <summary>
         /// Signal other members of the group that a page was just saved, and to reload page.
         /// </summary>
-        /// <param name="id">Article RECORD ID</param>
+        /// <param name="id">Article RECORD ID.</param>
         /// <param name="editorType"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ArticleSaved(string id, string editorType)
         {
             var result = await GetContent(id, editorType);
@@ -96,7 +103,7 @@ namespace Cosmos.Cms.Hubs
         /// </summary>
         /// <param name="id"></param>
         /// <param name="editorType"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ArticleImported(string id, string editorType)
         {
             var result = await GetContent(id, editorType);
@@ -109,7 +116,7 @@ namespace Cosmos.Cms.Hubs
         /// </summary>
         /// <param name="id"></param>
         /// <param name="editorType"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AbandonEdits(string id, string editorType)
         {
             var result = await GetContent(id, editorType);
@@ -118,11 +125,11 @@ namespace Cosmos.Cms.Hubs
         }
 
         /// <summary>
-        /// Gets content for a editor
+        /// Gets content for a editor.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="editorType"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task<string> GetContent(string id, string editorType)
         {
             switch (editorType)
@@ -132,6 +139,7 @@ namespace Cosmos.Cms.Hubs
                         var model = await _dbContext.NodeScripts.FindAsync(Guid.Parse(id));
                         return JsonConvert.SerializeObject(model);
                     }
+
                 case "FileEditor":
                     {
                         // Open a stream
@@ -154,19 +162,22 @@ namespace Cosmos.Cms.Hubs
                         };
                         return JsonConvert.SerializeObject(model);
                     }
+
                 case "LayoutEditor":
                     {
                         var model = await _dbContext.Layouts.FindAsync(Guid.Parse(id));
                         return JsonConvert.SerializeObject(model);
                     }
+
                 case "TemplateEditor":
                     {
                         var model = await _dbContext.Templates.FindAsync(Guid.Parse(id));
                         return JsonConvert.SerializeObject(model);
                     }
+
                 default:
                     {
-                        var model = await _articleLogic.Get(Guid.Parse(id), Controllers.EnumControllerName.Edit, "");
+                        var model = await _articleLogic.Get(Guid.Parse(id), Controllers.EnumControllerName.Edit, string.Empty);
                         return JsonConvert.SerializeObject(model);
                     }
             }
@@ -177,7 +188,7 @@ namespace Cosmos.Cms.Hubs
         /// </summary>
         /// <param name="id">Article record number is the room name.</param>
         /// <param name="editorType"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task JoinRoom(string id, string editorType)
         {
             if (!string.IsNullOrEmpty(id))
@@ -189,9 +200,9 @@ namespace Cosmos.Cms.Hubs
         /// <summary>
         /// Notifies everyone on this editing room of any article lock.
         /// </summary>
-        /// <param name="id">Article record ID</param>
+        /// <param name="id">Article record ID.</param>
         /// <param name="editorType"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task NotifyRoomOfLock(string id, string editorType)
         {
             var idno = Guid.Parse(id);
@@ -209,13 +220,12 @@ namespace Cosmos.Cms.Hubs
         }
 
         /// <summary>
-        /// Removes a lock on an article
+        /// Removes a lock on an article.
         /// </summary>
-        /// <param name="id">Group ID</param>
-        /// <returns></returns>
+        /// <param name="id">Group ID.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task ClearLocks(string id)
         {
-
             var connectionId = Context.ConnectionId;
             var idno = Guid.Parse(id);
 
@@ -229,12 +239,10 @@ namespace Cosmos.Cms.Hubs
                 _dbContext.ArticleLocks.RemoveRange(articleLocks);
 
                 await _dbContext.SaveChangesAsync();
-
             }
 
             string message = JsonConvert.SerializeObject(new ArticleLockViewModel());
             await Clients.Group(id).SendAsync("ArticleLock", message);
-
         }
 
         /// <summary>
@@ -242,7 +250,7 @@ namespace Cosmos.Cms.Hubs
         /// </summary>
         /// <param name="id">Article RECORD ID.</param>
         /// <param name="editorType"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task SetArticleLock(string id, string editorType)
         {
             if (!string.IsNullOrEmpty(id))
@@ -264,6 +272,7 @@ namespace Cosmos.Cms.Hubs
                     _dbContext.ArticleLocks.Add(articleLock);
                     await _dbContext.SaveChangesAsync();
                 }
+
                 await NotifyRoomOfLock(id, editorType);
             }
         }
@@ -271,13 +280,12 @@ namespace Cosmos.Cms.Hubs
         #endregion
 
         /// <summary>
-        /// Handles when a client disconnects
+        /// Handles when a client disconnects.
         /// </summary>
         /// <param name="exception"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-
             var connectionId = Context.ConnectionId;
             try
             {
@@ -302,6 +310,5 @@ namespace Cosmos.Cms.Hubs
 
             await base.OnDisconnectedAsync(exception);
         }
-
     }
 }

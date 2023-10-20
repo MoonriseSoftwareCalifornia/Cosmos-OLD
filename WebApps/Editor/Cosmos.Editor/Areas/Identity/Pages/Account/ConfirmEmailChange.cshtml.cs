@@ -1,15 +1,22 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="ConfirmEmailChange.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account
 {
+    using System.Text;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.AspNetCore.WebUtilities;
+
     /// <summary>
-    /// Confirm email change page model
+    /// Confirm email change page model.
     /// </summary>
     [AllowAnonymous]
     public class ConfirmEmailChangeModel : PageModel
@@ -18,7 +25,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         private readonly UserManager<IdentityUser> _userManager;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="signInManager"></param>
@@ -27,24 +34,32 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
             _userManager = userManager;
             _signInManager = signInManager;
         }
+
         /// <summary>
-        /// Status messasge
+        /// Gets or sets status messasge.
         /// </summary>
         [TempData]
         public string StatusMessage { get; set; }
+
         /// <summary>
-        /// On get method handler
+        /// On get method handler.
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="email"></param>
         /// <param name="code"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetAsync(string userId, string email, string code)
         {
-            if (userId == null || email == null || code == null) return RedirectToPage("/Index");
+            if (userId == null || email == null || code == null)
+            {
+                return RedirectToPage("/Index");
+            }
 
             var user = await _userManager.FindByIdAsync(userId);
-            if (user == null) return NotFound($"Unable to load user with ID '{userId}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{userId}'.");
+            }
 
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
             var result = await _userManager.ChangeEmailAsync(user, email, code);

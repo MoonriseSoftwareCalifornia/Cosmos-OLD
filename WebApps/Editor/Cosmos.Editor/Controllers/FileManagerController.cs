@@ -1,37 +1,43 @@
-﻿using Cosmos.BlobService;
-using Cosmos.BlobService.Models;
-using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Data.Logic;
-using Cosmos.Cms.Models;
-using Cosmos.Cms.Services;
-using Cosmos.Common.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using MimeTypes;
-using Newtonsoft.Json;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Processing;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Web;
+﻿// <copyright file="FileManagerController.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using System.Web;
+    using Cosmos.BlobService;
+    using Cosmos.BlobService.Models;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Cms.Data.Logic;
+    using Cosmos.Cms.Models;
+    using Cosmos.Cms.Services;
+    using Cosmos.Common.Data;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+    using MimeTypes;
+    using Newtonsoft.Json;
+    using SixLabors.ImageSharp;
+    using SixLabors.ImageSharp.Processing;
 
     /// <summary>
-    /// File manager controller
+    /// File manager controller.
     /// </summary>
-    //[ResponseCache(NoStore = true)]
+    // [ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
     public class FileManagerController : BaseController
     {
@@ -43,7 +49,7 @@ namespace Cosmos.Cms.Controllers
         private readonly IViewRenderService _viewRenderService;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="options"></param>
         /// <param name="logger"></param>
@@ -90,7 +96,7 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// File manager index page
+        /// File manager index page.
         /// </summary>
         /// <param name="target"></param>
         /// <param name="sortOrder"></param>
@@ -102,7 +108,7 @@ namespace Cosmos.Cms.Controllers
         /// <param name="selectOne"></param>
         /// <param name="imagesOnly"></param>
         /// <param name="isNewSession"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet]
         public async Task<IActionResult> Index(string target, string sortOrder = "asc", string currentSort = "Name", int pageNo = 0, int pageSize = 10, bool directoryOnly = false, string container = "$web", bool selectOne = false, bool imagesOnly = false, bool isNewSession = false)
         {
@@ -110,11 +116,11 @@ namespace Cosmos.Cms.Controllers
 
             _storageContext.CreateFolder("/pub");
 
-            target = string.IsNullOrEmpty(target) ? "" : HttpUtility.UrlDecode(target);
+            target = string.IsNullOrEmpty(target) ? string.Empty : HttpUtility.UrlDecode(target);
 
             ViewData["PathPrefix"] = target.StartsWith('/') ? target : "/" + target;
 
-            var articleTitle = "";
+            var articleTitle = string.Empty;
 
             if (target.Trim('/').StartsWith("pub/articles"))
             {
@@ -138,19 +144,15 @@ namespace Cosmos.Cms.Controllers
             ViewData["ImagesOnly"] = imagesOnly;
             ViewData["isNewSession"] = isNewSession;
 
-            //
             // Grid pagination
-            // 
             ViewData["sortOrder"] = sortOrder;
             ViewData["currentSort"] = currentSort;
             ViewData["pageNo"] = pageNo;
             ViewData["pageSize"] = pageSize;
 
-            //
             // GET FULL OR ABSOLUTE PATH
             //
-            //List<FileManagerEntry> model = await _storageContext.GetFolderContents(target);
-
+            // List<FileManagerEntry> model = await _storageContext.GetFolderContents(target);
             IQueryable<FileManagerEntry> query;
             if (target.Trim('/') == "pub/articles")
             {
@@ -158,7 +160,7 @@ namespace Cosmos.Cms.Controllers
                 {
                     Created = s.Updated.DateTime,
                     CreatedUtc = s.Updated.UtcDateTime,
-                    Extension = "",
+                    Extension = string.Empty,
                     HasDirectories = true,
                     IsDirectory = true,
                     Modified = s.Updated.DateTime,
@@ -189,6 +191,7 @@ namespace Cosmos.Cms.Controllers
                 // Default sort order
                 query = query.OrderByDescending(o => o.Name);
             }
+
             if (sortOrder == "desc")
             {
                 if (!string.IsNullOrEmpty(currentSort))
@@ -249,6 +252,7 @@ namespace Cosmos.Cms.Controllers
                     }
                 }
             }
+
             if (directoryOnly)
             {
                 var ddata = query.Where(w => w.IsDirectory == true).ToList();
@@ -265,7 +269,7 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <param name="container"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         public async Task<IActionResult> Copy(MoveFilesViewModel model, string container = "$web")
         {
@@ -292,7 +296,6 @@ namespace Cosmos.Cms.Controllers
 
                     await _storageContext.CopyAsync(item, dest);
                 }
-
             }
             catch (Exception e)
             {
@@ -307,7 +310,7 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <param name="container"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         public async Task<IActionResult> Move(MoveFilesViewModel model, string container = "$web")
         {
@@ -331,10 +334,10 @@ namespace Cosmos.Cms.Controllers
                         var fileName = Path.GetFileName(item);
                         dest = model.Destination + "/" + fileName;
                     }
+
                     // Same as move
                     await _storageContext.RenameAsync(item, dest);
                 }
-
             }
             catch (Exception e)
             {
@@ -347,7 +350,7 @@ namespace Cosmos.Cms.Controllers
         #region FILEPOND ENDPOINTS
 
         /// <summary>
-        /// Gets a unique GUID for FilePond
+        /// Gets a unique GUID for FilePond.
         /// </summary>
         /// <returns></returns>
         [HttpPost]
@@ -363,19 +366,18 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Process a chunched upload
+        /// Process a chunched upload.
         /// </summary>
         /// <param name="patch"></param>
         /// <param name="options"></param>
         /// <param name="container"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPatch]
         public async Task<ActionResult> Process(string patch, string options = "", string container = "$web")
         {
             try
             {
                 var patchArray = patch.Split('|');
-
 
                 // 0 based index
                 var uploadOffset = long.Parse(Request.Headers["Upload-Offset"]);
@@ -398,7 +400,6 @@ namespace Cosmos.Cms.Controllers
 
                 var totalChunks = DivideByAndRoundUp(uploadLenth, contentSize);
 
-
                 var blobName = UrlEncode(UploadName);
 
                 var relativePath = UrlEncode(patchArray[0].TrimEnd('/'));
@@ -409,7 +410,6 @@ namespace Cosmos.Cms.Controllers
                     var epath = UrlEncode(dpath);
                     relativePath += "/" + UrlEncode(epath);
                 }
-
 
                 // Mime type
                 var contentType = MimeTypeMap.GetMimeType(Path.GetExtension(blobName));
@@ -427,7 +427,7 @@ namespace Cosmos.Cms.Controllers
 
                 // Make sure full folder path exists
                 var pathParts = patchArray[0].Trim('/').Split('/');
-                var part = "";
+                var part = string.Empty;
                 for (int i = 0; i < pathParts.Length - 1; i++)
                 {
                     if (i == 0 && pathParts[i] != "pub")
@@ -449,37 +449,35 @@ namespace Cosmos.Cms.Controllers
                 _storageContext.SetContainerName(container);
                 _storageContext.AppendBlob(memoryStream, metaData);
 
-                //if (container == "$web")
-                //{
+                // if (container == "$web")
+                // {
                 //    // Azure blob storage
                 //    _storageContext.SetContainerName(container);
                 //    _storageContext.AppendBlob(memoryStream, metaData);
-                //}
-                //else
-                //{
+                // }
+                // else
+                // {
                 //    // Upload to local file storage
                 //    await AppendToFile(memoryStream, metaData);
-                //}
+                // }
             }
             catch (Exception e)
             {
-                //var t = e; // For debugging
+                // var t = e; // For debugging
                 _logger.LogError(e.Message, e);
                 throw;
             }
-
 
             return Ok();
         }
 
         /// <summary>
-        /// Simple file upload for live editor
+        /// Simple file upload for live editor.
         /// </summary>
-        /// <param name="Id">Article Number</param>
-        /// <returns></returns>
+        /// <param name="Id">Article Number.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> SimpleUpload(string Id)
         {
-
             var file = Request.Form.Files.FirstOrDefault();
 
             if (file.Length > (1048576 * 25))
@@ -488,7 +486,7 @@ namespace Cosmos.Cms.Controllers
             }
 
             var directory = $"/pub/articles/{Id}/";
-            //var extension = Path.GetExtension(file.FileName);c
+            // var extension = Path.GetExtension(file.FileName);c
             var blobEndPoint = _options.Value.SiteSettings.BlobPublicUrl.TrimEnd('/');
 
             var fileName = $"{Guid.NewGuid().ToString().ToLower()}.png";
@@ -522,14 +520,11 @@ namespace Cosmos.Cms.Controllers
                 _logger.LogError(e.Message, e);
                 return Json(ReturnSimpleErrorMessage(e.Message));
             }
-
-
         }
 
         private async Task<FileUploadMetaData> SaveImage(Image image, string directory, string fileName, string extension, string contentType)
         {
             // jpeg, png, gif, bmp, webp and tiff
-
             using var img = new MemoryStream();
 
             switch (extension)
@@ -571,7 +566,6 @@ namespace Cosmos.Cms.Controllers
             _storageContext.AppendBlob(img, metadata);
 
             return metadata;
-
         }
 
         private Rectangle GetRectangle(Image image, decimal percent)
@@ -599,7 +593,7 @@ namespace Cosmos.Cms.Controllers
         #endregion
 
         /// <summary>
-        /// Imports a page
+        /// Imports a page.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -611,16 +605,17 @@ namespace Cosmos.Cms.Controllers
                 ViewData["ArticleId"] = id.Value;
                 return View();
             }
+
             return NotFound();
         }
 
         /// <summary>
-        /// Import a view
+        /// Import a view.
         /// </summary>
         /// <param name="files"></param>
         /// <param name="metaData"></param>
-        /// <param name="id">Article ID</param>
-        /// <returns></returns>
+        /// <param name="id">Article ID.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [Authorize(Roles = "Administrators, Editors, Authors, Team Members")]
         public async Task<IActionResult> ImportPage(IEnumerable<IFormFile> files,
@@ -631,11 +626,12 @@ namespace Cosmos.Cms.Controllers
                 return null;
             }
 
-            if (string.IsNullOrEmpty(metaData)) return Unauthorized("metaData cannot be null or empty.");
+            if (string.IsNullOrEmpty(metaData))
+            {
+                return Unauthorized("metaData cannot be null or empty.");
+            }
 
-            //
             // Get information about the chunk we are on.
-            //
             var ms = new MemoryStream(Encoding.UTF8.GetBytes(metaData));
 
             var serializer = new JsonSerializer();
@@ -646,7 +642,10 @@ namespace Cosmos.Cms.Controllers
                     (FileUploadMetaData)serializer.Deserialize(streamReader, typeof(FileUploadMetaData));
             }
 
-            if (fileMetaData == null) throw new Exception("Could not read the file's metadata");
+            if (fileMetaData == null)
+            {
+                throw new Exception("Could not read the file's metadata");
+            }
 
             var uploadResult = new PageImportResult
             {
@@ -656,7 +655,6 @@ namespace Cosmos.Cms.Controllers
 
             try
             {
-
                 if (ModelState.IsValid)
                 {
                     var article = await _articleLogic.Get(Id, EnumControllerName.Edit, User.Identity.Name);
@@ -690,12 +688,9 @@ namespace Cosmos.Cms.Controllers
                     var layoutBodyEndScriptsNodes =
                         SelectNodesBetweenComments(originalBodyNode, PageImportConstants.COSMOS_BODY_END_SCRIPTS_START, PageImportConstants.COSMOS_BODY_END_SCRIPTS_END);
 
-
                     // NOTES
                     // https://stackoverflow.com/questions/3844208/html-agility-pack-find-comment-node?msclkid=b885cfabc88011ecbf75531a66703f70
                     // https://html-agility-pack.net/knowledge-base/7275301/htmlagilitypack-select-nodes-between-comments?msclkid=b88685c7c88011ecbe703bfac7781d3c
-
-
                     var newHeadNode = newHtmlDoc.DocumentNode.SelectSingleNode("//head");
                     var newBodyNode = newHtmlDoc.DocumentNode.SelectSingleNode("//body");
 
@@ -770,7 +765,6 @@ namespace Cosmos.Cms.Controllers
                 uploadResult.Errors = SerializeErrors(ModelState);
             }
 
-
             return Json(uploadResult);
         }
 
@@ -781,6 +775,7 @@ namespace Cosmos.Cms.Controllers
             {
                 return -1;
             }
+
             var index = parent.ChildNodes.IndexOf(target);
             return index;
         }
@@ -803,7 +798,7 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Determines if nodes are equal
+        /// Determines if nodes are equal.
         /// </summary>
         /// <param name="node1"></param>
         /// <param name="node2"></param>
@@ -830,11 +825,12 @@ namespace Cosmos.Cms.Controllers
 
                 return firstNotInSecond.Count == 0 && secondNotInFirst.Count == 0;
             }
+
             return false;
         }
 
         /// <summary>
-        /// Selects nodes between HTML comments
+        /// Selects nodes between HTML comments.
         /// </summary>
         /// <param name="originalNode"></param>
         /// <param name="startComment"></param>
@@ -844,8 +840,8 @@ namespace Cosmos.Cms.Controllers
         {
             var nodes = new List<HtmlAgilityPack.HtmlNode>();
 
-            startComment = startComment.Replace("<!--", "").Replace("-->", "").Trim();
-            endComment = endComment.Replace("<!--", "").Replace("-->", "").Trim();
+            startComment = startComment.Replace("<!--", string.Empty).Replace("-->", string.Empty).Trim();
+            endComment = endComment.Replace("<!--", string.Empty).Replace("-->", string.Empty).Trim();
 
             var startNode = originalNode.SelectSingleNode($"//comment()[contains(., '{startComment}')]");
             var endNode = originalNode.SelectSingleNode($"//comment()[contains(., '{endComment}')]");
@@ -884,7 +880,7 @@ namespace Cosmos.Cms.Controllers
         #region HELPER METHODS
 
         /// <summary>
-        ///     Encodes a URL
+        ///     Encodes a URL.
         /// </summary>
         /// <param name="path"></param>
         /// <returns></returns>
@@ -900,7 +896,10 @@ namespace Cosmos.Cms.Controllers
         {
             var parts = ParsePath(path);
             var urlEncodedParts = new List<string>();
-            foreach (var part in parts) urlEncodedParts.Add(HttpUtility.UrlEncode(part.Replace(" ", "-")).Replace("%40", "@"));
+            foreach (var part in parts)
+            {
+                urlEncodedParts.Add(HttpUtility.UrlEncode(part.Replace(" ", "-")).Replace("%40", "@"));
+            }
 
             return TrimPathPart(string.Join('/', urlEncodedParts));
         }
@@ -910,10 +909,10 @@ namespace Cosmos.Cms.Controllers
         #region FILE MANAGER FUNCTIONS
 
         /// <summary>
-        /// New folder action
+        /// New folder action.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> NewFolder(NewFolderViewModel model)
         {
@@ -935,16 +934,15 @@ namespace Cosmos.Cms.Controllers
                 return RedirectToAction("Index", new { target = model.ParentFolder, directoryOnly = model.DirectoryOnly });
             }
 
-
             return RedirectToAction("Index", new { target = model.ParentFolder, directoryOnly = model.DirectoryOnly, container = model.Container });
         }
 
         /// <summary>
-        /// Download a file
+        /// Download a file.
         /// </summary>
         /// <param name="path"></param>
         /// <param name="container"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Download(string path, string container = "$web")
         {
             _storageContext.SetContainerName(container);
@@ -961,19 +959,17 @@ namespace Cosmos.Cms.Controllers
             return NotFound();
         }
 
-
-
         /// <summary>
         ///     Creates a new entry, using relative path-ing, and normalizes entry name to lower case.
         /// </summary>
         /// <param name="target"></param>
         /// <param name="entry"></param>
         /// <param name="container"></param>
-        /// <returns><see cref="JsonResult" />(<see cref="BlobService.FileManagerEntry" />)</returns>
+        /// <returns><see cref="JsonResult" />(<see cref="BlobService.FileManagerEntry" />).</returns>
         public async Task<ActionResult> Create(string target, BlobService.FileManagerEntry entry, string container = "$web")
         {
             _storageContext.SetContainerName(container);
-            target = target == null ? "" : target;
+            target = target == null ? string.Empty : target;
             entry.Path = target;
             entry.Name = UrlEncode(entry.Name);
             entry.Extension = entry.Extension;
@@ -992,12 +988,16 @@ namespace Cosmos.Cms.Controllers
 
                 if (results != null)
                 {
-                    //var i = 1;
+                    // var i = 1;
                     var originalName = entry.Name;
                     for (var i = 0; i < existingEntries.Count; i++)
                     {
                         entry.Name = originalName + "-" + (i + 1);
-                        if (!existingEntries.Any(f => f.Name.Equals(entry.Name))) break;
+                        if (!existingEntries.Any(f => f.Name.Equals(entry.Name)))
+                        {
+                            break;
+                        }
+
                         i++;
                     }
                 }
@@ -1014,9 +1014,9 @@ namespace Cosmos.Cms.Controllers
         /// <summary>
         ///     Deletes a folder, normalizes entry to lower case.
         /// </summary>
-        /// <param name="model">Item to delete using relative path</param>
+        /// <param name="model">Item to delete using relative path.</param>
         /// <param name="container"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         public async Task<ActionResult> Delete(DeleteBlobItemsViewModel model, string container = "$web")
         {
@@ -1041,7 +1041,7 @@ namespace Cosmos.Cms.Controllers
         /// </summary>
         /// <param name="model"></param>
         /// <param name="container"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Rename(RenameBlobViewModel model, string container = "$web")
@@ -1085,21 +1085,31 @@ namespace Cosmos.Cms.Controllers
         /// <returns></returns>
         public string[] ParsePath(params string[] pathParts)
         {
-            if (pathParts == null) return new string[] { };
+            if (pathParts == null)
+            {
+                return new string[] { };
+            }
 
             var paths = new List<string>();
 
             foreach (var part in pathParts)
+            {
                 if (!string.IsNullOrEmpty(part))
                 {
                     var split = part.Split("/");
                     foreach (var p in split)
+                    {
                         if (!string.IsNullOrEmpty(p))
                         {
                             var path = TrimPathPart(p);
-                            if (!string.IsNullOrEmpty(path)) paths.Add(path);
+                            if (!string.IsNullOrEmpty(path))
+                            {
+                                paths.Add(path);
+                            }
                         }
+                    }
                 }
+            }
 
             return paths.ToArray();
         }
@@ -1112,7 +1122,9 @@ namespace Cosmos.Cms.Controllers
         public string TrimPathPart(string part)
         {
             if (string.IsNullOrEmpty(part))
-                return "";
+            {
+                return string.Empty;
+            }
 
             return part.Trim('/').Trim('\\').Trim();
         }
@@ -1122,10 +1134,10 @@ namespace Cosmos.Cms.Controllers
         #region EDIT (CODE | IMAGE) FUNCTIONS
 
         /// <summary>
-        /// Edit code for a file
+        /// Edit code for a file.
         /// </summary>
         /// <param name="path"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> EditCode(string path)
         {
             try
@@ -1139,7 +1151,10 @@ namespace Cosmos.Cms.Controllers
                     FieldName = Path.GetFileName(path)
                 };
 
-                if (!filter.Contains(extension)) return new UnsupportedMediaTypeResult();
+                if (!filter.Contains(extension))
+                {
+                    return new UnsupportedMediaTypeResult();
+                }
 
                 switch (extension)
                 {
@@ -1169,10 +1184,9 @@ namespace Cosmos.Cms.Controllers
                         break;
                 }
 
-                //
                 // Get the blob now, so we can determine the type, or use this client as-is
                 //
-                //var properties = blob.GetProperties();
+                // var properties = blob.GetProperties();
 
                 // Open a stream
                 await using var memoryStream = new MemoryStream();
@@ -1184,7 +1198,6 @@ namespace Cosmos.Cms.Controllers
                 }
 
                 var metaData = await _storageContext.GetFileAsync(path);
-
 
                 ViewData["PageTitle"] = metaData.Name;
                 ViewData[" Published"] = DateTimeOffset.FromFileTime(metaData.ModifiedUtc.Ticks);
@@ -1211,15 +1224,14 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Save the file
+        /// Save the file.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCode(FileManagerEditCodeViewModel model)
         {
-
             var extension = Path.GetExtension(model.Path.ToLower());
 
             var filter = _options.Value.SiteSettings.AllowedFileTypes.Split(',');
@@ -1229,7 +1241,10 @@ namespace Cosmos.Cms.Controllers
                 FieldName = Path.GetFileName(model.Path)
             };
 
-            if (!filter.Contains(extension)) return new UnsupportedMediaTypeResult();
+            if (!filter.Contains(extension))
+            {
+                return new UnsupportedMediaTypeResult();
+            }
 
             var contentType = string.Empty;
 
@@ -1262,7 +1277,6 @@ namespace Cosmos.Cms.Controllers
             }
 
             // Save the blob now
-
             var bytes = Encoding.Default.GetBytes(model.Content);
 
             using var memoryStream = new MemoryStream(bytes, false);
@@ -1294,7 +1308,7 @@ namespace Cosmos.Cms.Controllers
 
             if (!resultMode.uploaded)
             {
-                ModelState.AddModelError("", $"Error saving {Path.GetFileName(model.Path)}");
+                ModelState.AddModelError(string.Empty, $"Error saving {Path.GetFileName(model.Path)}");
             }
 
             jsonModel.Errors.AddRange(ModelState.Values
@@ -1306,14 +1320,16 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Edit an image
+        /// Edit an image.
         /// </summary>
         /// <param name="target"></param>
         /// <returns></returns>
         public IActionResult EditImage(string target)
         {
             if (string.IsNullOrEmpty(target))
+            {
                 return NotFound();
+            }
 
             ViewData["ImageTarget"] = target;
             var extension = Path.GetExtension(target.ToLower());
@@ -1328,14 +1344,14 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Image editor post image back to storage
+        /// Image editor post image back to storage.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         public async Task<IActionResult> EditImage([FromBody] FileRobotImagePost model)
         {
-            //FileRobotImagePost model
+            // FileRobotImagePost model
             //     = new FileRobotImagePost()
             //     {
             //         extension = form["extension"],
@@ -1391,7 +1407,6 @@ namespace Cosmos.Cms.Controllers
                 };
 
                 _storageContext.AppendBlob(output, metaData);
-
             }
             catch (Exception e)
             {
@@ -1402,13 +1417,13 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Gets a thumbnail for the specified image
+        /// Gets a thumbnail for the specified image.
         /// </summary>
         /// <param name="target"></param>
         /// <param name="width"></param>
         /// <param name="height"></param>
-        /// <returns></returns>
-        //[ResponseCache(NoStore = true)]
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        // [ResponseCache(NoStore = true)]
         public async Task<IActionResult> GetImageThumbnail(string target, int width = 120, int height = 120)
         {
             var extension = Path.GetExtension(target.ToLower());
@@ -1441,11 +1456,11 @@ namespace Cosmos.Cms.Controllers
         ///// <param name="fileNames"></param>
         ///// <param name="path"></param>
         ///// <returns></returns>
-        //public ActionResult Remove(string[] fileNames, string path)
-        //{
+        // public ActionResult Remove(string[] fileNames, string path)
+        // {
         //    // Return an empty string to signify success
         //    return Content("");
-        //}
+        // }
 
         ///// <summary>
         /////     Used to directories, with files processed one chunk at a time, and normalizes the blob name to lower case.
@@ -1454,14 +1469,14 @@ namespace Cosmos.Cms.Controllers
         ///// <param name="metaData"></param>
         ///// <param name="path"></param>
         ///// <returns></returns>
-        //[HttpPost]
-        //[RequestSizeLimit(
+        // [HttpPost]
+        // [RequestSizeLimit(
         //    6291456)] // AWS S3 multi part upload requires 5 MB parts--no more, no less so pad the upload size by a MB just in case
-        //public async Task<ActionResult> UploadDirectory(IEnumerable<IFormFile> folders,
+        // public async Task<ActionResult> UploadDirectory(IEnumerable<IFormFile> folders,
         //    string metaData, string path)
-        //{
+        // {
         //    return await Upload(folders, metaData, path);
-        //}
+        // }
 
         /// <summary>
         ///     Used to upload files, one chunk at a time, and normalizes the blob name to lower case.
@@ -1469,7 +1484,7 @@ namespace Cosmos.Cms.Controllers
         /// <param name="files"></param>
         /// <param name="metaData"></param>
         /// <param name="path"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [RequestSizeLimit(
             6291456)] // AWS S3 multi part upload requires 5 MB parts--no more, no less so pad the upload size by a MB just in case
@@ -1480,13 +1495,16 @@ namespace Cosmos.Cms.Controllers
             try
             {
                 if (files == null || files.Any() == false)
-                    return Json("");
+                {
+                    return Json(string.Empty);
+                }
 
-                if (string.IsNullOrEmpty(path) || path.Trim('/') == "") return Unauthorized("Cannot upload here. Please select the 'pub' folder first, or sub-folder below that, then try again.");
+                if (string.IsNullOrEmpty(path) || path.Trim('/') == string.Empty)
+                {
+                    return Unauthorized("Cannot upload here. Please select the 'pub' folder first, or sub-folder below that, then try again.");
+                }
 
-                //
                 // Get information about the chunk we are on.
-                //
                 var ms = new MemoryStream(Encoding.UTF8.GetBytes(metaData));
 
                 var serializer = new JsonSerializer();
@@ -1497,11 +1515,17 @@ namespace Cosmos.Cms.Controllers
                         (FileUploadMetaData)serializer.Deserialize(streamReader, typeof(FileUploadMetaData));
                 }
 
-                if (fileMetaData == null) throw new Exception("Could not read the file's metadata");
+                if (fileMetaData == null)
+                {
+                    throw new Exception("Could not read the file's metadata");
+                }
 
                 var file = files.FirstOrDefault();
 
-                if (file == null) throw new Exception("No file found to upload.");
+                if (file == null)
+                {
+                    throw new Exception("No file found to upload.");
+                }
 
                 var blobName = UrlEncode(fileMetaData.FileName);
                 fileMetaData.ContentType = MimeTypeMap.GetMimeType(Path.GetExtension(fileMetaData.FileName));
@@ -1511,7 +1535,7 @@ namespace Cosmos.Cms.Controllers
 
                 // Make sure full folder path exists
                 var parts = fileMetaData.RelativePath.Trim('/').Split('/');
-                var part = "";
+                var part = string.Empty;
                 for (int i = 0; i < parts.Length - 1; i++)
                 {
                     if (i == 0 && parts[i] != "pub")
@@ -1554,87 +1578,103 @@ namespace Cosmos.Cms.Controllers
     }
 
     /// <summary>
-    /// Page import constants
+    /// Page import constants.
     /// </summary>
     public static class PageImportConstants
     {
         /// <summary>
-        /// Marks the start of the head injection
+        /// Marks the start of the head injection.
         /// </summary>
         public const string COSMOS_HEAD_START = "<!--  BEGIN: Cosmos Layout HEAD content inject (not editable). -->";
+
         /// <summary>
-        /// Marks the end of the head injection
+        /// Marks the end of the head injection.
         /// </summary>
         public const string COSMOS_HEAD_END = "<!--  END: Cosmos HEAD inject (not editable). -->";
+
         /// <summary>
-        /// Marks the beginning of the optional head script injection
+        /// Marks the beginning of the optional head script injection.
         /// </summary>
         public const string COSMOS_HEAD_SCRIPTS_START = "<!-- BEGIN: Optional Cosmos script section injected (not editable). -->";
+
         /// <summary>
-        /// Marks the end of the optional head script injection
+        /// Marks the end of the optional head script injection.
         /// </summary>
         public const string COSMOS_HEAD_SCRIPTS_END = "<!-- END: Optional Cosmos script section injected  (not editable). -->";
+
         /// <summary>
-        /// Marks the beginning of the header injection
+        /// Marks the beginning of the header injection.
         /// </summary>
         public const string COSMOS_BODY_HEADER_START = "<!-- BEGIN: Cosmos Layout BODY HEADER content (not editable) -->";
+
         /// <summary>
-        /// Marks the end of the header injection
+        /// Marks the end of the header injection.
         /// </summary>
         public const string COSMOS_BODY_HEADER_END = "<!-- END: Cosmos Layout BODY HEADER content (not editable) -->";
+
         /// <summary>
-        /// Marks the start of the footer injection
+        /// Marks the start of the footer injection.
         /// </summary>
         public const string COSMOS_BODY_FOOTER_START = "<!-- BEGIN: Cosmos Layout BODY FOOTER (not editable) -->";
+
         /// <summary>
-        /// Marks the end of the footer injection
+        /// Marks the end of the footer injection.
         /// </summary>
         public const string COSMOS_BODY_FOOTER_END = "<!-- END: Cosmos Layout BODY FOOTER (not editable) -->";
+
         /// <summary>
-        /// Marks the start of Google Translate injection
+        /// Marks the start of Google Translate injection.
         /// </summary>
         public const string COSMOS_GOOGLE_TRANSLATE_START = "<!-- BEGIN: Google Translate v3 (not editable) -->";
+
         /// <summary>
-        /// Marks the endo of Google Translate injection
+        /// Marks the endo of Google Translate injection.
         /// </summary>
         public const string COSMOS_GOOGLE_TRANSLATE_END = "<!-- END: Google Translate v3 (not editable) -->";
+
         /// <summary>
-        /// Marks the start of the end-of-body script injection
+        /// Marks the start of the end-of-body script injection.
         /// </summary>
         public const string COSMOS_BODY_END_SCRIPTS_START = "<!-- BEGIN: Optional Cosmos script section injected (not editable). -->";
+
         /// <summary>
-        /// Marks the end of the end-of-body script injection
+        /// Marks the end of the end-of-body script injection.
         /// </summary>
         public const string COSMOS_BODY_END_SCRIPTS_END = "<!-- END: Optional Cosmos script section (not editable). -->";
     }
 
     /// <summary>
-    /// Layout import marker constants
+    /// Layout import marker constants.
     /// </summary>
     public static class LayoutImportConstants
     {
         /// <summary>
-        /// Marks the start of the head injection
+        /// Marks the start of the head injection.
         /// </summary>
         public const string COSMOS_HEAD_START = "<!--  BEGIN: Cosmos Layout HEAD content. -->";
+
         /// <summary>
-        /// Marks the end of the head injection
+        /// Marks the end of the head injection.
         /// </summary>
         public const string COSMOS_HEAD_END = "<!--  END: Cosmos Layout HEAD content. -->";
+
         /// <summary>
-        /// Marks the beginning of the header injection
+        /// Marks the beginning of the header injection.
         /// </summary>
         public const string COSMOS_BODY_HEADER_START = "<!-- BEGIN: Cosmos Layout BODY HEADER content -->";
+
         /// <summary>
-        /// Marks the end of the header injection
+        /// Marks the end of the header injection.
         /// </summary>
         public const string COSMOS_BODY_HEADER_END = "<!-- END: Cosmos Layout BODY HEADER content -->";
+
         /// <summary>
-        /// Marks the start of the footer injection
+        /// Marks the start of the footer injection.
         /// </summary>
         public const string COSMOS_BODY_FOOTER_START = "<!-- BEGIN: Cosmos Layout BODY FOOTER content -->";
+
         /// <summary>
-        /// Marks the end of the footer injection
+        /// Marks the end of the footer injection.
         /// </summary>
         public const string COSMOS_BODY_FOOTER_END = "<!-- END: Cosmos Layout BODY FOOTER content -->";
     }

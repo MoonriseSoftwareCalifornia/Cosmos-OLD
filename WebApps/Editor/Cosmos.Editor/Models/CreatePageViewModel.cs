@@ -1,18 +1,25 @@
-﻿using Cosmos.Cms.Data;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="CreatePageViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Models
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using Cosmos.Cms.Data;
+    using Microsoft.AspNetCore.Mvc.Rendering;
+
     /// <summary>
-    /// Create page view model
+    /// Create page view model.
     /// </summary>
     public class CreatePageViewModel
     {
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         public CreatePageViewModel()
         {
@@ -20,29 +27,32 @@ namespace Cosmos.Cms.Models
         }
 
         /// <summary>
-        /// Article Number
+        /// Gets or sets article Number.
         /// </summary>
         public int ArticleNumber { get; set; } = 0;
 
         /// <summary>
-        /// Page ID
+        /// Gets or sets page ID.
         /// </summary>
         [Key]
         public Guid Id { get; set; }
+
         /// <summary>
-        /// Page title
+        /// Gets or sets page title.
         /// </summary>
         [ArticleTitleValidation]
         [Display(Name = "Page Title")]
         [Required(AllowEmptyStrings = false, ErrorMessage = "Pages must have a title.")]
         public string Title { get; set; }
+
         /// <summary>
-        /// Page template used
+        /// Gets or sets page template used.
         /// </summary>
         [Display(Name = "Page template (optional)")]
         public Guid? TemplateId { get; set; }
+
         /// <summary>
-        /// Template list
+        /// Gets or sets template list.
         /// </summary>
         public List<SelectListItem> Templates { get; set; }
     }

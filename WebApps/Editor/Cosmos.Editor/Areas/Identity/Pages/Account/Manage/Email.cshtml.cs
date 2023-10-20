@@ -1,17 +1,24 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+﻿// <copyright file="Email.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.Text;
+    using System.Text.Encodings.Web;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Identity.UI.Services;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.AspNetCore.WebUtilities;
+
     /// <summary>
-    /// User email page model
+    /// User email page model.
     /// </summary>
     public class EmailModel : PageModel
     {
@@ -22,44 +29,52 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<IdentityUser> _userManager;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="emailSender"></param>
         public EmailModel(
             UserManager<IdentityUser> userManager,
-            //SignInManager<IdentityUser> signInManager,
+            // SignInManager<IdentityUser> signInManager,
             IEmailSender emailSender)
         {
             _userManager = userManager;
-            //_signInManager = signInManager;
+            // _signInManager = signInManager;
             _emailSender = emailSender;
         }
+
         /// <summary>
-        /// User name
+        /// Gets or sets user name.
         /// </summary>
         public string Username { get; set; }
+
         /// <summary>
-        /// User email address
+        /// Gets or sets user email address.
         /// </summary>
         public string Email { get; set; }
+
         /// <summary>
-        /// User's email is confirmed
+        /// Gets or sets a value indicating whether user's email is confirmed.
         /// </summary>
         public bool IsEmailConfirmed { get; set; }
+
         /// <summary>
-        /// User account status
+        /// Gets or sets user account status.
         /// </summary>
-        [TempData] public string StatusMessage { get; set; }
+        [TempData]
+        public string StatusMessage { get; set; }
+
         /// <summary>
-        /// Input model
+        /// Gets or sets input model.
         /// </summary>
-        [BindProperty] public InputModel Input { get; set; }
+        [BindProperty]
+        public InputModel Input { get; set; }
+
         /// <summary>
-        /// Load method
+        /// Load method.
         /// </summary>
         /// <param name="user"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task LoadAsync(IdentityUser user)
         {
             var email = await _userManager.GetEmailAsync(user);
@@ -72,26 +87,34 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
 
             IsEmailConfirmed = await _userManager.IsEmailConfirmedAsync(user);
         }
+
         /// <summary>
-        /// Get method handler
+        /// Get method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             await LoadAsync(user);
             return Page();
         }
+
         /// <summary>
-        /// Post method handler
+        /// Post method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostChangeEmailAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -121,14 +144,18 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
             StatusMessage = "Your email is unchanged.";
             return RedirectToPage();
         }
+
         /// <summary>
-        /// Handles post method that sends an email verification
+        /// Handles post method that sends an email verification.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostSendVerificationEmailAsync()
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -153,13 +180,14 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
             StatusMessage = "Verification email sent. Please check your email.";
             return RedirectToPage();
         }
+
         /// <summary>
-        /// Page input model
+        /// Page input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// New email address
+            /// Gets or sets new email address.
             /// </summary>
             [Required]
             [EmailAddress]

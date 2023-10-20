@@ -1,21 +1,28 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="RedirectItemViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Models
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+
     /// <summary>
-    /// Redirect from and to URL item
+    /// Redirect from and to URL item.
     /// </summary>
     public class RedirectItemViewModel
     {
         /// <summary>
-        /// Redirect ID
+        /// Gets or sets redirect ID.
         /// </summary>
         [Key]
         public Guid Id { get; set; }
 
         /// <summary>
-        /// Redirect from this URL (local to this web server)
+        /// Gets or sets redirect from this URL (local to this web server).
         /// </summary>
         [RedirectUrl]
         [Required(AllowEmptyStrings = false)]
@@ -23,7 +30,7 @@ namespace Cosmos.Cms.Models
         public string FromUrl { get; set; }
 
         /// <summary>
-        /// Redirect to this URL
+        /// Gets or sets redirect to this URL.
         /// </summary>
         [RedirectUrl]
         [Required(AllowEmptyStrings = false)]

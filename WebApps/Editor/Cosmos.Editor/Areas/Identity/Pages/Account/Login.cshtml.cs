@@ -1,21 +1,28 @@
-﻿using Cosmos.Common.Data;
-using Cosmos.Cms.Common.Services.Configurations;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// <copyright file="Login.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account
 {
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Common.Data;
+    using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+
     /// <summary>
-    /// Login page model
+    /// Login page model.
     /// </summary>
     [AllowAnonymous]
     public class LoginModel : PageModel
@@ -27,7 +34,7 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         private readonly ApplicationDbContext _dbContext;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="signInManager"></param>
         /// <param name="logger"></param>
@@ -46,39 +53,45 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Gets or sets input model.
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        /// External logins
+        /// Gets or sets external logins.
         /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         /// <summary>
-        /// Page URL
+        /// Gets or sets page URL.
         /// </summary>
         public string ReturnUrl { get; set; }
 
         /// <summary>
-        /// Error message
+        /// Gets or sets error message.
         /// </summary>
         [TempData]
         public string ErrorMessage { get; set; }
 
         /// <summary>
-        /// On get method handler
+        /// On get method handler.
         /// </summary>
         /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/");
 
-            if (!string.IsNullOrEmpty(ErrorMessage)) ModelState.AddModelError(string.Empty, ErrorMessage);
+            if (!string.IsNullOrEmpty(ErrorMessage))
+            {
+                ModelState.AddModelError(string.Empty, ErrorMessage);
+            }
 
-            if (User.Identity.IsAuthenticated) return RedirectToAction(returnUrl);
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction(returnUrl);
+            }
 
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
@@ -88,7 +101,6 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl.Replace("http:", "https:");
 
             // If there are no users yet, go strait to the register page.
-
             if (_options.Value.AllowSetup)
             {
                 await _dbContext.Database.EnsureCreatedAsync();
@@ -102,14 +114,13 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
             {
                 return Page();
             }
-
         }
 
         /// <summary>
-        /// On post method handler
+        /// On post method handler.
         /// </summary>
         /// <param name="returnUrl"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl = returnUrl ?? Url.Content("~/Home/CcmsContentIndex?target=root");
@@ -129,7 +140,10 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
                 }
 
                 if (result.RequiresTwoFactor)
+                {
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, Input.RememberMe });
+                }
+
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");
@@ -145,26 +159,26 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account
         }
 
         /// <summary>
-        /// Input model
+        /// Input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Email address
+            /// Gets or sets email address.
             /// </summary>
             [Required]
             [EmailAddress]
             public string Email { get; set; }
 
             /// <summary>
-            /// Password
+            /// Gets or sets password.
             /// </summary>
             [Required]
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
             /// <summary>
-            /// Remember me
+            /// Gets or sets a value indicating whether remember me.
             /// </summary>
             [Display(Name = "Remember me?")]
             public bool RememberMe { get; set; }

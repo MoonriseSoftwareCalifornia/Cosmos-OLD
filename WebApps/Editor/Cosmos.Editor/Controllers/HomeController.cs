@@ -1,29 +1,36 @@
-﻿using Cosmos.BlobService;
-using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Data.Logic;
-using Cosmos.Cms.Models;
-using Cosmos.Common;
-using Cosmos.Common.Data;
-using Cosmos.Common.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.Net.Http.Headers;
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// <copyright file="HomeController.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Controllers
 {
+    using System;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Text;
+    using System.Threading.Tasks;
+    using Cosmos.BlobService;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Cms.Data.Logic;
+    using Cosmos.Cms.Models;
+    using Cosmos.Common;
+    using Cosmos.Common.Data;
+    using Cosmos.Common.Models;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Cors;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+    using Microsoft.Net.Http.Headers;
+
     /// <summary>
-    /// Home page controller
+    /// Home page controller.
     /// </summary>
     [Authorize]
     [ResponseCache(NoStore = true)]
@@ -35,14 +42,13 @@ namespace Cosmos.Cms.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly StorageContext _storageContext;
-        //private readonly SignInManager<IdentityUser> _signInManager;
-
+        // private readonly SignInManager<IdentityUser> _signInManager;
         #region SETUP TESTS
 
         /// <summary>
-        /// Insures there is an administrator
+        /// Insures there is an administrator.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task<bool> EnsureAdminSetup()
         {
             await _dbContext.Database.EnsureCreatedAsync();
@@ -50,28 +56,27 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Ensures there is a Layout
+        /// Ensures there is a Layout.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task<bool> EnsureLayoutExists()
         {
             return await _dbContext.Layouts.CosmosAnyAsync();
         }
 
         /// <summary>
-        /// Ensures there is at least one article
+        /// Ensures there is at least one article.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task<bool> EnsureArticleExists()
         {
             return await _dbContext.Articles.CosmosAnyAsync();
         }
 
-
         #endregion
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="cosmosConfig"></param>
@@ -96,12 +101,12 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Editor home index method
+        /// Editor home index method.
         /// </summary>
         /// <param name="target"></param>
         /// <param name="articleNumber"></param>
         /// <param name="versionNumber"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> CcmsContentIndex(string target, int? articleNumber = null, int? versionNumber = null)
         {
             ArticleViewModel article;
@@ -118,13 +123,11 @@ namespace Cosmos.Cms.Controllers
             return View(article);
         }
 
-
-
         /// <summary>
-        /// Gets contents in an article folder
+        /// Gets contents in an article folder.
         /// </summary>
         /// <param name="path"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> CCMS_GetArticleFolderContents(string path = "")
         {
             string r = Request.Headers["referer"];
@@ -151,20 +154,20 @@ namespace Cosmos.Cms.Controllers
                 {
                     return Json("[]");
                 }
+
                 articleNumber = page.ArticleNumber;
             }
 
             var contents = await CosmosUtilities.GetArticleFolderContents(_storageContext, articleNumber, path);
 
             return Json(contents);
-
         }
 
         /// <summary>
-        /// Get edit list
+        /// Get edit list.
         /// </summary>
         /// <param name="target"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> EditList(string target)
         {
             var article = await _articleLogic.GetByUrl(target);
@@ -183,28 +186,29 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Index page
+        /// Index page.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            //if (_options.Value.SiteSettings.AllowSetup ?? false)
-            //{
+            // if (_options.Value.SiteSettings.AllowSetup ?? false)
+            // {
             //    if (!await EnsureAdminSetup())
             //    {
             //        return RedirectToAction("Index", "Setup");
             //    }
-            //}
+            // }
             try
             {
                 if (User.Identity?.IsAuthenticated == false)
                 {
-                    //
                     // See if we need to register a new user.
-                    //
                     if (await _dbContext.Users.CosmosAnyAsync())
+                    {
                         return Redirect("~/Identity/Account/Login");
+                    }
+
                     return Redirect("~/Identity/Account/Register");
                 }
                 else
@@ -224,7 +228,10 @@ namespace Cosmos.Cms.Controllers
                     }
 
                     if (!User.IsInRole("Reviewers") && !User.IsInRole("Authors") && !User.IsInRole("Editors") &&
-                        !User.IsInRole("Administrators")) return RedirectToAction("AccessPending");
+                        !User.IsInRole("Administrators"))
+                    {
+                        return RedirectToAction("AccessPending");
+                    }
                 }
 
                 if (_options.Value.SiteSettings.AllowSetup)
@@ -234,32 +241,35 @@ namespace Cosmos.Cms.Controllers
                 }
 
                 // If we do not yet have a layout, go to a page where we can select one.
-                if (!await EnsureLayoutExists()) return RedirectToAction("Index", "Layouts");
+                if (!await EnsureLayoutExists())
+                {
+                    return RedirectToAction("Index", "Layouts");
+                }
 
                 // If there are not web pages yet, let's go create a new home page.
-                if (!await EnsureArticleExists()) return RedirectToAction("Index", "Editor");
+                if (!await EnsureArticleExists())
+                {
+                    return RedirectToAction("Index", "Editor");
+                }
 
-                //
                 // If yes, do NOT include headers that allow caching. 
-                //
                 Response.Headers[HeaderNames.CacheControl] = "no-store";
-                //Response.Headers[HeaderNames.Pragma] = "no-cache"; This conflicts with Azure Frontdoor premium with private links and affinity set.
-
+                // Response.Headers[HeaderNames.Pragma] = "no-cache"; This conflicts with Azure Frontdoor premium with private links and affinity set.
                 var article = await _articleLogic.GetByUrl(HttpContext.Request.Path, HttpContext.Request.Query["lang"]); // ?? await _articleLogic.GetByUrl(id, langCookie);
 
                 // Article not found?
                 // try getting a version not published.
-
                 if (article == null)
                 {
-                    //
                     // Create your own not found page for a graceful page for users.
-                    //
                     article = await _articleLogic.GetByUrl("/not_found", HttpContext.Request.Query["lang"]);
 
                     HttpContext.Response.StatusCode = 404;
 
-                    if (article == null) return NotFound();
+                    if (article == null)
+                    {
+                        return NotFound();
+                    }
                 }
 
                 article.EditModeOn = false;
@@ -274,14 +284,12 @@ namespace Cosmos.Cms.Controllers
             }
         }
 
-
-
         /// <summary>
         ///     Gets an article by its ID (or row key).
         /// </summary>
         /// <param name="articleNumber"></param>
         /// <param name="versionNumber"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Preview(int articleNumber, int? versionNumber = null)
         {
             try
@@ -290,11 +298,10 @@ namespace Cosmos.Cms.Controllers
                 var article = await _articleLogic.Get(articleNumber, versionNumber);
 
                 // Check base header
-                //article.UrlPath = $"/home/preview/{id}";
-                //_articleLogic.UpdateHeadBaseTag(article);
+                // article.UrlPath = $"/home/preview/{id}";
+                // _articleLogic.UpdateHeadBaseTag(article);
 
                 // Home/Preview/154
-
                 if (article != null)
                 {
                     article.ReadWriteMode = false;
@@ -313,19 +320,19 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Error page
+        /// Error page.
         /// </summary>
         /// <returns></returns>
         public IActionResult Error()
         {
-            //Response.Headers[HeaderNames.CacheControl] = "no-store";
-            //Response.Headers[HeaderNames.Pragma] = "no-cache";
+            // Response.Headers[HeaderNames.CacheControl] = "no-store";
+            // Response.Headers[HeaderNames.Pragma] = "no-cache";
             ViewData["EditModeOn"] = false;
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
         /// <summary>
-        /// Gets the application validation for Microsoft
+        /// Gets the application validation for Microsoft.
         /// </summary>
         /// <returns></returns>
         [AllowAnonymous]
@@ -340,9 +347,9 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Returns a health check
+        /// Returns a health check.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         /// 
         [AllowAnonymous]
         public async Task<IActionResult> CWPS_UTILITIES_NET_PING_HEALTH_CHECK()
@@ -395,11 +402,11 @@ namespace Cosmos.Cms.Controllers
         /// <summary>
         /// Gets the children of a given page path.
         /// </summary>
-        /// <param name="page">URL path to paren</param>
+        /// <param name="page">URL path to paren.</param>
         /// <param name="pageNo"></param>
         /// <param name="pageSize"></param>
-        /// <param name="orderByPub">Order by publishing date</param>
-        /// <returns></returns>
+        /// <param name="orderByPub">Order by publishing date.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [EnableCors("AllCors")]
         public async Task<IActionResult> GetTOC(
             string page,

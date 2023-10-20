@@ -1,36 +1,45 @@
-﻿namespace Cosmos.Cms.Models
+﻿// <copyright file="EditorField.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
+
+namespace Cosmos.Cms.Models
 {
     /// <summary>
-    /// Editor field metadata
+    /// Editor field metadata.
     /// </summary>
     public class EditorField
     {
         /// <summary>
-        /// Field ID
+        /// Gets or sets field ID.
         /// </summary>
         public string FieldId { get; set; }
+
         /// <summary>
-        /// Field Name
+        /// Gets or sets field Name.
         /// </summary>
         public string FieldName { get; set; }
+
         /// <summary>
-        /// Editor mode
+        /// Gets or sets editor mode.
         /// </summary>
         public EditorMode EditorMode { get; set; }
 
         /// <summary>
-        /// Icon URL
+        /// Gets or sets icon URL.
         /// </summary>
-        public string IconUrl { get; set; } = "";
+        public string IconUrl { get; set; } = string.Empty;
 
         /// <summary>
-        /// Tool tip content.
+        /// Gets or sets tool tip content.
         /// </summary>
         public string ToolTip { get; set; } = string.Empty;
     }
 
     /// <summary>
-    /// Monaco Editor Mode
+    /// Monaco Editor Mode.
     /// </summary>
     public enum EditorMode
     {
@@ -38,18 +47,22 @@
         /// JavaScript mode
         /// </summary>
         JavaScript = 0,
+
         /// <summary>
         /// HTML Mode
         /// </summary>
         Html = 1,
+
         /// <summary>
         /// CSS Mode
         /// </summary>
         Css = 2,
+
         /// <summary>
         /// XML Mode
         /// </summary>
         Xml = 3,
+
         /// <summary>
         /// JSON
         /// </summary>

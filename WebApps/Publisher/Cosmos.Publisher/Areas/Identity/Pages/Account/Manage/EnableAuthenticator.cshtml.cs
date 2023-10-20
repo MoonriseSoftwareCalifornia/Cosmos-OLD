@@ -1,80 +1,104 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+﻿// <copyright file="EnableAuthenticator.cshtml.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
 {
+    using System.ComponentModel.DataAnnotations;
+    using System.Linq;
+    using System.Text;
+    using System.Text.Encodings.Web;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.RazorPages;
+    using Microsoft.Extensions.Logging;
+
     /// <summary>
-    /// Enable authenticator page model
+    /// Enable authenticator page model.
     /// </summary>
     public class EnableAuthenticatorModel : PageModel
     {
         private const string AuthenticatorUriFormat = "otpauth://totp/{0}:{1}?secret={2}&issuer={0}&digits=6";
-        private readonly ILogger<EnableAuthenticatorModel> _logger;
-        private readonly UrlEncoder _urlEncoder;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ILogger<EnableAuthenticatorModel> logger;
+        private readonly UrlEncoder urlEncoder;
+        private readonly UserManager<IdentityUser> userManager;
+
         /// <summary>
-        /// Constructor
+        /// Initializes a new instance of the <see cref="EnableAuthenticatorModel"/> class.
         /// </summary>
-        /// <param name="userManager"></param>
-        /// <param name="logger"></param>
-        /// <param name="urlEncoder"></param>
+        /// <param name="userManager">User manager.</param>
+        /// <param name="logger">Logger.</param>
+        /// <param name="urlEncoder">Url encoder.</param>
         public EnableAuthenticatorModel(
             UserManager<IdentityUser> userManager,
             ILogger<EnableAuthenticatorModel> logger,
             UrlEncoder urlEncoder)
         {
-            _userManager = userManager;
-            _logger = logger;
-            _urlEncoder = urlEncoder;
+            this.userManager = userManager;
+            this.logger = logger;
+            this.urlEncoder = urlEncoder;
         }
+
         /// <summary>
-        /// Shared key
+        /// Gets or sets shared key.
         /// </summary>
         public string SharedKey { get; set; }
+
         /// <summary>
-        /// Authenticator URI
+        /// Gets or sets authenticator URI.
         /// </summary>
         public string AuthenticatorUri { get; set; }
+
         /// <summary>
-        /// Recovery codes
+        /// Gets or sets recovery codes.
         /// </summary>
-        [TempData] public string[] RecoveryCodes { get; set; }
+        [TempData]
+        public string[] RecoveryCodes { get; set; }
+
         /// <summary>
-        /// Status message
+        /// Gets or sets status message.
         /// </summary>
-        [TempData] public string StatusMessage { get; set; }
+        [TempData]
+        public string StatusMessage { get; set; }
+
         /// <summary>
-        /// Page input model
+        /// Gets or sets page input model.
         /// </summary>
-        [BindProperty] public InputModel Input { get; set; }
+        [BindProperty]
+        public InputModel Input { get; set; }
+
         /// <summary>
-        /// Get method handler
+        /// Get method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnGetAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+            }
 
             await LoadSharedKeyAndQrCodeUriAsync(user);
 
             return Page();
         }
+
         /// <summary>
-        /// Post method handler
+        /// Post method handler.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> OnPostAsync()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null) return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return NotFound($"Unable to load user with ID '{userManager.GetUserId(User)}'.");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -85,8 +109,8 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
             // Strip spaces and hypens
             var verificationCode = Input.Code.Replace(" ", string.Empty).Replace("-", string.Empty);
 
-            var is2faTokenValid = await _userManager.VerifyTwoFactorTokenAsync(
-                user, _userManager.Options.Tokens.AuthenticatorTokenProvider, verificationCode);
+            var is2faTokenValid = await userManager.VerifyTwoFactorTokenAsync(
+                user, userManager.Options.Tokens.AuthenticatorTokenProvider, verificationCode);
 
             if (!is2faTokenValid)
             {
@@ -95,39 +119,40 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            await _userManager.SetTwoFactorEnabledAsync(user, true);
-            var userId = await _userManager.GetUserIdAsync(user);
-            _logger.LogInformation("User with ID '{UserId}' has enabled 2FA with an authenticator app.", userId);
+            await userManager.SetTwoFactorEnabledAsync(user, true);
+            var userId = await userManager.GetUserIdAsync(user);
+            logger.LogInformation("User with ID '{UserId}' has enabled 2FA with an authenticator app.", userId);
 
-            StatusMessage = "Your authenticator app has been verified.";
+            this.StatusMessage = "Your authenticator app has been verified.";
 
-            if (await _userManager.CountRecoveryCodesAsync(user) == 0)
+            if (await userManager.CountRecoveryCodesAsync(user) == 0)
             {
-                var recoveryCodes = await _userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
+                var recoveryCodes = await userManager.GenerateNewTwoFactorRecoveryCodesAsync(user, 10);
                 RecoveryCodes = recoveryCodes.ToArray();
                 return RedirectToPage("./ShowRecoveryCodes");
             }
 
             return RedirectToPage("./TwoFactorAuthentication");
         }
+
         /// <summary>
-        /// Load shared key and QR code URI method
+        /// Load shared key and QR code URI method.
         /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
+        /// <param name="user">Identity user.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task LoadSharedKeyAndQrCodeUriAsync(IdentityUser user)
         {
             // Load the authenticator key & QR code URI to display on the form
-            var unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+            var unformattedKey = await userManager.GetAuthenticatorKeyAsync(user);
             if (string.IsNullOrEmpty(unformattedKey))
             {
-                await _userManager.ResetAuthenticatorKeyAsync(user);
-                unformattedKey = await _userManager.GetAuthenticatorKeyAsync(user);
+                await userManager.ResetAuthenticatorKeyAsync(user);
+                unformattedKey = await userManager.GetAuthenticatorKeyAsync(user);
             }
 
             SharedKey = FormatKey(unformattedKey);
 
-            var email = await _userManager.GetEmailAsync(user);
+            var email = await userManager.GetEmailAsync(user);
             AuthenticatorUri = GenerateQrCodeUri(email, unformattedKey);
         }
 
@@ -141,7 +166,10 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
                 currentPosition += 4;
             }
 
-            if (currentPosition < unformattedKey.Length) result.Append(unformattedKey.Substring(currentPosition));
+            if (currentPosition < unformattedKey.Length)
+            {
+                result.Append(unformattedKey.Substring(currentPosition));
+            }
 
             return result.ToString().ToLowerInvariant();
         }
@@ -150,21 +178,21 @@ namespace Cosmos.Cms.Areas.Identity.Pages.Account.Manage
         {
             return string.Format(
                 AuthenticatorUriFormat,
-                _urlEncoder.Encode("Cosmos.Cms"),
-                _urlEncoder.Encode(email),
+                urlEncoder.Encode("Cosmos.Cms"),
+                urlEncoder.Encode(email),
                 unformattedKey);
         }
+
         /// <summary>
-        /// Page input model
+        /// Page input model.
         /// </summary>
         public class InputModel
         {
             /// <summary>
-            /// Code
+            /// Gets or sets code.
             /// </summary>
             [Required]
-            [StringLength(7, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.",
-                MinimumLength = 6)]
+            [StringLength(7, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Text)]
             [Display(Name = "Verification Code")]
             public string Code { get; set; }

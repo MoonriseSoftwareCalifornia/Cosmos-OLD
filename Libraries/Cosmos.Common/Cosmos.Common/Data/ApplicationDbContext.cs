@@ -1,45 +1,109 @@
-﻿using Cosmos.Common.Data;
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
+﻿// <copyright file="ApplicationDbContext.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Common.Data
 {
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+
     /// <summary>
-    ///     Database Context for Cosmos CMS
+    ///     Database Context for Cosmos CMS.
     /// </summary>
     public class ApplicationDbContext : AspNetCore.Identity.CosmosDb.CosmosIdentityDbContext<IdentityUser, IdentityRole>, IDataProtectionKeyContext
     {
         /// <summary>
-        ///     Constructor
+        /// Initializes a new instance of the <see cref="ApplicationDbContext"/> class.
         /// </summary>
-        /// <param name="options"></param>
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        /// <param name="options">Database context options.</param>
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         {
         }
 
         /// <summary>
-        ///     Determine if this service is configured
+        /// Gets or sets catalog of Articles.
         /// </summary>
-        /// <returns></returns>
+        public DbSet<CatalogEntry> ArticleCatalog { get; set; }
+
+        /// <summary>
+        /// Gets or sets article locks.
+        /// </summary>
+        public DbSet<ArticleLock> ArticleLocks { get; set; }
+
+        /// <summary>
+        ///     Gets or sets article activity logs.
+        /// </summary>
+        public DbSet<ArticleLog> ArticleLogs { get; set; }
+
+        /// <summary>
+        ///     Gets or sets article Numbers.
+        /// </summary>
+        public DbSet<ArticleNumber> ArticleNumbers { get; set; }
+
+        /// <summary>
+        ///     Gets or sets articles.
+        /// </summary>
+        public DbSet<Article> Articles { get; set; }
+
+        /// <summary>
+        /// Gets or sets public information about article authors and editors.
+        /// </summary>
+        public DbSet<AuthorInfo> AuthorInfos { get; set; }
+
+        /// <summary>
+        ///     Gets or sets website layouts.
+        /// </summary>
+        public DbSet<Layout> Layouts { get; set; }
+
+        /// <summary>
+        /// Gets or sets node Scripts.
+        /// </summary>
+        public DbSet<NodeScript> NodeScripts { get; set; }
+
+        /// <summary>
+        /// Gets or sets published pages viewable via the publisher.
+        /// </summary>
+        public DbSet<PublishedPage> Pages { get; set; }
+
+        /// <summary>
+        /// Gets or sets site settings.
+        /// </summary>
+        public DbSet<Setting> Settings { get; set; }
+
+        /// <summary>
+        ///     Gets or sets web page templates.
+        /// </summary>
+        public DbSet<Template> Templates { get; set; }
+
+        /// <summary>
+        /// Gets or sets data protection keys.
+        /// </summary>
+        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
+
+        /// <summary>
+        ///     Determine if this service is configured.
+        /// </summary>
+        /// <returns>Indicates if context is configured and can connect.</returns>
         public async Task<bool> IsConfigured()
         {
-            return await base.Database.CanConnectAsync();
+            return await this.Database.CanConnectAsync();
         }
 
-        #region OVERRIDES
-
         /// <summary>
-        ///     On model creating
+        ///     On model creating.
         /// </summary>
-        /// <param name="modelBuilder"></param>
+        /// <param name="modelBuilder">DB Context model builder.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultContainer("CosmosCms");
 
             // Need to make a convertion so article number can be used as a partition key
-
             modelBuilder.Entity<ArticleNumber>()
                 .ToContainer("ArticleNumber")
                 .HasPartitionKey(k => k.Id)
@@ -53,7 +117,6 @@ namespace Cosmos.Common.Data
                 .ToContainer("Articles")
                 .HasPartitionKey(a => a.ArticleNumber)
                 .HasKey(article => article.Id);
-
 
             modelBuilder.Entity<Article>().OwnsMany(o => o.ArticlePermissions);
 
@@ -100,72 +163,5 @@ namespace Cosmos.Common.Data
 
             base.OnModelCreating(modelBuilder);
         }
-
-        #endregion
-
-        #region DbContext
-
-
-        /// <summary>
-        /// Catalog of Articles
-        /// </summary>
-        public DbSet<CatalogEntry> ArticleCatalog { get; set; }
-
-        /// <summary>
-        /// Article locks
-        /// </summary>
-        public DbSet<ArticleLock> ArticleLocks { get; set; }
-
-        /// <summary>
-        ///     Article activity logs
-        /// </summary>
-        public DbSet<ArticleLog> ArticleLogs { get; set; }
-
-        /// <summary>
-        ///     Article Numbers
-        /// </summary>
-        public DbSet<ArticleNumber> ArticleNumbers { get; set; }
-
-        /// <summary>
-        ///     Articles
-        /// </summary>
-        public DbSet<Article> Articles { get; set; }
-
-        /// <summary>
-        /// Public information about article authors and editors
-        /// </summary>
-        public DbSet<AuthorInfo> AuthorInfos { get; set; }
-
-        /// <summary>
-        ///     Website layouts
-        /// </summary>
-        public DbSet<Layout> Layouts { get; set; }
-
-        /// <summary>
-        /// Node Scripts
-        /// </summary>
-        public DbSet<NodeScript> NodeScripts { get; set; }
-
-        /// <summary>
-        /// Published pages viewable via the publisher.
-        /// </summary>
-        public DbSet<PublishedPage> Pages { get; set; }
-
-        /// <summary>
-        /// Site settings.
-        /// </summary>
-        public DbSet<Setting> Settings { get; set; }
-
-        /// <summary>
-        ///     Web page templates
-        /// </summary>
-        public DbSet<Template> Templates { get; set; }
-
-        /// <summary>
-        /// Data protection keys
-        /// </summary>
-        public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = null!;
-
-        #endregion
     }
 }

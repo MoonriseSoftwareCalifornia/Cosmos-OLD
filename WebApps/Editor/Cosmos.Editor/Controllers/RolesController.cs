@@ -1,19 +1,26 @@
-﻿using Cosmos.Cms.Models;
-using Cosmos.Common.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// <copyright file="RolesController.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.IdentityManagement.Website.Controllers
 {
+    using System;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Cosmos.Cms.Models;
+    using Cosmos.Common.Data;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+
     /// <summary>
-    /// Role management controller
+    /// Role management controller.
     /// </summary>
-    //[ResponseCache(NoStore = true)]
+    // [ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators")]
     public class RolesController : Controller
     {
@@ -22,7 +29,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         private readonly ApplicationDbContext _dbContext;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="userManager"></param>
         /// <param name="roleManager"></param>
@@ -39,17 +46,23 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         }
 
         /// <summary>
-        /// Adds a new role
+        /// Adds a new role.
         /// </summary>
         /// <param name="RoleName"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(string RoleName)
         {
-            if (string.IsNullOrEmpty(RoleName)) return BadRequest("Rule name is required.");
+            if (string.IsNullOrEmpty(RoleName))
+            {
+                return BadRequest("Rule name is required.");
+            }
 
-            if (await _roleManager.RoleExistsAsync(RoleName)) return BadRequest($"Role '{RoleName}' already exists");
+            if (await _roleManager.RoleExistsAsync(RoleName))
+            {
+                return BadRequest($"Role '{RoleName}' already exists");
+            }
 
             try
             {
@@ -68,14 +81,14 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         }
 
         /// <summary>
-        /// Role inventory
+        /// Role inventory.
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="sortOrder"></param>
         /// <param name="currentSort"></param>
         /// <param name="pageNo"></param>
         /// <param name="pageSize"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Index([Bind("ids")] string ids, string sortOrder = "asc", string currentSort = "Name", int pageNo = 0, int pageSize = 10)
         {
             if (string.IsNullOrEmpty(ids))
@@ -127,10 +140,10 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         }
 
         /// <summary>
-        /// Deletes roles
+        /// Deletes roles.
         /// </summary>
         /// <param name="roleIds"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteRoles(string[] roleIds)
@@ -154,10 +167,10 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         }
 
         /// <summary>
-        /// Gets users for a given email query
+        /// Gets users for a given email query.
         /// </summary>
         /// <param name="startsWith"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> GetUsers(string startsWith)
         {
             var query = _userManager.Users.OrderBy(o => o.Email)
@@ -188,11 +201,14 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         /// <param name="currentSort"></param>
         /// <param name="pageNo"></param>
         /// <param name="pageSize"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> UsersInRole(string id, string Id = "", string sortOrder = "asc", string currentSort = "EmailAddress", int pageNo = 0, int pageSize = 10)
         {
             var role = await _roleManager.FindByIdAsync(id);
-            if (role == null) return NotFound();
+            if (role == null)
+            {
+                return NotFound();
+            }
 
             ViewData["RoleInfo"] = new UsersInRoleViewModel()
             {
@@ -255,6 +271,7 @@ namespace Cosmos.IdentityManagement.Website.Controllers
                         break;
                 }
             }
+
             query = query.Skip(pageNo * pageSize).Take(pageSize);
 
             var data = await query.ToListAsync();
@@ -269,7 +286,6 @@ namespace Cosmos.IdentityManagement.Website.Controllers
                 TwoFactorEnabled = s.TwoFactorEnabled
             }).ToList();
 
-
             // Now get the role for these people
             var roles = await _dbContext.Roles.ToListAsync();
             var userIds = await query.Select(s => s.Id).ToListAsync();
@@ -280,15 +296,16 @@ namespace Cosmos.IdentityManagement.Website.Controllers
                 var roleIds = links.Where(w => w.UserId == user.UserId).Select(s => s.RoleId).ToList();
                 user.RoleMembership = roles.Where(w => roleIds.Contains(w.Id)).Select(s => s.Name).ToList();
             }
-            //s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow 
+
+            // s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow 
             return View(users);
         }
 
         /// <summary>
-        /// Saves changes to the user assignments in a role
+        /// Saves changes to the user assignments in a role.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UsersInRole(UsersInRoleViewModel model)
@@ -320,11 +337,11 @@ namespace Cosmos.IdentityManagement.Website.Controllers
         }
 
         /// <summary>
-        /// Removes users from a Role
+        /// Removes users from a Role.
         /// </summary>
         /// <param name="roleId"></param>
         /// <param name="userIds"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RemoveUsers(string roleId, string[] userIds)
@@ -354,6 +371,5 @@ namespace Cosmos.IdentityManagement.Website.Controllers
 
             return RedirectToAction("Index");
         }
-
     }
 }

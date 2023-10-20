@@ -1,213 +1,208 @@
-﻿using Cosmos.BlobService.Drivers;
-using Cosmos.BlobService.Models;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
+﻿// <copyright file="FileStorageContext.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.BlobService
 {
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Threading.Tasks;
+    using Cosmos.BlobService.Drivers;
+    using Cosmos.BlobService.Models;
+
     /// <summary>
-    ///     Azure Files Share Context
+    ///     Azure Files Share Context.
     /// </summary>
     public sealed class FileStorageContext
     {
         /// <summary>
-        ///     Constructor
+        /// Azure file share driver, this is not handled in the collection.
         /// </summary>
-        /// <param name="connectionString"></param>
-        /// <param name="sharename"></param>
+        private readonly AzureFileStorage driver;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileStorageContext"/> class.
+        /// </summary>
+        /// <param name="connectionString">File storage connection string.</param>
+        /// <param name="sharename">File storage share name.</param>
         public FileStorageContext(string connectionString, string sharename)
         {
-            _driver = new AzureFileStorage(connectionString, sharename);
+            driver = new AzureFileStorage(connectionString, sharename);
         }
 
         /// <summary>
         ///     Determines if a blob exists.
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">Path to blob.</param>
+        /// <returns>Returns a <see cref="bool"/> indicating that an item exists or not. </returns>
         public async Task<bool> BlobExistsAsync(string path)
         {
-            return await _driver.BlobExistsAsync(path);
+            return await driver.BlobExistsAsync(path);
         }
 
         /// <summary>
         ///     Copies a file or folder.
         /// </summary>
-        /// <param name="sourcePath">Path to source file or folder</param>
-        /// <param name="destFolderPath">Path to destination folder</param>
-        /// <returns></returns>
+        /// <param name="sourcePath">Path to source file or folder.</param>
+        /// <param name="destFolderPath">Path to destination folder.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task CopyAsync(string sourcePath, string destFolderPath)
         {
-            await _driver.CopyBlobAsync(sourcePath, destFolderPath);
+            await driver.CopyBlobAsync(sourcePath, destFolderPath);
         }
 
         /// <summary>
-        ///     Delete a folder
+        ///     Delete a folder.
         /// </summary>
-        /// <param name="folder"></param>
-        /// <returns></returns>
+        /// <param name="folder">Path to folder.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteFolderAsync(string folder)
         {
             // Ensure leading slash is removed.
-            await _driver.DeleteFolderAsync(folder);
+            await driver.DeleteFolderAsync(folder);
         }
 
         /// <summary>
-        ///     Deletes a file
+        ///     Deletes a file.
         /// </summary>
-        /// <param name="target"></param>
+        /// <param name="target">A <see cref="Task"/> representing the asynchronous operation.</param>
+        /// <returns>Returns a <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DeleteFileAsync(string target)
         {
             // Ensure leading slash is removed.
             target = target.TrimStart('/');
-            await _driver.DeleteIfExistsAsync(target);
+            await driver.DeleteIfExistsAsync(target);
         }
 
         /// <summary>
-        ///     Gets a file
+        ///     Gets the metadata for a file.
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
+        /// <param name="target">Path to the file.</param>
+        /// <returns>Returns a <see cref="FileManagerEntry"/> representing metadata for a file.</returns>
         public async Task<FileManagerEntry> GetFileAsync(string target)
         {
             // Ensure leading slash is removed.
             target = target.TrimStart('/');
 
-            var fileManagerEntry = await _driver.GetBlobAsync(target);
+            var fileManagerEntry = await driver.GetBlobAsync(target);
             return fileManagerEntry;
         }
-
 
         /// <summary>
         ///     Moves a file or folder to a specified folder.
         /// </summary>
-        /// <param name="sourcePath">Path to source file or folder</param>
-        /// <param name="destFolderPath">Path to destination folder</param>
-        /// <returns></returns>
+        /// <param name="sourcePath">Path to source file or folder.</param>
+        /// <param name="destFolderPath">Path to destination folder.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task MoveAsync(string sourcePath, string destFolderPath)
         {
-            await _driver.MoveAsync(sourcePath, destFolderPath);
+            await driver.MoveAsync(sourcePath, destFolderPath);
         }
 
         /// <summary>
         ///     Returns a response stream from the primary blob storage provider.
         /// </summary>
-        /// <param name="target"></param>
-        /// <returns></returns>
+        /// <param name="target">Path to the blob to open.</param>
+        /// <returns>A <see cref="Stream"/> that reads bytes from a blob.</returns>
         public async Task<Stream> OpenBlobReadStreamAsync(string target)
         {
             // Ensure leading slash is removed.
             target = target.TrimStart('/');
 
-            return await _driver.GetStreamAsync(target);
-
+            return await driver.GetStreamAsync(target);
         }
 
         /// <summary>
         ///     Renames (and can move) a file or folder.
         /// </summary>
-        /// <param name="sourcePath">Full path to item to change</param>
-        /// <param name="destinationPath">Full path to the new name</param>
-        /// <returns></returns>
+        /// <param name="sourcePath">Full path to item to change.</param>
+        /// <param name="destinationPath">Full path to the new name.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task RenameAsync(string sourcePath, string destinationPath)
         {
-            await _driver.RenameAsync(sourcePath, destinationPath);
+            await driver.RenameAsync(sourcePath, destinationPath);
         }
-
-        #region PRIVATE FIELDS AND METHODS
-
-        // private readonly IOptions<CosmosStorageConfig> _config;
 
         /// <summary>
-        /// Azure file share driver, this is not handled in the collection.
+        ///     Append bytes to blob(s).
         /// </summary>
-        private readonly AzureFileStorage _driver;
-
-        private async Task<List<string>> GetBlobNamesByPath(string path, string[] filter = null)
-        {
-            return await _driver.GetBlobNamesByPath(path, filter);
-        }
-
-        private string[] ParseFirstFolder(string path)
-        {
-            var parts = path.Split('/');
-            return parts;
-        }
-
-        #endregion
-
-        #region FILE MANAGER FUNCTION
-
-        /// <summary>
-        ///     Append bytes to blob(s)
-        /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="fileMetaData"></param>
-        /// <returns></returns>
+        /// <param name="stream">Data <see cref="MemoryStream"/> to append to the blob.</param>
+        /// <param name="fileMetaData">Data chuck upload metadata.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task AppendBlob(MemoryStream stream, FileUploadMetaData fileMetaData)
         {
-            await _driver.AppendBlobAsync(stream.ToArray(), fileMetaData, DateTimeOffset.UtcNow);
+            await driver.AppendBlobAsync(stream.ToArray(), fileMetaData, DateTimeOffset.UtcNow);
         }
 
         /// <summary>
-        ///     Creates a folder in all the cloud storage accounts
+        ///     Creates a folder in all the cloud storage accounts.
         /// </summary>
-        /// <param name="folderName"></param>
-        /// <returns></returns>
+        /// <param name="folderName">Name of folder to create.</param>
+        /// <returns>Returns metadata for the folder as a <see cref="FileManagerEntry"/>.</returns>
         /// <remarks>Creates the folder if it does not already exist.</remarks>
         public async Task<FileManagerEntry> CreateFolder(string folderName)
         {
-            await _driver.CreateFolderAsync(folderName);
-            var folder = await _driver.GetBlobAsync(folderName);
+            await driver.CreateFolderAsync(folderName);
+            var folder = await driver.GetBlobAsync(folderName);
             return folder;
         }
 
+        /// <summary>
+        /// Creates a file or fold object.
+        /// </summary>
+        /// <param name="path">Path to the object.</param>
+        /// <returns>Returns object metadata as a <see cref="FileManagerEntry"/>.</returns>
         public async Task<FileManagerEntry> GetObjectAsync(string path)
         {
-            var item = await _driver.GetObjectAsync(path);
+            var item = await driver.GetObjectAsync(path);
             return item;
         }
 
         /// <summary>
-        ///     Gets files and subfolders for a given path
+        ///     Gets files and subfolders for a given path.
         /// </summary>
-        /// <param name="path"></param>
-        /// <returns></returns>
+        /// <param name="path">Path to get files and folders.</param>
+        /// <returns>Returns the metadata of what is find as a <see cref="FileManagerEntry"/> list.</returns>
         public async Task<List<FileManagerEntry>> GetObjectsAsync(string path)
         {
-            if (!string.IsNullOrEmpty(path)) path = path.TrimStart('/');
-            var entries = await _driver.GetObjectsAsync(path);
+            if (!string.IsNullOrEmpty(path))
+            {
+                path = path.TrimStart('/');
+            }
+
+            var entries = await driver.GetObjectsAsync(path);
             return entries;
         }
 
         /// <summary>
-        ///     Gets the contents for a folder
+        ///     Gets the contents for a folder.
         /// </summary>
-        /// <param name="folder"></param>
-        /// <returns></returns>
-        public async Task<List<FileManagerEntry>> GetFolderContents(string folder)
+        /// <param name="path">Path to folder to retrieve contents.</param>
+        /// <returns>Returns the metadata of what is find as a <see cref="FileManagerEntry"/> list.</returns>
+        public async Task<List<FileManagerEntry>> GetFolderContents(string path)
         {
-            if (!string.IsNullOrEmpty(folder))
+            if (!string.IsNullOrEmpty(path))
             {
-                folder = folder.TrimStart('/');
+                path = path.TrimStart('/');
 
-                if (folder == "/")
+                if (path == "/")
                 {
-                    folder = "";
+                    path = string.Empty;
                 }
                 else
                 {
-                    if (!folder.EndsWith("/")) folder = folder + "/";
+                    if (!path.EndsWith("/"))
+                    {
+                        path = path + "/";
+                    }
                 }
             }
 
-            return await GetObjectsAsync(folder);
+            return await GetObjectsAsync(path);
         }
-
-        #endregion
-
     }
-
 }

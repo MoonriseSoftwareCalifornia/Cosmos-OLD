@@ -1,46 +1,53 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="ArticleLockViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Models
 {
+    using System;
+    using System.ComponentModel.DataAnnotations;
+
     /// <summary>
     /// Represents a lock on an article because it is being edited.
     /// </summary>
     public class ArticleLockViewModel
     {
         /// <summary>
-        /// Unique ID of the lock
+        /// Gets or sets unique ID of the lock.
         /// </summary>
         [Key]
         public Guid Id { get; set; } = Guid.Empty;
 
         /// <summary>
-        /// User email for this lock
+        /// Gets or sets user email for this lock.
         /// </summary>
-        public string UserEmail { get; set; } = "";
+        public string UserEmail { get; set; } = string.Empty;
 
         /// <summary>
-        /// Article Record ID for this lock
+        /// Gets or sets article Record ID for this lock.
         /// </summary>
         public Guid ArticleRecordId { get; set; }
 
         /// <summary>
-        /// ID of the Signal R Connection with lock.
+        /// Gets or sets iD of the Signal R Connection with lock.
         /// </summary>
-        public string ConnectionId { get; set; } = "";
+        public string ConnectionId { get; set; } = string.Empty;
 
         /// <summary>
-        /// When the lock was set
+        /// Gets or sets when the lock was set.
         /// </summary>
         public DateTimeOffset LockSetDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
-        /// View path for this lock
+        /// Gets or sets view path for this lock.
         /// </summary>
         public string ViewPath { get; set; }
 
         /// <summary>
-        /// Editor type name
+        /// Gets or sets editor type name.
         /// </summary>
         public string EditorType { get; set; }
     }

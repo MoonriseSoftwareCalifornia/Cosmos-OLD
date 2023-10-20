@@ -1,27 +1,33 @@
-﻿using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Controllers;
-using Cosmos.Cms.Data.Logic;
-using Cosmos.Cms.Models;
-using Cosmos.Common.Data;
-using Cosmos.Common.Data.Logic;
-using Cosmos.Common.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// <copyright file="TemplatesController.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace CDT.Cosmos.Cms.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using global::Cosmos.Cms.Common.Services.Configurations;
+    using global::Cosmos.Cms.Controllers;
+    using global::Cosmos.Cms.Data.Logic;
+    using global::Cosmos.Cms.Models;
+    using global::Cosmos.Common.Data;
+    using global::Cosmos.Common.Data.Logic;
+    using global::Cosmos.Common.Models;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+
     /// <summary>
-    /// Templates controller
+    /// Templates controller.
     /// </summary>
-    //[ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators, Editors")]
     public class TemplatesController : BaseController
     {
@@ -30,7 +36,7 @@ namespace CDT.Cosmos.Cms.Controllers
         private readonly UserManager<IdentityUser> _userManager;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="dbContext"></param>
@@ -49,9 +55,9 @@ namespace CDT.Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Index view model
+        /// Index view model.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Index(string sortOrder = "asc", string currentSort = "Title", int pageNo = 0, int pageSize = 10)
         {
             var defautLayout = await _dbContext.Layouts.FirstOrDefaultAsync(f => f.IsDefault);
@@ -75,7 +81,6 @@ namespace CDT.Cosmos.Cms.Controllers
                 }).AsQueryable();
 
             ViewData["RowCount"] = await query.CountAsync();
-
 
             if (sortOrder == "desc")
             {
@@ -118,12 +123,11 @@ namespace CDT.Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Create a template method
+        /// Create a template method.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Create()
         {
-
             var defautLayout = await _dbContext.Layouts.FirstOrDefaultAsync(f => f.IsDefault);
 
             var entity = new Template
@@ -140,10 +144,10 @@ namespace CDT.Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Edit template title and description
+        /// Edit template title and description.
         /// </summary>
         /// <param name="Id"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Edit(Guid Id)
         {
             var template = await _dbContext.Templates.FirstOrDefaultAsync(f => f.Id == Id);
@@ -159,10 +163,10 @@ namespace CDT.Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Save changes to template title and description
+        /// Save changes to template title and description.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(TemplateEditViewModel model)
@@ -179,14 +183,15 @@ namespace CDT.Cosmos.Cms.Controllers
 
                 return RedirectToAction("Index");
             }
+
             return View(model);
         }
 
         /// <summary>
-        /// Edit template code
+        /// Edit template code.
         /// </summary>
         /// <param name="Id"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> EditCode(Guid Id)
         {
             var entity = await _dbContext.Templates.FirstOrDefaultAsync(f => f.Id == Id);
@@ -218,16 +223,15 @@ namespace CDT.Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Save edited template code
+        /// Save edited template code.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         public async Task<IActionResult> EditCode(TemplateCodeEditorViewModel model)
         {
             if (ModelState.IsValid)
             {
-
                 var entity = await _dbContext.Templates.FirstOrDefaultAsync(f => f.Id == model.Id);
 
                 entity.Title = model.Title;
@@ -259,14 +263,15 @@ namespace CDT.Cosmos.Cms.Controllers
                     IsValid = true
                 };
             }
+
             return Json(model);
         }
 
         /// <summary>
-        /// Preview a template
+        /// Preview a template.
         /// </summary>
         /// <param name="Id"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Trash(Guid Id)
         {
             var entity = await _dbContext.Templates.FirstOrDefaultAsync(f => f.Id == Id);
@@ -279,24 +284,22 @@ namespace CDT.Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Preview a template
+        /// Preview a template.
         /// </summary>
         /// <param name="Id"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Preview(Guid Id)
         {
             var entity = await _dbContext.Templates.FirstOrDefaultAsync(f => f.Id == Id);
 
             var guid = Guid.NewGuid();
 
-            //
             // Template preview
-            //
             ArticleViewModel model = new ArticleViewModel
             {
                 ArticleNumber = 1,
-                LanguageCode = "",
-                LanguageName = "",
+                LanguageCode = string.Empty,
+                LanguageName = string.Empty,
                 CacheDuration = 10,
                 Content = _articleLogic.Ensure_ContentEditable_IsMarked(entity.Content),
                 StatusCode = StatusCodeEnum.Active,
@@ -306,8 +309,8 @@ namespace CDT.Cosmos.Cms.Controllers
                 UrlPath = guid.ToString(),
                 Updated = DateTimeOffset.UtcNow,
                 VersionNumber = 1,
-                HeadJavaScript = "",
-                FooterJavaScript = "",
+                HeadJavaScript = string.Empty,
+                FooterJavaScript = string.Empty,
                 Layout = await _articleLogic.GetDefaultLayout()
             };
 

@@ -1,27 +1,34 @@
-﻿using Azure.ResourceManager;
-using Azure.ResourceManager.Cdn;
-using Azure.ResourceManager.Resources;
-using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Models;
-using Cosmos.Cms.Services;
-using Cosmos.Common.Data;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// <copyright file="Cosmos_Admin_CdnController.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Azure.ResourceManager;
+    using Azure.ResourceManager.Cdn;
+    using Azure.ResourceManager.Resources;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Cms.Models;
+    using Cosmos.Cms.Services;
+    using Cosmos.Common.Data;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+    using Newtonsoft.Json;
+
     /// <summary>
-    /// Cosmos Systems Administrator Controller
+    /// Cosmos Systems Administrator Controller.
     /// </summary>
-    //[ResponseCache(NoStore = true)]
+    // [ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators, Editors")]
     public class Cosmos_Admin_CdnController : Controller
     {
@@ -31,12 +38,12 @@ namespace Cosmos.Cms.Controllers
         private readonly AzureSubscription _azureSubscription;
 
         /// <summary>
-        /// CDN Service Name
+        /// CDN Service Name.
         /// </summary>
         public static string CDNSERVICENAME = "CDN";
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="dbContext"></param>
@@ -55,9 +62,9 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Gets the CDN Integration Status
+        /// Gets the CDN Integration Status.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Index()
         {
             var model = await _dbContext.Settings.FirstOrDefaultAsync(f => f.Name == CDNSERVICENAME);
@@ -71,9 +78,9 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Disable CDN integration
+        /// Disable CDN integration.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> DisableCdn()
         {
             var oldSetting = await _dbContext.Settings.FirstOrDefaultAsync(f => f.Name == CDNSERVICENAME);
@@ -88,9 +95,9 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// CDN Selection
+        /// CDN Selection.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet]
         public async Task<IActionResult> EnableCdn()
         {
@@ -106,8 +113,7 @@ namespace Cosmos.Cms.Controllers
                 var url = new Uri(_options.Value.SiteSettings.PublisherUrl);
                 ViewData["Publisher"] = url;
 
-                //var sub = client.GetDefaultSubscriptionAsync();
-
+                // var sub = client.GetDefaultSubscriptionAsync();
                 SubscriptionResource subscription = _azureSubscription.Subscription;
                 ResourceGroupCollection resourceGroups = subscription.GetResourceGroups();
 
@@ -147,10 +153,10 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Enables CDN Integration
+        /// Enables CDN Integration.
         /// </summary>
         /// <param name="EndPointId"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         public async Task<IActionResult> EnableCdn([FromForm] string EndPointId)
         {

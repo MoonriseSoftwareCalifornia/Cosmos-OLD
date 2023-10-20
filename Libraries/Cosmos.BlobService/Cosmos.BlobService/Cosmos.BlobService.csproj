@@ -2,23 +2,43 @@
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
-    <AssemblyVersion>7.5.7.9</AssemblyVersion>
-    <FileVersion>7.5.7.9</FileVersion>
-    <Version>7.5.7.9</Version>
-    <Title>Azure Blob and Amazon S3 Storage Provider</Title>
+    <AssemblyVersion>7.5.8.1</AssemblyVersion>
+    <FileVersion>7.5.8.1</FileVersion>
+    <Version>7.5.8.1</Version>
+    <Title>Cosmos CMS Azure Storage Provider</Title>
     <Authors>toiyabe62</Authors>
     <Company>Moonrise Software LLC</Company>
-    <Description>Manages BLOB objects in Azure..</Description>
+    <Description>Manages BLOB objects in Azure.</Description>
     <Copyright>Moonrise Software LLC</Copyright>
     <PackageProjectUrl>https://www.moonrise.net</PackageProjectUrl>
     <RepositoryType>git</RepositoryType>
-    <PackageIcon></PackageIcon>
-    <PackageReleaseNotes>Adding support for Azure File Share API</PackageReleaseNotes>
+	<PackageIcon>B2C_BrandIcon_Black.png</PackageIcon>
+	<PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<PackageReadmeFile>Readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="B2C_BrandIcon_Black.png" />
     <None Remove="nuget.config" />
+    <None Remove="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="stylecop.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="B2C_BrandIcon_Black.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Readme.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -27,11 +47,14 @@
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="_res\icons\nuget-icon.png">
+    <None Update="Readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>

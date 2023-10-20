@@ -1,116 +1,142 @@
-﻿using Cosmos.Cms.Common.Services.Configurations;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="ConfigureIndexViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Models
 {
+    using System.ComponentModel.DataAnnotations;
+    using Cosmos.Cms.Common.Services.Configurations;
+
     /// <summary>
-    ///     Configuration index view model
+    ///     Configuration index view model.
     /// </summary>
     public class ConfigureIndexViewModel : CosmosConfig
     {
         /// <summary>
-        ///     Constructor
+        /// Initializes a new instance of the <see cref="ConfigureIndexViewModel"/> class.
         /// </summary>
         public ConfigureIndexViewModel()
         {
         }
 
         /// <summary>
-        ///     Constructor
+        /// Initializes a new instance of the <see cref="ConfigureIndexViewModel"/> class.
         /// </summary>
-        /// <param name="secretName"></param>
+        /// <param name="secretName">Secret name.</param>
         public ConfigureIndexViewModel(string secretName)
         {
             SecretName = secretName;
         }
 
         /// <summary>
-        ///     Constructor
+        /// Initializes a new instance of the <see cref="ConfigureIndexViewModel"/> class.
         /// </summary>
-        /// <param name="config"></param>
+        /// <param name="config">Cosmos configuration.</param>
         public ConfigureIndexViewModel(CosmosConfig config)
         {
             if (config != null)
+            {
                 Init(config);
+            }
         }
 
         /// <summary>
-        ///     Constructor
+        /// Initializes a new instance of the <see cref="ConfigureIndexViewModel"/> class.
         /// </summary>
-        /// <param name="secretName"></param>
-        /// <param name="config"></param>
+        /// <param name="secretName">Secret name.</param>
+        /// <param name="config">Cosmos configuration.</param>
         public ConfigureIndexViewModel(string secretName, CosmosConfig config)
         {
             SecretName = secretName;
             if (config != null)
+            {
                 Init(config);
+            }
         }
 
         /// <summary>
-        /// Default Microsoft client ID (comes from boot time environment variables)
+        /// Gets or sets default Microsoft client ID (comes from boot time environment variables).
         /// </summary>
         public string DefaultMicrosoftClientId { get; set; }
 
         /// <summary>
-        /// Default Microsoft secret (comes from boot time environment variables)
+        /// Gets or sets default Microsoft secret (comes from boot time environment variables).
         /// </summary>
         public string DefaultMicrosoftSecret { get; set; }
 
         /// <summary>
-        ///     This is the object used to load and deserialize a json object
+        ///     Gets or sets this is the object used to load and deserialize a json object.
         /// </summary>
         [Display(Name = "Import JSON")]
         public string ImportJson { get; set; }
 
         /// <summary>
-        ///     AWS storage connections in JSON format
+        ///     Gets or sets aWS storage connections in JSON format.
         /// </summary>
         public string AwsS3ConnectionsJson { get; set; }
 
         /// <summary>
-        ///     Azure storage connections in JSON format
+        ///     Gets or sets azure storage connections in JSON format.
         /// </summary>
         public string AzureBlobConnectionsJson { get; set; }
 
         /// <summary>
-        ///     Blob connection information in JSON format
+        ///     Gets or sets blob connection information in JSON format.
         /// </summary>
         public string BlobConnectionsJson { get; set; }
 
         /// <summary>
-        ///     Google storage connections in JSON format
+        ///     Gets or sets google storage connections in JSON format.
         /// </summary>
         public string GoogleBlobConnectionsJson { get; set; }
 
         /// <summary>
-        ///     Redis connections in JSON format
+        ///     Gets or sets redis connections in JSON format.
         /// </summary>
         public string RedisConnectionsJson { get; set; }
 
         /// <summary>
-        ///     Database connection information in JSON format
+        ///     Gets or sets database connection information in JSON format.
         /// </summary>
         public string SqlConnectionsJson { get; set; }
 
         /// <summary>
-        ///     List of editor URLs in JSON format
+        ///     Gets or sets list of editor URLs in JSON format.
         /// </summary>
         public string EditorUrlsJson { get; set; }
 
         /// <summary>
-        ///     Connection test success or not
+        ///     Gets or sets a value indicating whether connection test success or not.
         /// </summary>
         public bool TestSuccess { get; set; }
 
         /// <summary>
-        /// Can save to secrets if secrets manager is configured
+        /// Gets a value indicating whether can save to secrets if secrets manager is configured.
         /// </summary>
         public bool CanSaveSecrets { get; private set; }
 
         /// <summary>
-        ///     Initializes the model
+        ///     Gets the Cosmos Config.
         /// </summary>
-        /// <param name="config"></param>
+        /// <returns>Returns a Cosmos <see cref="CosmosConfig"/>.</returns>
+        public CosmosConfig GetConfig()
+        {
+            return new ()
+            {
+                CdnConfig = CdnConfig,
+                SendGridConfig = SendGridConfig,
+                SiteSettings = SiteSettings,
+                StorageConfig = StorageConfig
+            };
+        }
+
+        /// <summary>
+        ///     Initializes the model.
+        /// </summary>
+        /// <param name="config">Cosmos configuration.</param>
         private void Init(CosmosConfig config)
         {
             SiteSettings = config.SiteSettings;
@@ -118,27 +144,10 @@ namespace Cosmos.Cms.Models
             CdnConfig = config.CdnConfig;
             SendGridConfig = config.SendGridConfig;
             StorageConfig = config.StorageConfig;
-            base.SecretName = config.SecretName;
-
+            SecretName = config.SecretName;
             EditorUrls = config.EditorUrls;
             CanSaveSecrets = config.SiteSettings.AllowConfigEdit;
             SecretName = config.SecretName;
-        }
-
-        /// <summary>
-        ///     Gets the Cosmos Config
-        /// </summary>
-        /// <returns></returns>
-        public CosmosConfig GetConfig()
-        {
-            return new()
-            {
-                CdnConfig = CdnConfig,
-                GoogleCloudAuthConfig = GoogleCloudAuthConfig,
-                SendGridConfig = SendGridConfig,
-                SiteSettings = SiteSettings,
-                StorageConfig = StorageConfig
-            };
         }
     }
 }

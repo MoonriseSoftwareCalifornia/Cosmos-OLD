@@ -1,15 +1,22 @@
-﻿using Cosmos.EmailServices;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="UserCreatedViewModel.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Models
 {
+    using System.ComponentModel.DataAnnotations;
+    using Cosmos.EmailServices;
+
     /// <summary>
-    /// User created view model
+    /// User created view model.
     /// </summary>
     public class UserCreatedViewModel
     {
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="model"></param>
         /// <param name="sendResult"></param>
@@ -25,7 +32,7 @@ namespace Cosmos.Cms.Models
         }
 
         /// <summary>
-        /// User's email address
+        /// Gets or sets user's email address.
         /// </summary>
         [Required]
         [EmailAddress]
@@ -33,38 +40,38 @@ namespace Cosmos.Cms.Models
         public string EmailAddress { get; set; }
 
         /// <summary>
-        /// User's email address is confirmed.
+        /// Gets or sets a value indicating whether user's email address is confirmed.
         /// </summary>
         [Display(Name = "Email Confirmed")]
         public bool EmailConfirmed { get; set; }
 
         /// <summary>
-        /// User's phone number (can be SMS)
+        /// Gets or sets user's phone number (can be SMS).
         /// </summary>
         [Phone()]
         [Display(Name = "Telephone #")]
         public string PhoneNumber { get; set; }
 
         /// <summary>
-        /// User's phone number (can be SMS)
+        /// Gets or sets a value indicating whether user's phone number (can be SMS).
         /// </summary>
         [Display(Name = "Phone Confirmed")]
         public bool PhoneNumberConfirmed { get; set; }
 
         /// <summary>
-        /// Optionally generates a random password
+        /// Gets or sets a value indicating whether optionally generates a random password.
         /// </summary>
         [Display(Name = "Generate random password")]
         public bool GenerateRandomPassword { get; set; } = true;
 
         /// <summary>
-        /// Reveal password value
+        /// Gets or sets reveal password value.
         /// </summary>
         [Display(Name = "Password (recommended to use random instead)")]
         public string RevealPassword { get; set; }
 
         /// <summary>
-        /// SendGrid response
+        /// Gets or sets sendGrid response.
         /// </summary>
         [Display(Name = "Email send result")]
         public SendResult SendResult { get; set; }

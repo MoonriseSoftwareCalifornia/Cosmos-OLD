@@ -13,6 +13,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.BlobService", "Libra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cosmos.EmailServices", "Libraries\Cosmos.EmailServices\Cosmos.EmailServices.csproj", "{AD6EB319-F0FD-4C6C-9544-DE1B965424F3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5B063402-7947-4E34-A638-E00FE81E3ACE}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		GlobalSuppressions.cs = GlobalSuppressions.cs
+		stylecop.json = stylecop.json
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

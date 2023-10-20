@@ -1,54 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿// <copyright file="PublishedPage.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Common.Data
 {
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
+    using Cosmos.Common.Data.Logic;
+
     /// <summary>
-    /// Published article or page
+    /// Published article or page.
     /// </summary>
     public class PublishedPage
     {
-
         /// <summary>
-        ///     Unique article entity primary key number (not to be confused with article number)
+        ///     Gets or sets unique article entity primary key number (not to be confused with article number).
         /// </summary>
         [Key]
         public Guid Id { get; set; } = Guid.NewGuid();
 
         /// <summary>
-        ///     Article number
+        ///     Gets or sets article number.
         /// </summary>
         /// <remarks>An article number.</remarks>
         public int ArticleNumber { get; set; }
 
         /// <summary>
-        ///     Status of this article
+        ///     Gets or sets status of this article.
         /// </summary>
         /// <remarks>See <see cref="StatusCodeEnum" /> enum for code numbers.</remarks>
         public int StatusCode { get; set; } = 0;
 
         /// <summary>
-        ///     This is the URL of the article.
+        ///     Gets or sets this is the URL of the article.
         /// </summary>
         [MaxLength(128)]
         [StringLength(128)]
         public string UrlPath { get; set; }
 
         /// <summary>
-        /// Sets the parent URL page
+        /// Gets or sets the parent URL page.
         /// </summary>
         [Display(Name = "Parent URL Path")]
-        public string ParentUrlPath { get;set; }
+        public string ParentUrlPath { get; set; }
 
         /// <summary>
-        ///     Version number of the article.
+        ///     Gets or sets version number of the article.
         /// </summary>
         [Display(Name = "Article version")]
         public int VersionNumber { get; set; }
 
         /// <summary>
-        ///     Date/time of when this article is published.
+        ///     Gets or sets date/time of when this article is published.
         /// </summary>
         /// <remarks>Null value here means this article is not published.</remarks>
         [Display(Name = "Publish on (UTC):")]
@@ -56,14 +63,14 @@ namespace Cosmos.Common.Data
         public DateTimeOffset? Published { get; set; }
 
         /// <summary>
-        ///     If set, is the date/time when this version of the article expires.
+        ///     Gets or sets if set, is the date/time when this version of the article expires.
         /// </summary>
         [Display(Name = "Expires on (UTC):")]
         [DataType(DataType.DateTime)]
         public DateTimeOffset? Expires { get; set; }
 
         /// <summary>
-        ///     Title of the article
+        ///     Gets or sets title of the article.
         /// </summary>
         [MaxLength(254)]
         [StringLength(254)]
@@ -71,54 +78,50 @@ namespace Cosmos.Common.Data
         public string Title { get; set; }
 
         /// <summary>
-        ///     HTML content of the page.
+        ///     Gets or sets hTML content of the page.
         /// </summary>
         [DataType(DataType.Html)]
         public string Content { get; set; }
 
         /// <summary>
-        ///     Date/time of when this article was last updated.
+        ///     Gets or sets date/time of when this article was last updated.
         /// </summary>
         [Display(Name = "Article last saved")]
         public DateTimeOffset Updated { get; set; } = DateTimeOffset.UtcNow;
 
         /// <summary>
-        /// Article banner image
+        /// Gets or sets article banner image.
         /// </summary>
         [DataType(DataType.ImageUrl)]
         [Required(AllowEmptyStrings = true)]
         public string BannerImage { get; set; }
 
         /// <summary>
-        ///     JavaScript injected into the header of the web page.
+        ///     Gets or sets javaScript injected into the header of the web page.
         /// </summary>
         [DataType(DataType.Html)]
         public string HeaderJavaScript { get; set; }
 
         /// <summary>
-        ///     JavaScript injected into the footer of the web page.
+        ///     Gets or sets javaScript injected into the footer of the web page.
         /// </summary>
         [DataType(DataType.Html)]
         public string FooterJavaScript { get; set; }
 
         /// <summary>
-        /// Information about the person who authored this document.
+        /// Gets or sets information about the person who authored this document.
         /// </summary>
         public string AuthorInfo { get; set; }
 
         /// <summary>
-        /// Article permissions
+        /// Gets or sets article permissions.
         /// </summary>
         public List<ArticlePermission> ArticlePermissions { get; set; }
 
-        #region PERMISSIONS
-
         /// <summary>
-        ///     A comma delimited list of roles that can access this article. If blank the assumption is anonymous access.
+        ///     Gets or sets a comma delimited list of roles that can access this article. If blank the assumption is anonymous access.
         /// </summary>
         [MaxLength(512)]
         public string RoleList { get; set; } = string.Empty;
-
-        #endregion
     }
 }

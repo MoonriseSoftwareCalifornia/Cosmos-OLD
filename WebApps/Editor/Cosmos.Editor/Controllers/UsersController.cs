@@ -1,30 +1,38 @@
-﻿using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Models;
-using Cosmos.Common.Data;
-using Cosmos.EmailServices;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
+﻿// <copyright file="UsersController.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms.Controllers
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Linq;
+    using System.Text;
+    using System.Text.Encodings.Web;
+    using System.Threading.Tasks;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Cms.Models;
+    using Cosmos.Common.Data;
+    using Cosmos.EmailServices;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Identity.UI.Services;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.WebUtilities;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Options;
+
     // See: https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/areas?view=aspnetcore-3.1
+
     /// <summary>
-    /// User management controller
+    /// User management controller.
     /// </summary>
-    //[ResponseCache(NoStore = true)]
+    // [ResponseCache(NoStore = true)]
     [Authorize(Roles = "Administrators")]
     public class UsersController : Controller
     {
@@ -36,7 +44,7 @@ namespace Cosmos.Cms.Controllers
         private readonly IOptions<CosmosConfig> _options;
 
         /// <summary>
-        /// Constructor
+        /// Constructor.
         /// </summary>
         /// <param name="logger"></param>
         /// <param name="userManager"></param>
@@ -60,18 +68,16 @@ namespace Cosmos.Cms.Controllers
             _options = options;
         }
 
-
         /// <summary>
-        /// User account inventory
+        /// User account inventory.
         /// </summary>
         /// <param name="sortOrder"></param>
         /// <param name="currentSort"></param>
         /// <param name="pageNo"></param>
         /// <param name="pageSize"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> AuthorInfos(string sortOrder = "asc", string currentSort = "EmailAddress", int pageNo = 0, int pageSize = 10)
         {
-
             ViewData["sortOrder"] = sortOrder;
             ViewData["currentSort"] = currentSort;
             ViewData["pageNo"] = pageNo;
@@ -121,11 +127,9 @@ namespace Cosmos.Cms.Controllers
                 }
             }
 
-
             query = query.Skip(pageNo * pageSize).Take(pageSize);
 
             var data = await query.ToListAsync();
-
 
             return View(data);
         }
@@ -134,18 +138,17 @@ namespace Cosmos.Cms.Controllers
         /// 
         /// </summary>
         /// <param name="Id"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> AuthorInfoEdit(string Id)
         {
             return View(await _dbContext.AuthorInfos.FindAsync(Id));
         }
 
-
         /// <summary>
-        /// Edit Editor/Author information
+        /// Edit Editor/Author information.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         public async Task<IActionResult> AuthorInfoEdit(AuthorInfo model)
         {
@@ -160,17 +163,16 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// User account inventory
+        /// User account inventory.
         /// </summary>
         /// <param name="Id"></param>
         /// <param name="sortOrder"></param>
         /// <param name="currentSort"></param>
         /// <param name="pageNo"></param>
         /// <param name="pageSize"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> Index(string Id = "", string sortOrder = "asc", string currentSort = "EmailAddress", int pageNo = 0, int pageSize = 10)
         {
-
             ViewData["sortOrder"] = sortOrder;
             ViewData["currentSort"] = currentSort;
             ViewData["pageNo"] = pageNo;
@@ -251,7 +253,6 @@ namespace Cosmos.Cms.Controllers
                 TwoFactorEnabled = s.TwoFactorEnabled
             }).ToList();
 
-
             // Now get the role for these people
             var roles = await _dbContext.Roles.ToListAsync();
             var userIds = await query.Select(s => s.Id).ToListAsync();
@@ -262,12 +263,13 @@ namespace Cosmos.Cms.Controllers
                 var roleIds = links.Where(w => w.UserId == user.UserId).Select(s => s.RoleId).ToList();
                 user.RoleMembership = roles.Where(w => roleIds.Contains(w.Id)).Select(s => s.Name).ToList();
             }
-            //s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow 
+
+            // s.LockoutEnd.HasValue ? s.LockoutEnd < DateTimeOffset.UtcNow 
             return View(users);
         }
 
         /// <summary>
-        /// Create a user
+        /// Create a user.
         /// </summary>
         /// <returns></returns>
         public IActionResult Create()
@@ -278,10 +280,10 @@ namespace Cosmos.Cms.Controllers
         #region CREATE USER METHODS
 
         /// <summary>
-        /// Create a user
+        /// Create a user.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(UserCreateViewModel model)
@@ -294,7 +296,9 @@ namespace Cosmos.Cms.Controllers
                 }
 
                 if (!ModelState.IsValid)
+                {
                     return View(model);
+                }
 
                 var result = await CreateAccount(model);
 
@@ -312,7 +316,7 @@ namespace Cosmos.Cms.Controllers
 
                 foreach (var error in result.IdentityResult.Errors)
                 {
-                    ModelState.AddModelError("", $"Code: {error.Code} Description: {error.Description}");
+                    ModelState.AddModelError(string.Empty, $"Code: {error.Code} Description: {error.Description}");
                 }
 
                 return View(model);
@@ -327,11 +331,11 @@ namespace Cosmos.Cms.Controllers
         #endregion
 
         /// <summary>
-        /// Creates a single user account
+        /// Creates a single user account.
         /// </summary>
         /// <param name="model"></param>
         /// <param name="isBatchJob">Email verifications work flows are different for users created in batch.</param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task<BulkUserCreatedResult> CreateAccount(UserCreateViewModel model, bool isBatchJob = false)
         {
             var result = new BulkUserCreatedResult();
@@ -342,7 +346,9 @@ namespace Cosmos.Cms.Controllers
             }
 
             if (!ModelState.IsValid)
+            {
                 return null;
+            }
 
             if (model.GenerateRandomPassword)
             {
@@ -400,7 +406,7 @@ namespace Cosmos.Cms.Controllers
 
                     if (!result.SendResult.IsSuccessStatusCode)
                     {
-                        ModelState.AddModelError("", $"Could not send reset password email to: '{model.EmailAddress}'. Error: {result.SendResult.Message}");
+                        ModelState.AddModelError(string.Empty, $"Could not send reset password email to: '{model.EmailAddress}'. Error: {result.SendResult.Message}");
                     }
                 }
                 else
@@ -422,7 +428,7 @@ namespace Cosmos.Cms.Controllers
 
                     if (!result.SendResult.IsSuccessStatusCode)
                     {
-                        ModelState.AddModelError("", $"Could not send email to: '{model.EmailAddress}'. Error: {result.SendResult.Message}");
+                        ModelState.AddModelError(string.Empty, $"Could not send email to: '{model.EmailAddress}'. Error: {result.SendResult.Message}");
                     }
                 }
 
@@ -431,7 +437,7 @@ namespace Cosmos.Cms.Controllers
 
             foreach (var error in result.IdentityResult.Errors)
             {
-                ModelState.AddModelError("", $"Code: {error.Code} Description: {error.Description}");
+                ModelState.AddModelError(string.Empty, $"Code: {error.Code} Description: {error.Description}");
             }
 
             return null;
@@ -445,11 +451,11 @@ namespace Cosmos.Cms.Controllers
         ///// <param name="request"></param>
         ///// <param name="models"></param>
         ///// <returns></returns>
-        //public async Task<IActionResult> Create_Users([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> models)
-        //{
+        // public async Task<IActionResult> Create_Users([DataSourceRequest] DataSourceRequest request, [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> models)
+        // {
         //    var results = new List<UserIndexViewModel>();
 
-        //    if (models != null && ModelState.IsValid)
+        // if (models != null && ModelState.IsValid)
         //    {
         //        foreach (var user in models)
         //        {
@@ -463,21 +469,21 @@ namespace Cosmos.Cms.Controllers
         //        }
         //    }
 
-        //    return Json(results.ToDataSourceResult(request, ModelState));
-        //}
+        // return Json(results.ToDataSourceResult(request, ModelState));
+        // }
 
         /// <summary>
-        /// Deletes users
+        /// Deletes users.
         /// </summary>
         /// <param name="userIds"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteUsers(string userIds)
         {
             if (_userManager.Users.Count() < 2)
             {
-                ModelState.AddModelError("", "Cannot delete the last user account.");
+                ModelState.AddModelError(string.Empty, "Cannot delete the last user account.");
             }
 
             var ids = userIds.Split(',');
@@ -490,13 +496,12 @@ namespace Cosmos.Cms.Controllers
 
                 if (roles.Any(a => a.Equals("Administrators", StringComparison.InvariantCultureIgnoreCase)))
                 {
-                    ModelState.AddModelError("", "Cannot remove a member of the User Administrators role.");
+                    ModelState.AddModelError(string.Empty, "Cannot remove a member of the User Administrators role.");
                 }
                 else
                 {
                     await _userManager.DeleteAsync(identityUser);
                 }
-
             }
 
             return RedirectToAction("Index");
@@ -508,26 +513,26 @@ namespace Cosmos.Cms.Controllers
         ///// <param name="request"></param>
         ///// <param name="users"></param>
         ///// <returns></returns>
-        //[HttpPost]
-        //public async Task<IActionResult> Update_Users([DataSourceRequest] DataSourceRequest request,
+        // [HttpPost]
+        // public async Task<IActionResult> Update_Users([DataSourceRequest] DataSourceRequest request,
         //    [Bind(Prefix = "models")] IEnumerable<UserIndexViewModel> users)
-        //{
+        // {
         //    if (users != null && ModelState.IsValid)
         //    {
         //        foreach (var user in users)
         //        {
         //            var identityUser = await _userManager.FindByIdAsync(user.UserId);
 
-        //            identityUser.UserName = user.EmailAddress;
+        // identityUser.UserName = user.EmailAddress;
         //            identityUser.NormalizedUserName = user.EmailAddress.ToUpperInvariant();
         //            identityUser.Email = user.EmailAddress;
         //            identityUser.NormalizedEmail = user.EmailAddress.ToUpperInvariant();
         //            identityUser.EmailConfirmed = user.EmailConfirmed;
         //            identityUser.PhoneNumberConfirmed = user.PhoneNumberConfirmed;
 
-        //            var result = await _userManager.UpdateAsync(identityUser);
+        // var result = await _userManager.UpdateAsync(identityUser);
 
-        //            if (!result.Succeeded)
+        // if (!result.Succeeded)
         //            {
         //                foreach (var error in result.Errors)
         //                {
@@ -537,16 +542,15 @@ namespace Cosmos.Cms.Controllers
         //        }
         //    }
 
-        //    return Json(await users.ToDataSourceResultAsync(request, ModelState));
-        //}
-
+        // return Json(await users.ToDataSourceResultAsync(request, ModelState));
+        // }
         #endregion
 
         /// <summary>
-        /// Gets the role assignments for a user
+        /// Gets the role assignments for a user.
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         private async Task<UserRoleAssignmentsViewModel> GetRoleAssignmentsForUser(string id)
         {
             var roles = new List<IdentityRole>();
@@ -566,9 +570,9 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Gets a total list of roles
+        /// Gets a total list of roles.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> GetRoles(string text)
         {
             var query = _roleManager.Roles.OrderBy(o => o.Name).Select(s => new
@@ -588,21 +592,22 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        ///     Gets the role membership for a user by id
+        ///     Gets the role membership for a user by id.
         /// </summary>
-        /// <param name="id">User ID</param>
-        /// <returns></returns>
+        /// <param name="id">User ID.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> RoleMembership([Bind("id")] string id)
         {
             var user = await _userManager.FindByIdAsync(id);
 
             if (user == null)
+            {
                 return NotFound();
+            }
 
             ViewData["saved"] = null;
 
             var roleList = (await _userManager.GetRolesAsync(await _userManager.FindByIdAsync(id))).ToList();
-
 
             return View();
         }
@@ -611,7 +616,7 @@ namespace Cosmos.Cms.Controllers
         /// Resends a user's email confirmation.
         /// </summary>
         /// <param name="Id"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         public async Task<IActionResult> ResendEmailConfirmation(string Id)
         {
@@ -649,7 +654,6 @@ namespace Cosmos.Cms.Controllers
                         result.Error = _emailSender.SendResult.Message.ToString();
                     }
                 }
-
             }
             catch (Exception e)
             {
@@ -660,10 +664,10 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Manages the role assignments for a user
+        /// Manages the role assignments for a user.
         /// </summary>
         /// <param name="id"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task<IActionResult> UserRoles(string id)
         {
             ViewData["RoleList"] = await _roleManager.Roles.OrderBy(o => o.Name).ToListAsync();
@@ -674,10 +678,10 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Sends a password reset to an account holder
+        /// Sends a password reset to an account holder.
         /// </summary>
         /// <param name="emailAddress"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpGet]
         public async Task<IActionResult> SendPasswordReset(string emailAddress)
         {
@@ -707,10 +711,10 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Updates a user's role assignments
+        /// Updates a user's role assignments.
         /// </summary>
         /// <param name="model"></param>
-        /// <returns></returns>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UserRoles(UserRoleAssignmentsViewModel model)
@@ -755,8 +759,9 @@ namespace Cosmos.Cms.Controllers
 
             return View(await GetRoleAssignmentsForUser(model.Id));
         }
+
         /// <summary>
-        /// Privacy page
+        /// Privacy page.
         /// </summary>
         /// <returns></returns>
         public IActionResult Privacy()
@@ -765,7 +770,7 @@ namespace Cosmos.Cms.Controllers
         }
 
         /// <summary>
-        /// Error page
+        /// Error page.
         /// </summary>
         /// <returns></returns>
         public IActionResult Error()

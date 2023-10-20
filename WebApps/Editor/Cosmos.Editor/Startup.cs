@@ -1,41 +1,45 @@
-using AspNetCore.Identity.CosmosDb.Extensions;
-using Azure.Identity;
-using Azure.ResourceManager;
-using Azure.Storage.Blobs;
-using Cosmos.BlobService;
-using Cosmos.Cms.Common.Services.Configurations;
-using Cosmos.Cms.Data.Logic;
-using Cosmos.Cms.Hubs;
-using Cosmos.Cms.Services;
-using Cosmos.Common.Data;
-using Cosmos.Editor.Models;
-using Cosmos.EmailServices;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Identity.Web;
-using Newtonsoft.Json.Serialization;
-using System;
-using System.Threading.Tasks;
-using System.Web;
+// <copyright file="Startup.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.Cms
 {
+    using System;
+    using System.Threading.Tasks;
+    using System.Web;
+    using AspNetCore.Identity.CosmosDb.Extensions;
+    using Azure.Identity;
+    using Azure.ResourceManager;
+    using Azure.Storage.Blobs;
+    using Cosmos.BlobService;
+    using Cosmos.Cms.Common.Services.Configurations;
+    using Cosmos.Cms.Data.Logic;
+    using Cosmos.Cms.Hubs;
+    using Cosmos.Cms.Services;
+    using Cosmos.Common.Data;
+    using Cosmos.Editor.Models;
+    using Cosmos.EmailServices;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.DataProtection;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.HttpOverrides;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Newtonsoft.Json.Serialization;
+
     /// <summary>
     ///     Startup class for the website.
     /// </summary>
     public class Startup
     {
-
         /// <summary>
-        ///     Constructor
+        ///     Constructor.
         /// </summary>
         /// <param name="configuration"></param>
         public Startup(IConfiguration configuration)
@@ -44,7 +48,7 @@ namespace Cosmos.Cms
         }
 
         /// <summary>
-        ///     Configuration for the website.
+        ///     Gets configuration for the website.
         /// </summary>
         public IConfiguration Configuration { get; }
 
@@ -55,13 +59,9 @@ namespace Cosmos.Cms
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
-
-            //
             // Get the boot variables loaded, and
             // do some validation to make sure Cosmos can boot up
             // based on the values given.
-            //
             var cosmosStartup = new CosmosStartup(Configuration);
 
             // Add Cosmos Options
@@ -90,7 +90,7 @@ namespace Cosmos.Cms
             // 1. Create the database if it does not already exist.
             // 2. Create the required containers if they do not already exist.
             // IMPORTANT: Remove this variable if after first run. It will improve startup performance.
-            //var setupCosmosDb = Configuration.GetValue<bool?>("SetupCosmosDb");
+            // var setupCosmosDb = Configuration.GetValue<bool?>("SetupCosmosDb");
 
             // If the following is set, it will create the Cosmos database and
             //  required containers.
@@ -112,9 +112,7 @@ namespace Cosmos.Cms
                 }
             }
 
-            //
             // Add the Cosmos database context here
-            //
             var cosmosRegionName = Configuration.GetValue<string>("CosmosRegionName");
             if (string.IsNullOrEmpty(cosmosRegionName))
             {
@@ -133,9 +131,7 @@ namespace Cosmos.Cms
                 });
             }
 
-            //
             // Add Cosmos Identity here
-            //
             services.AddCosmosIdentity<ApplicationDbContext, IdentityUser, IdentityRole>(
                   options => options.SignIn.RequireConfirmedAccount = true
                 )
@@ -148,6 +144,7 @@ namespace Cosmos.Cms
             {
                 throw new Exception("STARTUP: AzureBlobStorageConnectionString is null or empty");
             }
+
             var container = new BlobContainerClient(blobConnection, "ekyes");
             container.CreateIfNotExists();
             services.AddDataProtection().PersistKeysToAzureBlobStorage(container.GetBlobClient("keys.xml"));
@@ -165,6 +162,7 @@ namespace Cosmos.Cms
                     options.ClientSecret = googleClientSecret;
                 });
             }
+
             // Add Microsoft if keys are present
             var microsoftClientId = Configuration["Authentication_Microsoft_ClientId"];
             var microsoftClientSecret = Configuration["Authentication_Microsoft_ClientSecret"];
@@ -195,6 +193,7 @@ namespace Cosmos.Cms
             {
                 azureFrontdoorConnection.EndpointName = Configuration["FrontdoorEndpointName"];
             }
+
             services.AddSingleton(azureFrontdoorConnection);
 
             services.AddSession(options =>
@@ -225,9 +224,7 @@ namespace Cosmos.Cms
 
             services.AddSingleton(azureSubscription);
 
-            //
             // Add services
-            //
             var azureCommunicationConnection = Configuration.GetConnectionString("AzureCommunicationConnection");
 
             if (azureCommunicationConnection == null)
@@ -257,7 +254,6 @@ namespace Cosmos.Cms
 
             services.AddTransient<ArticleEditLogic>();
 
-
             // This is used by the ViewRenderingService 
             // to export web pages for external editing.
             services.AddScoped<IViewRenderService, ViewRenderService>();
@@ -271,14 +267,12 @@ namespace Cosmos.Cms
                     });
             });
 
-            //
 
             // Add this before identity
             // See also: https://learn.microsoft.com/en-us/aspnet/core/performance/caching/response?view=aspnetcore-7.0
             services.AddControllersWithViews();
 
             services.AddRazorPages();
-
 
             services.AddMvc()
                 .AddNewtonsoftJson(options =>
@@ -287,7 +281,7 @@ namespace Cosmos.Cms
                 .AddRazorPagesOptions(options =>
                 {
                     // This section docs are here: https://docs.microsoft.com/en-us/aspnet/core/security/authentication/scaffold-identity?view=aspnetcore-3.1&tabs=visual-studio#full
-                    //options.AllowAreas = true;
+                    // options.AllowAreas = true;
                     options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
                     options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
                 });
@@ -298,8 +292,8 @@ namespace Cosmos.Cms
                 options.Preload = true;
                 options.IncludeSubDomains = true;
                 options.MaxAge = TimeSpan.FromDays(365);
-                //options.ExcludedHosts.Add("example.com");
-                //options.ExcludedHosts.Add("www.example.com");
+                // options.ExcludedHosts.Add("example.com");
+                // options.ExcludedHosts.Add("www.example.com");
             });
 
             services.ConfigureApplicationCookie(options =>
@@ -316,6 +310,7 @@ namespace Cosmos.Cms
                     {
                         x.Response.Redirect($"/Identity/Account/Login?returnUrl=/Home/Preview{queryString}");
                     }
+
                     x.Response.Redirect($"/Identity/Account/Login?returnUrl={x.Request.Path}{queryString}");
                     return Task.CompletedTask;
                 };
@@ -353,11 +348,10 @@ namespace Cosmos.Cms
                 options.KnownProxies.Clear();
             });
             // END
-
             services.AddResponseCaching();
 
             // https://docs.microsoft.com/en-us/dotnet/core/compatibility/aspnet-core/5.0/middleware-database-error-page-obsolete
-            //services.AddDatabaseDeveloperPageExceptionFilter();
+            // services.AddDatabaseDeveloperPageExceptionFilter();
 
             // Add the SignalR service.
             // If there is a DB connection, then use SQL backplane.
@@ -391,7 +385,6 @@ namespace Cosmos.Cms
             // https://seankilleen.com/2020/06/solved-net-core-azure-ad-in-docker-container-incorrectly-uses-an-non-https-redirect-uri/
             app.UseForwardedHeaders();
             // END
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -409,7 +402,7 @@ namespace Cosmos.Cms
 
             app.UseCors();
 
-            app.UseResponseCaching(); //https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-3.1
+            app.UseResponseCaching(); // https://docs.microsoft.com/en-us/aspnet/core/performance/caching/middleware?view=aspnetcore-3.1
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -428,7 +421,6 @@ namespace Cosmos.Cms
                     "MyArea",
                     "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
-
                 endpoints.MapControllerRoute(name: "pub",
                                 pattern: "pub/{*index}",
                                 defaults: new { controller = "Pub", action = "Index" });
@@ -441,9 +433,7 @@ namespace Cosmos.Cms
                 endpoints.MapFallbackToController("Index", "Home");
 
                 endpoints.MapRazorPages();
-
             });
         }
-
     }
 }

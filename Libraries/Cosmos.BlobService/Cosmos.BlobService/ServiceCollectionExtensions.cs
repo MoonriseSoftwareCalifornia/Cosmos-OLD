@@ -1,42 +1,40 @@
-﻿using Cosmos.BlobService.Config;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using System;
+﻿// <copyright file="ServiceCollectionExtensions.cs" company="Moonrise Software, LLC">
+// Copyright (c) Moonrise Software, LLC. All rights reserved.
+// Licensed under the GNU Public License, Version 3.0 (https://www.gnu.org/licenses/gpl-3.0.html)
+// See https://github.com/MoonriseSoftwareCalifornia/CosmosCMS
+// for more information concerning the license and the contributors participating to this project.
+// </copyright>
 
 namespace Cosmos.BlobService
 {
+    using System;
+    using Cosmos.BlobService.Config;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Options;
+
     /// <summary>
-    /// Adds the Cosmos Storage Context to the Services Collection
+    /// Adds the Cosmos Storage Context to the Services Collection.
     /// </summary>
     public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Adds the storage context to the services collection.
         /// </summary>
-        /// <param name="services"></param>
-        /// <param name="config"></param>
+        /// <param name="services">Services collection.</param>
+        /// <param name="config">Startup configuration.</param>
         public static void AddCosmosStorageContext(this IServiceCollection services, IConfiguration config)
         {
             // Azure Parameters
             var azureBlobStorageConnectionString = config.GetConnectionString("AzureBlobStorageConnectionString");
-            
+
             if (string.IsNullOrEmpty(azureBlobStorageConnectionString))
             {
                 azureBlobStorageConnectionString = GetKeyValue(config, "AzureBlobStorageConnectionString");
             }
-                
+
             var azureBlobStorageContainerName = GetKeyValue(config, "AzureBlobStorageContainerName");
             var azureBlobStorageEndPoint = GetKeyValue(config, "AzureBlobStorageEndPoint");
-
-            // Amazon Parameters
-            //var amazonAwsAccessKeyId = GetKeyValue(config, "AmazonAwsAccessKeyId");
-            //var amazonAwsSecretAccessKey = GetKeyValue(config, "AmazonAwsSecretAccessKey");
-            //var amazonBucketName = GetKeyValue(config, "AmazonBucketName");
-            //var amazonRegion = GetKeyValue(config, "AmazonRegion");
-            //var profileName = "aws";
-            //var serviceUrl = GetKeyValue(config, "AmazonServiceUrl");
-
 
             var cosmosConfig = new CosmosStorageConfig();
             cosmosConfig.PrimaryCloud = "azure";
@@ -58,24 +56,6 @@ namespace Cosmos.BlobService
                 });
             }
 
-            //if (string.IsNullOrEmpty(amazonAwsAccessKeyId) == false &&
-            //    string.IsNullOrEmpty(amazonAwsSecretAccessKey) == false &&
-            //    string.IsNullOrEmpty(amazonBucketName) == false &&
-            //    string.IsNullOrEmpty(amazonRegion) == false &&
-            //    string.IsNullOrEmpty(profileName) == false &&
-            //    string.IsNullOrEmpty(serviceUrl) == false)
-            //{
-            //    cosmosConfig.StorageConfig.AmazonConfigs.Add(new AmazonStorageConfig()
-            //    {
-            //        AmazonAwsAccessKeyId = amazonAwsAccessKeyId,
-            //        AmazonAwsSecretAccessKey = amazonAwsSecretAccessKey,
-            //        AmazonBucketName = amazonBucketName,
-            //        AmazonRegion = amazonRegion,
-            //        ProfileName = profileName,
-            //        ServiceUrl = serviceUrl
-            //    });
-            //}
-
             if (cosmosConfig.StorageConfig.AzureConfigs.Count == 0)
             {
                 throw new ArgumentException("AWS or Azure storage connection not found.");
@@ -83,7 +63,6 @@ namespace Cosmos.BlobService
 
             services.AddSingleton(Options.Create(cosmosConfig));
             services.AddTransient<StorageContext>();
-
         }
 
         private static string GetKeyValue(IConfiguration config, string key)
@@ -98,8 +77,8 @@ namespace Cosmos.BlobService
                     data = Environment.GetEnvironmentVariable(key.ToUpper());
                 }
             }
+
             return data;
         }
     }
-
 }
